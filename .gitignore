@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+/.vs/xLiAd.DapperEx.MsSql/v15
+/xLiAd.DapperEx.MsSql.Core/bin/Debug
+/xLiAd.DapperEx.MsSql.Core/obj
+/xLiAd.DapperEx.MsSql.Core/Publish.bat
+/xLiAd.DapperEx.MsSql.Core.Samples/bin/Debug/netcoreapp2.0
+/xLiAd.DapperEx.MsSql.Core.Samples/obj
+/xLiAd.DapperEx.Repository/bin/Debug
+/xLiAd.DapperEx.Repository/obj
