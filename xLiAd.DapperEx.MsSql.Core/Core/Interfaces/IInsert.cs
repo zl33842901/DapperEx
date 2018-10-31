@@ -3,6 +3,5 @@
     public interface IInsert<T>
     {
         int Insert(T entity);
-        int InsertWithIdOut(T entity);
     }
 }

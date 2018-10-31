@@ -40,7 +40,7 @@ namespace xLiAd.DapperEx.Repository
                 return q.Top(top).Select(selector).ToList();
             return q.Select(selector).ToList();
         }
-        public virtual int Add(T obj)//要测一下返回
+        public virtual int Add(T obj)
         {
             var r = con.CommandSet<T>().Insert(obj);
             return r;
@@ -87,6 +87,10 @@ namespace xLiAd.DapperEx.Repository
         public T Find(Expression<Func<T, bool>> predicate)
         {
             return con.QuerySet<T>().Where(predicate).Get();
+        }
+        public T Find<TKey>(TKey id)
+        {
+            return con.QuerySet<T>().Get(id);
         }
         public TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
         {

@@ -31,6 +31,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         private readonly string _prefix;
 
+        private int ParamIndex = 1;//无名称参数序号
+
         #endregion
 
         #region 执行解析
@@ -101,7 +103,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <returns></returns>
         protected override System.Linq.Expressions.Expression VisitConstant(ConstantExpression node)
         {
-            SetParam(TempFileName, node.Value);
+            if(string.IsNullOrEmpty(TempFileName) && (node.Value as bool?) == true)
+            {
+                //x=>true 的情况
+            }
+            else
+                SetParam(TempFileName, node.Value);
 
             return node;
         }
@@ -131,6 +138,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         {
             if (value != null)
             {
+                if (string.IsNullOrEmpty(fileName))
+                    fileName = $"Parameter{ParamIndex++}";
                 _sqlCmd.Append("@" + fileName);
                 Param.Add(fileName, value);
             }

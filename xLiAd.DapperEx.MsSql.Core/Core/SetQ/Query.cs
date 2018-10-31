@@ -40,6 +40,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
             return DbCon.QueryFirstOrDefault<T>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
         }
+        public T Get<TKey>(TKey id)
+        {
+            SqlProvider.FormatGet(id);
+
+            return DbCon.QueryFirstOrDefault<T>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+        }
 
         public virtual List<T> ToList()
         {

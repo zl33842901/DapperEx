@@ -70,20 +70,25 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
+        //public int Insert(T entity)
+        //{
+        //    SqlProvider.FormatInsert(entity);
+
+        //    return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+        //}
+
         public int Insert(T entity)
         {
-            SqlProvider.FormatInsert(entity);
-
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-        }
-
-        public int InsertWithIdOut(T entity)
-        {
-            SqlProvider.FormatInsertWithIdOut(entity);
+            SqlProvider.FormatInsert(entity, out bool isHaveIdentity);
 
             var r = DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
             if (r > 0)
-                return SqlProvider.Params.Get<int>("@id");
+            {
+                if (isHaveIdentity)
+                    return SqlProvider.Params.Get<int>("@id");
+                else
+                    return r;
+            }
             else
                 return 0;
         }

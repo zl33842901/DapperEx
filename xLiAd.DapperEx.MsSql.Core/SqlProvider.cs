@@ -44,6 +44,24 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             return this;
         }
+        public SqlProvider<T> FormatGet<TKey>(TKey id)
+        {
+            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, 1);
+
+            var fromTableSql = FormatTableName();
+
+            var whereParams = ResolveExpression.ResolveWhere<T,TKey>(id);
+
+            var whereSql = whereParams.SqlCmd;
+
+            Params = whereParams.Param;
+
+            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+
+            return this;
+        }
 
         public SqlProvider<T> FormatToList()
         {
@@ -175,7 +193,24 @@ namespace xLiAd.DapperEx.MsSql.Core
             return this;
         }
 
-        public SqlProvider<T> FormatInsert(T entity)
+        //public SqlProvider<T> FormatInsert(T entity)
+        //{
+        //    var paramsAndValuesSql = FormatInsertParamsAndValues(entity);
+
+        //    var ifnotexistsWhere = ResolveExpression.ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");
+
+        //    Params.AddDynamicParams(ifnotexistsWhere.Param);
+
+        //    SqlString = Context.CommandSet.IfNotExistsExpression != null ? $"IF NOT EXISTS ( SELECT  1 FROM {FormatTableName(false)} {ifnotexistsWhere.SqlCmd} ) INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}" : $"INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}";
+        //    return this;
+        //}
+        /// <summary>
+        /// 添加记录
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="isHaveIdentity">代表是否含有自增标识</param>
+        /// <returns></returns>
+        public SqlProvider<T> FormatInsert(T entity, out bool isHaveIdentity)
         {
             var paramsAndValuesSql = FormatInsertParamsAndValues(entity);
 
@@ -184,20 +219,13 @@ namespace xLiAd.DapperEx.MsSql.Core
             Params.AddDynamicParams(ifnotexistsWhere.Param);
 
             SqlString = Context.CommandSet.IfNotExistsExpression != null ? $"IF NOT EXISTS ( SELECT  1 FROM {FormatTableName(false)} {ifnotexistsWhere.SqlCmd} ) INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}" : $"INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}";
-            return this;
-        }
-        public SqlProvider<T> FormatInsertWithIdOut(T entity)
-        {
-            var paramsAndValuesSql = FormatInsertParamsAndValues(entity);
 
-            var ifnotexistsWhere = ResolveExpression.ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");
-
-            Params.AddDynamicParams(ifnotexistsWhere.Param);
-
-            SqlString = Context.CommandSet.IfNotExistsExpression != null ? $"IF NOT EXISTS ( SELECT  1 FROM {FormatTableName(false)} {ifnotexistsWhere.SqlCmd} ) INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}" : $"INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}";
-
-            Params.Add("@id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+            //bool isHaveIdentity = false; //代表是否含有自增标识
+            isHaveIdentity = typeof(T).GetPropertiesInDb().Count(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute))) > 0;
+            if (isHaveIdentity) { 
+                Params.Add("@id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+            }
 
             return this;
         }
@@ -237,7 +265,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             var update = ResolveExpression.ResolveUpdateZhanglei<T>(expressionList, entity);
 
-            var where = ResolveExpression.ResolveWhere(Context.CommandSet.WhereExpression);
+            var where = ResolveExpression.ResolveWhere(entity);
 
             var whereSql = where.SqlCmd;
 
@@ -336,7 +364,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             var isAppend = false;
             foreach (var property in properties)
             {
-                if (property.CustomAttributes.Any(b => b.AttributeType == typeof(KeyAttribute)))
+                if (property.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)))
                     continue;
                 if (isAppend)
                 {
