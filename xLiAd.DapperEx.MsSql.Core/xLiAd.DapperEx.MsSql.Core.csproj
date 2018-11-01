@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
+    <Authors>张磊</Authors>
+    <Company>张磊 xLiAd</Company>
+    <Description>a weightlight orm base on dapper 一个轻量级的基于dapper的orm</Description>
+    <Copyright>Copyright © zhanglei 2018</Copyright>
+    <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Publish.bat" />
