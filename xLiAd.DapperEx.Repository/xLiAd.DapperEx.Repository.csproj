@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
+    <Authors>张磊</Authors>
+    <Company>张磊 xLiAd</Company>
+    <Description>一个轻量级的基于dapper的仓储类</Description>
+    <Copyright>Copyright © zhanglei 2018</Copyright>
+    <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
