@@ -39,3 +39,10 @@
 /xLiAd.DapperEx.Repository/bin/Debug
 /xLiAd.DapperEx.Repository/obj
 /.vs/xLiAd.DapperEx.MsSql/DesignTimeBuild
+/xLiAd.DapperEx.MsSql.Core/bin/Release
+/xLiAd.DapperEx.MsSql.Core/nupkgs
+/xLiAd.DapperEx.MsSql.Core/xLiAd.DapperEx.MsSql.Core.nuspec
+/xLiAd.DapperEx.MsSql.Core.Samples/bin/Release/netcoreapp2.0
+/xLiAd.DapperEx.Repository/bin/Release
+/xLiAd.DapperEx.Repository/nupkgs
+/xLiAd.DapperEx.Repository/xLiAd.DapperEx.Repository.nuspec

@@ -34,7 +34,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private int ParamIndex = 1;//无名称参数序号
 
         #endregion
-
+        private ExpressionTypeEnum lastExpression = ExpressionTypeEnum.None;/////最后一次的表达式
+        private ExpressionTypeEnum lastSecondExpression = ExpressionTypeEnum.None;
+        private ExpressionType? lastBinaryType = null;
         #region 执行解析
 
         /// <inheritdoc />
@@ -55,6 +57,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         }
         #endregion
 
+        protected override System.Linq.Expressions.Expression VisitNew(NewExpression node)
+        {
+            lastSecondExpression = lastExpression;
+            lastExpression = ExpressionTypeEnum.New;
+            var types = node.Arguments.Select(x => x.NodeType).ToArray();
+            if (types.Any(x => x != ExpressionType.Constant))
+                return base.VisitNew(node);
+            else
+            {
+                var r = node.Constructor.Invoke(node.Arguments.Select(x => ((ConstantExpression)x).Value).ToArray());
+                SetParam(TempFileName, r);
+                return node;
+            }
+        }
+
         #region 访问成员表达式
 
         /// <inheritdoc />
@@ -65,9 +82,22 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <returns></returns>
         protected override System.Linq.Expressions.Expression VisitMember(MemberExpression node)
         {
-            _sqlCmd.Append(node.Member.GetColumnAttributeName());
-            TempFileName = node.Member.Name;
+            if(lastExpression == ExpressionTypeEnum.None && node.Member is System.Reflection.PropertyInfo && ((System.Reflection.PropertyInfo)node.Member).PropertyType == typeof(bool))
+            {
+                //////////这里是  表达式只有表的某个BOOL型字段时   x => x.Deleted
+                string fn = node.Member.GetColumnAttributeName();
+                _sqlCmd.Append(fn);
+                _sqlCmd.Append("=");
+                SetParam(fn, true);
+            }
+            else
+            {
+                _sqlCmd.Append(node.Member.GetColumnAttributeName());
+                TempFileName = node.Member.Name;
+            }
 
+            lastSecondExpression = lastExpression;
+            lastExpression = ExpressionTypeEnum.Member;
             return node;
         }
 
@@ -82,6 +112,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <returns></returns>
         protected override System.Linq.Expressions.Expression VisitBinary(BinaryExpression node)
         {
+            lastSecondExpression = lastExpression;
+            lastExpression = ExpressionTypeEnum.Binary;
+            lastBinaryType = node.NodeType;
+
             _sqlCmd.Append("(");
             Visit(node.Left);
 
@@ -103,13 +137,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <returns></returns>
         protected override System.Linq.Expressions.Expression VisitConstant(ConstantExpression node)
         {
-            if(string.IsNullOrEmpty(TempFileName) && (node.Value as bool?) == true)
+            if(lastExpression == ExpressionTypeEnum.None && (node.Value as bool?) == true)
             {
                 //x=>true 的情况
+            }
+            else if (lastExpression == ExpressionTypeEnum.None && (node.Value as bool?) == false)
+            {
+                //x=>false 的情况
+                _sqlCmd.Append("(1=0)");
             }
             else
                 SetParam(TempFileName, node.Value);
 
+
+            lastSecondExpression = lastExpression;
+            lastExpression = ExpressionTypeEnum.Constant;
             return node;
         }
         #endregion
@@ -123,6 +165,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <returns></returns>
         protected override System.Linq.Expressions.Expression VisitMethodCall(MethodCallExpression node)
         {
+            lastSecondExpression = lastExpression;
+            lastExpression = ExpressionTypeEnum.MethodCall;
             if (node.Method.Name == "Contains" && typeof(IEnumerable).IsAssignableFrom(node.Method.DeclaringType) &&
                 node.Method.DeclaringType != typeof(string))
                 In(node);
@@ -193,5 +237,16 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             _sqlCmd.AppendFormat(" IN {0}", paramName);
             Param.Add(TempFileName, arrayValue);
         }
+    }
+
+
+    public enum ExpressionTypeEnum : byte
+    {
+        None = 0,
+        New = 1,
+        Member = 2,
+        Binary = 3,
+        Constant = 4,
+        MethodCall = 5
     }
 }

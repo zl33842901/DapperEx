@@ -18,6 +18,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         [NotMapped]
         public string asdfasdf { get; set; }
         public string DictName2 => DictName;
+        public DateTime CreateTime { get; set; }
+        public bool Deleted { get; set; }
     }
     class Program
     {
@@ -29,18 +31,23 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             Repository<DictInfo> repository = new Repository<DictInfo>(con);
 
             var id = 106071;
-            var lrst = repository.WhereOrderSelect(x => x.DictID > id, x => x.DictID, x => new { i1 = x.DictID, i2 = x.DictName });
+            var ll = repository.Where(x => x.Deleted == true && x.Deleted);
+            var lll = repository.Where(x => x.Deleted == true);
+            var llll = repository.Where(x => !x.Deleted);
+            var lllll = repository.Where(x => true);
+            var llllll = repository.Where(x => false);
+            var lrst = repository.WhereOrderSelect(x => x.DictID > id && x.DictName.Contains("总监") && x.CreateTime < new DateTime(2018,1,1), x => x.DictID, x => new { i1 = x.DictID, i2 = x.DictName });
 
 
             //var idd = repository.Add(new DictInfo() { DictID = 9999, DictName = "哇哈哈" });
 
-            //var r = repository.Delete(9999);
-            //var ll = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
-            //ll.Items[0].Remark = "修改个备注111";
-            //r = repository.Update(ll.Items.First(), x=>x.Remark);
+            var r = repository.Delete(9999);
+            var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
+            l.Items[0].Remark = "修改个备注111";
+            r = repository.Update(l.Items.First(), x=>x.Remark);
 
-            //var r1 = repository.UpdateWhere(x => x.DictID == id, x => x.Remark, "哈哈哈哈");
-            //r1 = repository.Delete(x => x.DictID == 65656);
+            var r1 = repository.UpdateWhere(x => x.DictID == id, x => x.Remark, "哈哈哈哈");
+            r1 = repository.Delete(x => x.DictID == 65656);
 
             var r2 = repository.Count(x=>id < x.DictID);
 
