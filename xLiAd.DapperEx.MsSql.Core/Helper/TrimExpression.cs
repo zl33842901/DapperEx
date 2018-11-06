@@ -52,8 +52,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 
                     if (u.Operand.Type.IsEnum && u.Operand.NodeType == ExpressionType.MemberAccess)
                     {
-                        var value = Convert.ChangeType((u.Operand as MemberExpression).MemberToValue(), type);
-                        return Expression.Constant(value, type);
+                        object oo = (u.Operand as MemberExpression).MemberToValue();
+                        if (oo != null)
+                        {
+                            var value = Convert.ChangeType(oo, type);
+                            return Expression.Constant(value, type);
+                        }
                     }
                     break;
 

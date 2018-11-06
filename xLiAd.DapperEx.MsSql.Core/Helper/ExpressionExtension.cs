@@ -93,7 +93,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         {
             var topMember = GetRootMember(memberExpression);
             if (topMember == null)
-                throw new InvalidOperationException("需计算的条件表达式只支持由 MemberExpression 和 ConstantExpression 组成的表达式");
+                return null;
+                //throw new InvalidOperationException("需计算的条件表达式只支持由 MemberExpression 和 ConstantExpression 组成的表达式");
 
             return memberExpression.MemberToValue(topMember);
         }
