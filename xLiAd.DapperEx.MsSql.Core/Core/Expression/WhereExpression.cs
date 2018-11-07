@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -167,7 +168,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         {
             lastSecondExpression = lastExpression;
             lastExpression = ExpressionTypeEnum.MethodCall;
-            if (node.Method.Name == "Contains" && typeof(IEnumerable).IsAssignableFrom(node.Method.DeclaringType) &&
+            if (node.Method.Name == "Contains" && (typeof(IEnumerable).IsAssignableFrom(node.Method.DeclaringType) || node.Method.DeclaringType == typeof(System.Linq.Enumerable)) &&
                 node.Method.DeclaringType != typeof(string))
                 In(node);
             else
@@ -226,16 +227,29 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         private void In(MethodCallExpression node)
         {
-            var arrayValue = (IList)((ConstantExpression)node.Object).Value;
-            if (arrayValue.Count == 0)
-            {
-                _sqlCmd.Append(" 1 = 2");
-                return;
+            if(node.Object != null) { 
+                var arrayValue = (IList)((ConstantExpression)node.Object).Value;
+                if (arrayValue.Count == 0)
+                {
+                    _sqlCmd.Append(" 1 = 2");
+                    return;
+                }
+                Visit(node.Arguments[0]);
+                var paramName = "@" + TempFileName;
+                _sqlCmd.AppendFormat(" IN {0}", paramName);
+                Param.Add(TempFileName, arrayValue);
             }
-            Visit(node.Arguments[0]);
-            var paramName = "@" + TempFileName;
-            _sqlCmd.AppendFormat(" IN {0}", paramName);
-            Param.Add(TempFileName, arrayValue);
+            else
+            {
+                if(node.Arguments.Count == 2 && typeof(IEnumerable).IsAssignableFrom(node.Arguments[0].Type))
+                {
+                    Visit(node.Arguments[1]);
+                    var paramName = "@" + TempFileName;
+                    _sqlCmd.AppendFormat(" IN {0}", paramName);
+                    var o = ((ConstantExpression)node.Arguments[0]).Value;
+                    Param.Add(TempFileName, o);
+                }
+            }
         }
     }
 

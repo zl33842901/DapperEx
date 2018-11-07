@@ -26,8 +26,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public DateTime CreateTime { get; set; }
         public bool Deleted { get; set; }
         public OrderEnum OrderNum { get; set; }
+        public int? DictType { get; set; }
     }
     /// <summary>
+    /// 本框架部分源码取自于 Sikiro.DapperLambdaExtension.MsSql 在此对作者 陈珙 致敬。
     /// 本 ORM 优势：
     /// 1，支持 Select 出匿名类型
     /// 2，支持部分字段更新
@@ -44,9 +46,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             Repository<DictInfo> repository = new Repository<DictInfo>(con);
 
             var id = 106071;
-            //var ll2 = repository.Where(x => x.DictName.Contains("总监") && x.Deleted);
-            //var ll = repository.Where(x => x.Deleted == true && x.Deleted);
+            var enumList = new int?[] { 104, 102 };
+            var ll4 = repository.Where(x => enumList.Contains(x.DictType));
             var lll = repository.Where(x => x.Deleted == true && x.OrderNum == OrderEnum.asdfasdf);
+            var ll2 = repository.Where(x => x.DictName.Contains("总监") && x.Deleted);
+            var ll = repository.Where(x => x.Deleted == true && x.Deleted);
             var llll = repository.Where(x => !x.Deleted);
             var lllll = repository.Where(x => true);
             var llllll = repository.Where(x => false);
