@@ -23,7 +23,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         #endregion
         T Model;
-
+        bool setAnyParam = false;
         public UpdateExpression(IEnumerable<LambdaExpression> expressionList, T model)
         {
             _sqlCmd = new StringBuilder(100);
@@ -48,8 +48,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private void SetParam(string sqlParamName, string paramName, object value)
         {
             var n = $"@{Prefix}{paramName}";
+            if (setAnyParam)
+                _sqlCmd.Append(",");
             _sqlCmd.AppendFormat(" {0}={1} ", sqlParamName, n);
             Param.Add(n, value);
+            setAnyParam = true;
         }
     }
 

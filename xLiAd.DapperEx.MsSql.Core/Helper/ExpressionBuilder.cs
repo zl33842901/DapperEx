@@ -20,13 +20,23 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second, Expression.AndAlso);
+            if (first == null)
+                return second;
+            else if (second == null)
+                return first;
+            else
+                return first.Compose(second, Expression.AndAlso);
         }
 
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> first,
             Expression<Func<T, bool>> second)
         {
-            return first.Compose(second, Expression.OrElse);
+            if (first == null)
+                return second;
+            else if (second == null)
+                return first;
+            else
+                return first.Compose(second, Expression.OrElse);
         }
 
         private static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second,

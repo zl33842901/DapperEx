@@ -38,33 +38,39 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatGet();
 
-            return DbCon.QueryFirstOrDefault<T>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return QrFd(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
         }
         public T Get<TKey>(TKey id)
         {
             SqlProvider.FormatGet(id);
 
-            return DbCon.QueryFirstOrDefault<T>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return QrFd(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
         }
 
         public virtual List<T> ToList()
         {
             SqlProvider.FormatToList();
 
-            return DbCon.Query<T>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+            return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
 
         public PageList<T> PageList(int pageIndex, int pageSize)
         {
             SqlProvider.FormatToPageList(pageIndex, pageSize);
 
-            using (var queryResult = DbCon.QueryMultiple(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+            try {
+                using (var queryResult = DbCon.QueryMultiple(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+                {
+                    var pageTotal = queryResult.ReadFirst<int>();
+
+                    var itemList = queryResult.Read<T>().ToList();
+
+                    return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
+                }
+            }
+            catch (Exception e)
             {
-                var pageTotal = queryResult.ReadFirst<int>();
-
-                var itemList = queryResult.Read<T>().ToList();
-
-                return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
+                throw new Exception($"{e.Message} sql:{SqlProvider.SqlString} params:{SqlProvider.Params}", e);
             }
         }
 
@@ -72,7 +78,29 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatUpdateSelect(updator);
 
-            return DbCon.Query<T>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+            return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+        }
+        private IEnumerable<T> Qr(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        {
+            try
+            {
+                return DbCon.Query<T>(sqlString, param, dbTransaction);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+            }
+        }
+        private T QrFd(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        {
+            try
+            {
+                return DbCon.QueryFirstOrDefault<T>(sqlString, param, dbTransaction);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+            }
         }
     }
 }

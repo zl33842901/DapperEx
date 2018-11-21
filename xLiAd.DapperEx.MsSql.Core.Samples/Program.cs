@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using xLiAd.DapperEx.Repository;
 using System.Linq.Expressions;
 using System.Linq;
+using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Samples
 {
@@ -31,7 +32,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
     /// <summary>
     /// 本框架部分源码取自于 Sikiro.DapperLambdaExtension.MsSql 在此对作者 陈珙 致敬。
     /// 本 ORM 优势：
-    /// 1，支持 Select 出匿名类型
+    /// 1，支持 Select 出部分字段匿名类型
     /// 2，支持部分字段更新
     /// 3，支持根据条件更新、删除
     /// 4，支持枚举字段检索
@@ -48,6 +49,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var id = 106071;
             var enumList = new int?[] { 104, 102 };
             var ll4 = repository.Where(x => enumList.Contains(x.DictType));
+
+            Expression<Func<DictInfo, bool>> expression = x=>x.DictID > id;
+            expression = expression.And(x => x.DictName.Contains("总监"));
+            var zzz = repository.Where(expression);
             var lll = repository.Where(x => x.Deleted == true && x.OrderNum == OrderEnum.asdfasdf);
             var ll2 = repository.Where(x => x.DictName.Contains("总监") && x.Deleted);
             var ll = repository.Where(x => x.Deleted == true && x.Deleted);

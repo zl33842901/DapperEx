@@ -35,53 +35,53 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         {
             SqlProvider.FormatUpdate(entity);
 
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
         public int Delete<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
 
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
         public int Update(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
 
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
         public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             SqlProvider.FormatUpdateZhanglei(model, updateExpression);
 
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
         public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             SqlProvider.FormatUpdateZhanglei(expression, value);
 
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
         public int Delete()
         {
             SqlProvider.FormatDelete();
 
-            return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
         //public int Insert(T entity)
         //{
         //    SqlProvider.FormatInsert(entity);
 
-        //    return DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+        //    return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         //}
 
         public int Insert(T entity)
         {
             SqlProvider.FormatInsert(entity, out bool isHaveIdentity);
 
-            var r = DbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var r = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
             if (r > 0)
             {
                 if (isHaveIdentity)
@@ -91,6 +91,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             }
             else
                 return 0;
+        }
+
+        private int Exec(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        {
+            try
+            {
+                return DbCon.Execute(sqlString, param, dbTransaction);
+            }
+            catch(Exception e)
+            {
+                throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+            }
         }
     }
 }
