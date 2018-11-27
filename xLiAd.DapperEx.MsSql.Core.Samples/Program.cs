@@ -44,7 +44,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var con = new SqlConnection(
                 " Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=feih#rj87");
 
-            Repository<DictInfo> repository = new Repository<DictInfo>(con);
+            RepDict repository = new RepDict(con);
+            repository.DoSomething();
 
             var id = 106071;
             var enumList = new int?[] { 104, 102 };
@@ -75,6 +76,32 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var r2 = repository.Count(x=>id < x.DictID);
 
             var r3 = repository.Find(id);
+        }
+    }
+    public class RepDict : Repository<DictInfo>
+    {
+        public RepDict(string connectionString) : base(connectionString)
+        {
+        }
+
+        public RepDict(SqlConnection _con) : base(_con)
+        {
+        }
+        public int DoSomething()
+        {
+            con.Transaction(tc =>
+            {
+                tc.CommandSet<DictInfo>().Delete(9999);
+                tc.CommandSet<DictInfo>().Where(a => a.DictID == 106085).Delete();
+                tc.CommandSet<DictInfo>().Insert(new DictInfo
+                {
+                    DictID = 9999,
+                    DictName = "哇哈哈",
+                    CreateTime = DateTime.Now
+                });
+            });
+            con.Dispose();
+            return 1;
         }
     }
 }

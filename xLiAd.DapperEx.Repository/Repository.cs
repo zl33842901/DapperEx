@@ -10,7 +10,7 @@ namespace xLiAd.DapperEx.Repository
 {
     public class Repository<T>
     {
-        private SqlConnection con;
+        protected SqlConnection con;
         public Repository(string connectionString)
         {
             con = new SqlConnection(connectionString);
