@@ -45,6 +45,11 @@ namespace xLiAd.DapperEx.Repository
             var r = con.CommandSet<T>().Insert(obj);
             return r;
         }
+        public virtual int Add(IEnumerable<T> objs)
+        {
+            var r = con.CommandSet<T>().Insert(objs);
+            return r;
+        }
         public PageList<T> PageList<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> orderBy, int pageindex = 1, int pagesize = 50, bool desc = false)
         {
             var q = con.QuerySet<T>().Where(filter);

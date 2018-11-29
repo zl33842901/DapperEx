@@ -210,7 +210,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         /// <param name="entity"></param>
         /// <param name="isHaveIdentity">代表是否含有自增标识</param>
         /// <returns></returns>
-        public SqlProvider<T> FormatInsert(T entity, out bool isHaveIdentity)
+        public SqlProvider<T> FormatInsert(T entity, out bool isHaveIdentity, bool multiInsert = false)
         {
             var paramsAndValuesSql = FormatInsertParamsAndValues(entity);
 
@@ -220,13 +220,18 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             SqlString = Context.CommandSet.IfNotExistsExpression != null ? $"IF NOT EXISTS ( SELECT  1 FROM {FormatTableName(false)} {ifnotexistsWhere.SqlCmd} ) INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}" : $"INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}";
 
-            //bool isHaveIdentity = false; //代表是否含有自增标识
-            isHaveIdentity = typeof(T).GetPropertiesInDb().Count(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute))) > 0;
-            if (isHaveIdentity) { 
-                Params.Add("@id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+            if (!multiInsert)
+            {
+                //bool isHaveIdentity = false; //代表是否含有自增标识
+                isHaveIdentity = typeof(T).GetPropertiesInDb().Count(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute))) > 0;
+                if (isHaveIdentity)
+                {
+                    Params.Add("@id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                    SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+                }
             }
-
+            else
+                isHaveIdentity = false;
             return this;
         }
 

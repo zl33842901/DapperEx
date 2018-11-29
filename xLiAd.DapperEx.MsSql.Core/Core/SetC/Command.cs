@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
@@ -91,6 +93,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             }
             else
                 return 0;
+        }
+        public int Insert(IEnumerable<T> entitys)
+        {
+            if (entitys.Count() < 1)
+                return 0;
+            SqlProvider.FormatInsert(entitys.First(), out bool isHaveIdentity, true);
+            var rst = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
+            return rst;
         }
 
         private int Exec(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
