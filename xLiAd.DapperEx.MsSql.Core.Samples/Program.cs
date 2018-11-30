@@ -48,17 +48,24 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
                 " Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=feih#rj87");
 
             RepDict repository = new RepDict(con);
-            //repository.DoSomething(); //这个事务会释放CON，所以注释掉。
+            //repository.DoSomething(); //先不执行这个事务
 
 
+
+            var id = 106071;
+            var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
+            var r44 = repository.Update(l.Items.First(), x => x.Remark);
+            var ccc = repository.CountAll;
+
+            var r1 = repository.UpdateWhere(x => x.DictID == id, x => x.Remark, "更新后的备注");
+
+            r1 = repository.UpdateWhere(x => x.DictID > 106091, new DictInfo() { DictName = "哈哈哈", OrderNum = OrderEnum.optionB }, x => x.DictName, x => x.OrderNum);
+            return;
             var idd = repository.Add(new DictInfo() { DictID = 9999, DictName = "哇哈哈", CreateTime = DateTime.Now });
             var count = repository.Add(new List<DictInfo>() {
                 new DictInfo() { DictID = 9999, DictName = "康师傅1", CreateTime = DateTime.Now },
                 new DictInfo() { DictID = 9999, DictName = "康师傅2", CreateTime = DateTime.Now }
             });
-
-            return;
-            var id = 106071;
             var enumList = new int?[] { 104, 102 };
             var ll4 = repository.Where(x => enumList.Contains(x.DictType));
 
@@ -76,11 +83,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
 
 
             var r = repository.Delete(9999);
-            var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
             l.Items[0].Remark = "修改个备注111";
-            var r44 = repository.Update(l.Items.First(), x=>x.Remark);
 
-            var r1 = repository.UpdateWhere(x => x.DictID == id, x => x.Remark, "更新后的备注");
             r1 = repository.Delete(x => x.DictID == 65656);
 
             var r2 = repository.Count(x=>id < x.DictID);
@@ -110,7 +114,6 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
                     CreateTime = DateTime.Now
                 });
             });
-            con.Dispose();
             return 1;
         }
     }

@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Expression;
+using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 using xLiAd.DapperEx.MsSql.Core.Model;
 
@@ -270,7 +272,11 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             var update = ResolveExpression.ResolveUpdateZhanglei<T>(expressionList, entity);
 
-            var where = ResolveExpression.ResolveWhere(entity);
+            IWhereExpression where;
+            if(Context.CommandSet.WhereExpression == null)
+                where = ResolveExpression.ResolveWhere(entity);
+            else
+                where = ResolveExpression.ResolveWhere(Context.CommandSet.WhereExpression);
 
             var whereSql = where.SqlCmd;
 

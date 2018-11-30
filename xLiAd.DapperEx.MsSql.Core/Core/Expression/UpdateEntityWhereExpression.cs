@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    internal class UpdateEntityWhereExpression
+    internal class UpdateEntityWhereExpression : IWhereExpression
     {
         #region sql指令
 

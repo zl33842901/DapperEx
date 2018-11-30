@@ -5,11 +5,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    internal sealed class WhereExpression : ExpressionVisitor
+    internal sealed class WhereExpression : ExpressionVisitor,IWhereExpression
     {
         #region sql指令
 
