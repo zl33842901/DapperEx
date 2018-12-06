@@ -10,4 +10,10 @@
     <ProjectReference Include="..\xLiAd.DapperEx.Repository\xLiAd.DapperEx.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="sql.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

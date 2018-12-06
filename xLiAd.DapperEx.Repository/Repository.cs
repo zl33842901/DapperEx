@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Linq.Expressions;
 using xLiAd.DapperEx.MsSql.Core;
 using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
@@ -11,13 +14,16 @@ namespace xLiAd.DapperEx.Repository
     public class Repository<T>
     {
         protected SqlConnection con;
-        public Repository(string connectionString)
+        RepoXmlProvider RepoXmlProvider;
+        public Repository(string connectionString, RepoXmlProvider repoXmlProvider = null)
         {
             con = new SqlConnection(connectionString);
+            RepoXmlProvider = repoXmlProvider;
         }
-        public Repository(SqlConnection _con)
+        public Repository(SqlConnection _con, RepoXmlProvider repoXmlProvider = null)
         {
             con = _con;
+            RepoXmlProvider = repoXmlProvider;
         }
         public void Dispose() { if (con != null) con.Dispose(); }
         /// <summary>
@@ -93,6 +99,20 @@ namespace xLiAd.DapperEx.Repository
         {
             var r = con.CommandSet<T>().Insert(objs);
             return r;
+        }
+        /// <summary>
+        /// 多条数据插入(事务操作)  请在标识属性上加 Identity 特性
+        /// </summary>
+        /// <param name="objs"></param>
+        /// <returns></returns>
+        public virtual int AddTrans(IEnumerable<T> objs)
+        {
+            int c = 0;
+            con.Transaction(tc =>
+            {
+                c = tc.CommandSet<T>().Insert(objs);
+            });
+            return c;
         }
         /// <summary>
         /// 根据条件排序分页
@@ -198,6 +218,15 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int Count(Expression<Func<T, bool>> predicate) { return con.QuerySet<T>().Where(predicate).Count(); }
         /// <summary>
+        /// 是否存在符合条件的记录
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public bool Exist(Expression<Func<T, bool>> predicate)
+        {
+            return Count(predicate) > 0;
+        }
+        /// <summary>
         /// 取得数据总数量
         /// </summary>
         public int CountAll { get { return con.QuerySet<T>().Count(); } }
@@ -220,6 +249,22 @@ namespace xLiAd.DapperEx.Repository
             return con.CommandSet<T>().Delete(id);
         }
         /// <summary>
+        /// 根据主键删除数据(事务操作)（实体类需要设置主键 在主键属性上加 Key特性）
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="idList"></param>
+        /// <returns></returns>
+        public int DeleteTrans<TKey>(IEnumerable<TKey> idList)
+        {
+            int c = 0;
+            con.Transaction(tc =>
+            {
+                foreach(var i in idList)
+                    c += tc.CommandSet<T>().Delete(i);
+            });
+            return c;
+        }
+        /// <summary>
         /// 根据主键更新一条数据的 除主键外的全部属性字段
         /// </summary>
         /// <param name="TObject">实体</param>
@@ -227,6 +272,21 @@ namespace xLiAd.DapperEx.Repository
         public virtual int Update(T TObject)
         {
             return con.CommandSet<T>().Update(TObject);
+        }
+        /// <summary>
+        /// 根据主键更新一些数据的 除主键外的全部属性字段（事务操作）
+        /// </summary>
+        /// <param name="entityList"></param>
+        /// <returns></returns>
+        public virtual int UpdateTrans(IEnumerable<T> entityList)
+        {
+            int c = 0;
+            con.Transaction(tc =>
+            {
+                foreach (var m in entityList)
+                    c += tc.CommandSet<T>().Update(m);
+            });
+            return c;
         }
         /// <summary>
         /// 根据主键更新一条数据的指定字段
@@ -261,8 +321,132 @@ namespace xLiAd.DapperEx.Repository
         {
             return con.CommandSet<T>().Where(predicate).Update(d, efdbd);
         }
-
-
+        /// <summary>
+        /// 把参数字典转换为动态参数， 并替换语句中的转义参数名（如果有的话）
+        /// </summary>
+        /// <param name="dic"></param>
+        /// <param name="sqlToReplace"></param>
+        /// <param name="sqlReplaced"></param>
+        /// <returns></returns>
+        private DynamicParameters ConvertDicToParam(Dictionary<string, string> dic, string sqlToReplace, out string sqlReplaced)
+        {
+            sqlReplaced = sqlToReplace;
+            DynamicParameters param = null;
+            if (dic != null && dic.Count > 0)
+            {
+                param = new DynamicParameters();
+                foreach (var d in dic)
+                {
+                    param.Add($"@{d.Key}", d.Value);
+                    if (!string.IsNullOrWhiteSpace(sqlToReplace))
+                        sqlReplaced = sqlReplaced.Replace($"#{{{d.Key}}}", $"@{d.Key}");
+                }
+            }
+            return param;
+        }
+        /// <summary>
+        /// 执行SQL语句
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="dic">参数</param>
+        /// <param name="cmdType">命令类别</param>
+        /// <returns></returns>
+        public virtual bool ExecuteSql(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        {
+            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            return con.Execute(sql, param, commandType: cmdType) > 0;
+        }
+        /// <summary>
+        /// 执行存储过程
+        /// </summary>
+        /// <param name="procedureName">存储过程</param>
+        /// <param name="dic">参数</param>
+        /// <returns></returns>
+        public virtual bool ExecuteProcedure(string procedureName, Dictionary<string, string> dic = null)
+        {
+            return ExecuteSql(procedureName, dic, CommandType.StoredProcedure);
+        }
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
+        {
+            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            return con.ExecuteScalar<TResult>(sql, param);
+        }
+        /// <summary>
+        /// 根据SQL语句，或存储过程 查询实体
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="dic"></param>
+        /// <param name="cmdType"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        {
+            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            return con.Query<TResult>(sql, param, commandType: cmdType);
+        }
+        /// <summary>
+        /// 判断XML文件载入的状态
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        private XmlSqlModel CheckXml(string id, out string msg)
+        {
+            if (RepoXmlProvider == null)
+            {
+                msg = "没有配置 XML 文件！";
+                return null;
+            }
+            if(RepoXmlProvider.Statu != RepoXmlStatu.Loaded)
+            {
+                msg = "XML 文件不在正确状态！";
+                return null;
+            }
+            var rpx = RepoXmlProvider.DataList.Where(x => x.Id == id).FirstOrDefault();
+            if (rpx == null)
+            {
+                msg = "未找到对应 SQL 语句！";
+                return null;
+            }
+            msg = null;
+            return rpx;
+        }
+        /// <summary>
+        /// 从XML中获取SQL执行
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public bool ExecuteXml(string id, Dictionary<string, string> dic = null)
+        {
+            XmlSqlModel xsm = CheckXml(id, out string msg);
+            if (xsm == null)
+                throw new Exception(msg);
+            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            return ExecuteSql(sql, dic);
+        }
+        /// <summary>
+        /// 从XML中获取SQL查询
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public IEnumerable<TResult> QueryXml<TResult>(string id, Dictionary<string, string> dic = null)
+        {
+            XmlSqlModel xsm = CheckXml(id, out string msg);
+            if (xsm == null)
+                throw new Exception(msg);
+            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            return QueryBySql<TResult>(sql, dic);
+        }
         /*
          con.QuerySet<Model>().Sum(a => a.IntField);
          
