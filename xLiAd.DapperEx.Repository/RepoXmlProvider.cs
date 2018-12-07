@@ -7,13 +7,14 @@ using System.Xml;
 
 namespace xLiAd.DapperEx.Repository
 {
-    public class RepoXmlProvider
+    public class RepoXmlProvider : IRepoXmlProvider
     {
         public RepoXmlProvider(string xmlPath)
         {
             if (string.IsNullOrEmpty(xmlPath))
             {
-                throw new Exception("XML文档参数为空！");
+                Statu = RepoXmlStatu.LoadError;
+                //throw new Exception("XML文档参数为空！");
             }
             try
             {
@@ -36,12 +37,17 @@ namespace xLiAd.DapperEx.Repository
             catch(Exception e)
             {
                 Statu = RepoXmlStatu.LoadError;
-                throw new Exception("载入XML文档时出错！", e);
+                //throw new Exception("载入XML文档时出错！", e);
             }
         }
         private List<XmlSqlModel> dataList = new List<XmlSqlModel>();
         public XmlSqlModel[] DataList => dataList.ToArray();
         public RepoXmlStatu Statu { get; private set; } = RepoXmlStatu.Waiting;
+    }
+    public interface IRepoXmlProvider
+    {
+        XmlSqlModel[] DataList { get; }
+        RepoXmlStatu Statu { get; }
     }
 
     public enum RepoXmlStatu

@@ -367,7 +367,7 @@ namespace xLiAd.DapperEx.Repository
             return ExecuteSql(procedureName, dic, CommandType.StoredProcedure);
         }
         /// <summary>
-        /// 执行查询
+        /// 执行查询 返回第一条结果
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
