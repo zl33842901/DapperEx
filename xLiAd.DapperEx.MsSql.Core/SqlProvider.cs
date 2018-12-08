@@ -84,6 +84,25 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             return this;
         }
+        public SqlProvider<T> FormatToList(IEnumerable<LambdaExpression> selector)
+        {
+            //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
+            var selectSql = ResolveExpression.ResolveSelectZhanglei(typeof(T), selector, Context.QuerySet.TopNum);
+
+            var fromTableSql = FormatTableName();
+
+            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+
+            var whereSql = whereParams.SqlCmd;
+
+            Params = whereParams.Param;
+
+            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+
+            return this;
+        }
         public SqlProvider<T> FormatToListZhanglei(Type type)
         {
             var selectSql = ResolveExpression.ResolveSelectZhanglei(type, Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);

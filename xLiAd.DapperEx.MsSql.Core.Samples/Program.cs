@@ -44,21 +44,38 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
     {
         static void Main(string[] args)
         {
-            var con = new SqlConnection(
-                " Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=feih#rj87");
+            //连接字符串
+            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=feih#rj87");
+            #region 需要使用类似 mybatis 的XML方式存SQL语句时，需要下边这个对象，否则不需要。
             var xmlPath = System.IO.Directory.GetCurrentDirectory() + "\\sql.xml";
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);
-
+            #endregion
             Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider);
-            //var lbfs = repository.ExecuteXml("DictSelect");
-            //var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
+            #region 增
+            //当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
+            var idd = repository.Add(new DictInfo() { DictName = "哇哈哈", CreateTime = DateTime.Now });
             //var count = repository.AddTrans(new List<DictInfo>() {
             //    new DictInfo() { DictName = "康师傅5", CreateTime = DateTime.Now },
             //    new DictInfo() { DictName = "康师傅6" }
             //});
-            //var dflkjsdf = repository.Where(new QueryDict() { Name = "技术副总裁", startdate = new DateTime(2016,1,1) }.Expression);
+            return;
+            #endregion
 
+            #region 删
+            //这种方式需要类定义主键字段(Key特性)
+            //var r = repository.Delete(9999);
+            //var rdf1 = repository.Delete(x => x.DictID > 106092 && x.DictName == "哈哈哈");
             //var eifwjo = repository.DeleteTrans(new int[] { 106097, 106098 });
+            #endregion
+
+            #region 改
+
+            //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
+            ////var r443 = repository.Update(ddxx); //
+            //var r44 = repository.Update(ddxx, x => x.Remark);
+            //var r1 = repository.UpdateWhere(x => x.DictID == 102098, x => x.Remark, "更新后的备注");
+            //r1 = repository.UpdateWhere(x => x.DictID > 102099 && x.DictID < 104066, new DictInfo() { DictName = "哈哈哈", OrderNum = OrderEnum.optionB }, x => x.DictName, x => x.OrderNum);
+
             //var eifjwoeif = repository.UpdateTrans(new DictInfo[]
             //{
             //    new DictInfo()
@@ -70,65 +87,50 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //        DictID = 106086, CreateTime = DateTime.MinValue, Deleted = false, DictName = "老总秘书", DictType = 2, OrderNum = OrderEnum.optionA, Remark = "老总秘书，请加薪"
             //    }
             //});
-            var idfjso = repository.Where(x => !x.Deleted);
-            var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
-            return;
-            //repository.DoSomething(); //先不执行这个事务
-            Repository<Main> repositoryMain = new Repository<Main>(con);
-            Repository<Sub> repositorySub = new Repository<Sub>(con);
-            Repository<MainNoSub> repositoryMainNoSub = new Repository<MainNoSub>(con);
+            #endregion
 
-            List<Main> lm11 = new List<Main>();
-            List<Sub> ls11 = new List<Sub>();
-            List<MainNoSub> lmns11 = new List<MainNoSub>();
-            for(var i = 0; i< 10000; i++)
-            {
-                lm11.Add(new Samples.Main() { title = "asdfidjfsldlfj" });
-                for(var j = 0;j< 100; j++)
-                {
-                    ls11.Add(new Sub() { MainId = i + 1, title = "哈哈，我是sub" });
-                }
-                lmns11.Add(new MainNoSub() { title = "我是NO SUB ", Subs = "[{ \"title\" : \"哈哈，我是里面的 sub\"}]" });
-            }
-            //repositoryMain.Add(lm11);
-            //repositorySub.Add(ls11);
-            repositoryMainNoSub.Add(lmns11);
-
+            #region 查
             var id = 106071;
+            ////总数
+            //var ccc = repository.CountAll;
+            ////数量
+            //var r2 = repository.Count(x => id < x.DictID);
+            ////主键获取记录
+            //var r3 = repository.Find(id);
+            ////普通查询
+            //var idfjso = repository.Where(x => !x.Deleted);
+            //var enumList = new int?[] { 104, 102 };
+            //var ll4 = repository.Where(x => enumList.Contains(x.DictType));
+            ////表达式拼接
+            //Expression<Func<DictInfo, bool>> expression = x => x.DictID > id;
+            //expression = expression.And(x => x.DictName.Contains("总监"));
+            //var zzz = repository.Where(expression);
+            ////枚举字段查询
+            //var lll = repository.Where(x => x.Deleted == true && x.OrderNum == OrderEnum.optionA);
+            ////查询并投影
+            //var ll2 = repository.WhereSelect(x => x.DictName.Contains("老总") && x.Deleted, x => new { x.DictName, x.DictID }).ToDictionary(x => x.DictID, x => x.DictName);
+            //var lrst = repository.WhereOrderSelect(x => x.DictID > id && x.DictName.Contains("总监") && x.CreateTime < new DateTime(2018, 1, 1), x => x.DictID, x => new { i1 = x.DictID, i2 = x.DictName });
+            //查询实体方式
+            //var dflkjsdf = repository.Where(new QueryDict() { Name = "技术副总裁", startdate = new DateTime(2016,1,1) }.Expression);
+            //var feifjwo = repository.Where(x => x.CreateTime > new DateTime(2018, 12, 1), x => x.DictID, x => x.DictName);
+            //return;
+            #endregion
+
+            #region 分页查询
+
             var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
-            var r44 = repository.Update(l.Items.First(), x => x.Remark);
-            var ccc = repository.CountAll;
+            #endregion
 
-            var r1 = repository.UpdateWhere(x => x.DictID == id, x => x.Remark, "更新后的备注");
+            #region 执行XML
+            //var lbfs = repository.ExecuteXml("DictSelect");
+            //var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
+            //var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
+            #endregion
 
-            r1 = repository.UpdateWhere(x => x.DictID > 106091, new DictInfo() { DictName = "哈哈哈", OrderNum = OrderEnum.optionB }, x => x.DictName, x => x.OrderNum);
-
-            var idd = repository.Add(new DictInfo() { DictID = 9999, DictName = "哇哈哈", CreateTime = DateTime.Now });
-            
-            var enumList = new int?[] { 104, 102 };
-            var ll4 = repository.Where(x => enumList.Contains(x.DictType));
-
-            Expression<Func<DictInfo, bool>> expression = x=>x.DictID > id;
-            expression = expression.And(x => x.DictName.Contains("总监"));
-            var zzz = repository.Where(expression);
-            var lll = repository.Where(x => x.Deleted == true && x.OrderNum == OrderEnum.optionA);
-            var ll2 = repository.WhereSelect(x => x.DictName.Contains("总监") && x.Deleted, x => new { x.DictName, x.DictID }).ToDictionary(x => x.DictID, x => x.DictName);
-            var ll = repository.Where(x => x.Deleted == true && x.Deleted);
-            var llll = repository.Where(x => !x.Deleted);
-            var lllll = repository.Where(x => true);
-            var llllll = repository.Where(x => false);
-            var lrst = repository.WhereOrderSelect(x => x.DictID > id && x.DictName.Contains("总监") && x.CreateTime < new DateTime(2018,1,1), x => x.DictID, x => new { i1 = x.DictID, i2 = x.DictName });
-
-
-
-            var r = repository.Delete(9999);
-            l.Items[0].Remark = "修改个备注111";
-
-            r1 = repository.Delete(x => x.DictID == 65656);
-
-            var r2 = repository.Count(x=>id < x.DictID);
-
-            var r3 = repository.Find(id);
+            #region 事务
+            //var repo = new RepDict(con);
+            //repo.DoSomething();
+            #endregion
         }
     }
     public class RepDict : Repository<DictInfo>
@@ -144,37 +146,16 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         {
             con.Transaction(tc =>
             {
-                tc.CommandSet<DictInfo>().Delete(9999);
+                tc.CommandSet<DictInfo>().Delete(106089);
                 tc.CommandSet<DictInfo>().Where(a => a.DictID == 106085).Delete();
                 tc.CommandSet<DictInfo>().Insert(new DictInfo
                 {
-                    DictID = 9999,
                     DictName = "哇哈哈",
                     CreateTime = DateTime.Now
                 });
             });
             return 1;
         }
-    }
-    public class Main
-    {
-        [Identity]
-        public int Id { get; set; }
-        public string title { get; set; }
-    }
-    public class Sub
-    {
-        [Identity]
-        public int Id { get; set; }
-        public int MainId { get; set; }
-        public string title { get; set; }
-    }
-    public class MainNoSub
-    {
-        [Identity]
-        public int Id { get; set; }
-        public string title { get; set; }
-        public string Subs { get; set; }
     }
 
     public class QueryDict

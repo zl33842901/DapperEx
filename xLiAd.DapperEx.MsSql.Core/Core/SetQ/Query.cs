@@ -53,6 +53,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
+        public virtual List<T> ToList(IEnumerable<LambdaExpression> selector)
+        {
+            SqlProvider.FormatToList(selector);
+
+            return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+        }
 
         public PageList<T> PageList(int pageIndex, int pageSize)
         {

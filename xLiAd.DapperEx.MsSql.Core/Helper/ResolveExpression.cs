@@ -59,6 +59,22 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x=>x.Name)), $" TOP {topNum} ");
             return selectSql;
         }
+        public static string ResolveSelectZhanglei(Type type, IEnumerable<LambdaExpression> selector, int? topNum)
+        {
+            if (selector == null || selector.Count() < 1)
+                return ResolveSelect(type.GetPropertiesInDb(), null, topNum);
+            var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
+            var selectSql = "";
+            List<MemberInfo> lfields = new List<MemberInfo>();
+            foreach(var slct in selector)
+                lfields.AddRange(new ExpressionPropertyFinder(slct, type).MemberList);
+            /////////////////////////下面要过滤不在DB里的。
+            var nameList = type.GetPropertiesInDb().Select(x => x.Name).ToArray();
+            lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
+            /////////////////////////
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => x.Name)), $" TOP {topNum} ");
+            return selectSql;
+        }
         public static string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum)
         {
             var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
