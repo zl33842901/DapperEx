@@ -29,6 +29,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public bool Deleted { get; set; }
         public OrderEnum OrderNum { get; set; }
         public int? DictType { get; set; }
+        public List<int> TestList { get; set; }
     }
     /// <summary>
     /// 本 ORM 优势：
@@ -69,6 +70,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //        DictID = 106086, CreateTime = DateTime.MinValue, Deleted = false, DictName = "老总秘书", DictType = 2, OrderNum = OrderEnum.optionA, Remark = "老总秘书，请加薪"
             //    }
             //});
+            var idfjso = repository.Where(x => !x.Deleted);
             var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
             return;
             //repository.DoSomething(); //先不执行这个事务

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         {
             var plist = type.GetProperties().Where(x => x.CanRead && x.CanWrite &&
                 !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) && !Attribute.IsDefined(x, typeof(NotMappedAttribute))
+                && !typeof(IList).IsAssignableFrom(x.PropertyType)
                 ).ToArray();
             return plist;
         }

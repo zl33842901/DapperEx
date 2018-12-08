@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -103,6 +104,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 foreach (var propertyInfo in propertyInfos)
                 {
                     if (propertyInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>() != null)
+                        continue;
+                    if (typeof(IList).IsAssignableFrom(propertyInfo.PropertyType))
                         continue;
                     if (propertyBuilder.Length > 0)
                         propertyBuilder.Append(",");
