@@ -16,8 +16,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         {
             var orderByList = orderbyExpressionDic.Select(a =>
             {
-                var memberExpress = (MemberExpression)a.Value.Body;
-                return memberExpress.Member.GetColumnAttributeName() + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
+                if(a.Value.Body is MemberExpression)
+                {
+                    var memberExpress = (MemberExpression)a.Value.Body;
+                    return memberExpress.Member.GetColumnAttributeName() + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
+                }
+                else if(a.Value.Body is UnaryExpression)
+                {
+                    var ue = (UnaryExpression)a.Value.Body;
+                    var memberExpress = (MemberExpression)ue.Operand;
+                    return memberExpress.Member.GetColumnAttributeName() + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
+                }
+                else
+                {
+                    throw new Exception("only fields can be ordered");
+                }
             }).ToList();
 
             if (!orderByList.Any())

@@ -53,12 +53,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider);
             #region 增
             //当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
-            var idd = repository.Add(new DictInfo() { DictName = "哇哈哈", CreateTime = DateTime.Now });
+            //var idd = repository.Add(new DictInfo() { DictName = "哇哈哈", CreateTime = DateTime.Now });
             //var count = repository.AddTrans(new List<DictInfo>() {
             //    new DictInfo() { DictName = "康师傅5", CreateTime = DateTime.Now },
             //    new DictInfo() { DictName = "康师傅6" }
             //});
-            return;
+            //return;
             #endregion
 
             #region 删
@@ -113,12 +113,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //查询实体方式
             //var dflkjsdf = repository.Where(new QueryDict() { Name = "技术副总裁", startdate = new DateTime(2016,1,1) }.Expression);
             //var feifjwo = repository.Where(x => x.CreateTime > new DateTime(2018, 12, 1), x => x.DictID, x => x.DictName);
+            //var jsldkfjsl = repository.PageList(x => x.CreateTime > new DateTime(2018, 12, 1), 1, 10, new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.Deleted, SortOrder.Descending), new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.DictID, SortOrder.Descending));
             //return;
             #endregion
 
             #region 分页查询
 
-            var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
+            //var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
             #endregion
 
             #region 执行XML

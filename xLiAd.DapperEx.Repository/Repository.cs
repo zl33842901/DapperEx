@@ -164,6 +164,21 @@ namespace xLiAd.DapperEx.Repository
             var rst = qq.PageList(pageindex, pagesize);
             return rst;
         }
+        public PageList<T> PageList<TKey1, TKey2>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey1>> order1, bool order1Desc, Expression<Func<T, TKey2>> order2, bool order2Desc, int pageindex = 1, int pagesize = 50)
+        {
+            var q = con.QuerySet<T>().Where(filter);
+            Order<T> qq = q;
+            if (order1Desc)
+                qq = qq.OrderByDescing(order1);
+            else
+                qq = qq.OrderBy(order1);
+            if (order2Desc)
+                qq = qq.OrderByDescing(order2);
+            else
+                qq = qq.OrderBy(order2);
+            var rst = qq.PageList(pageindex, pagesize);
+            return rst;
+        }
         /// <summary>
         /// 根据条件排序分页 并投影
         /// </summary>
