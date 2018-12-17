@@ -91,10 +91,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
 
             #region 查
             var id = 106071;
+            var idaaa = new List<int>() { 106071, 106072 };
             ////总数
             //var ccc = repository.CountAll;
             ////数量
-            //var r2 = repository.Count(x => id < x.DictID);
+            var r2 = repository.WhereSelect(x => x.DictID == idaaa[0], x=>x.DictName);
             ////主键获取记录
             //var r3 = repository.Find(id);
             ////普通查询

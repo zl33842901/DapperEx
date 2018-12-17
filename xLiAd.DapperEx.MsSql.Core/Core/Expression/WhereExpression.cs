@@ -118,13 +118,28 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             lastExpression = ExpressionTypeEnum.Binary;
             lastBinaryType = node.NodeType;
 
-            _sqlCmd.Append("(");
-            Visit(node.Left);
+            if(node.NodeType == ExpressionType.ArrayIndex)
+            {
+                object vv;
+                try { 
+                    vv = (((IList)(((ConstantExpression)node.Left).Value))[(int)((ConstantExpression)node.Right).Value]);
+                }
+                catch(Exception e)
+                {
+                    throw new Exception("表达式中不要写带参数的数组！", e);
+                }
+                SetParam(TempFileName, vv);
+            }
+            else
+            {
+                _sqlCmd.Append("(");
+                Visit(node.Left);
 
-            _sqlCmd.Append(node.GetExpressionType());
+                _sqlCmd.Append(node.GetExpressionType());
 
-            Visit(node.Right);
-            _sqlCmd.Append(")");
+                Visit(node.Right);
+                _sqlCmd.Append(")");
+            }
 
             return node;
         }
@@ -172,6 +187,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             if (node.Method.Name == "Contains" && (typeof(IEnumerable).IsAssignableFrom(node.Method.DeclaringType) || node.Method.DeclaringType == typeof(System.Linq.Enumerable)) &&
                 node.Method.DeclaringType != typeof(string))
                 In(node);
+            else if (node.Method.Name == "get_Item")
+                get_Item(node);
             else
                 Like(node);
 
@@ -224,6 +241,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                 default:
                     throw new Exception("the expression is no support this function");
             }
+        }
+        private void get_Item(MethodCallExpression node)
+        {
+            object vv;
+            try
+            {
+                vv = (((IList)(((ConstantExpression)node.Object).Value))[(int)((ConstantExpression)node.Arguments[0]).Value]);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("表达式中不要写带参数的数组！", e);
+            }
+            SetParam(TempFileName, vv);
         }
 
         private void In(MethodCallExpression node)
