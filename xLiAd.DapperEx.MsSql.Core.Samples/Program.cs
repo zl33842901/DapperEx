@@ -30,6 +30,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public OrderEnum OrderNum { get; set; }
         public int? DictType { get; set; }
         public List<int> TestList { get; set; }
+        public int tttttttt { get; private set; }
     }
     /// <summary>
     /// 本 ORM 优势：
@@ -95,7 +96,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             ////总数
             //var ccc = repository.CountAll;
             ////数量
-            var r2 = repository.WhereSelect(x => x.DictID == idaaa[0], x=>x.DictName);
+            var r2 = repository.Where(x => x.DictID == idaaa[0]);
             ////主键获取记录
             //var r3 = repository.Find(id);
             ////普通查询

@@ -20,6 +20,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) && !Attribute.IsDefined(x, typeof(NotMappedAttribute))
                 && !typeof(IList).IsAssignableFrom(x.PropertyType)
                 ).ToArray();
+            plist = plist.Where(x => x.SetMethod.IsPublic && x.GetMethod.IsPublic).ToArray();
             return plist;
         }
 

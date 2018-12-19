@@ -136,6 +136,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                         continue;
                     if (typeof(IList).IsAssignableFrom(propertyInfo.PropertyType))
                         continue;
+                    if (propertyInfo.SetMethod == null || propertyInfo.GetMethod == null)
+                        continue;
+                    if (!propertyInfo.GetMethod.IsPublic || !propertyInfo.SetMethod.IsPublic)
+                        continue;
                     if (propertyBuilder.Length > 0)
                         propertyBuilder.Append(",");
                     propertyBuilder.AppendFormat($"INSERTED.{propertyInfo.GetColumnAttributeName()} {propertyInfo.Name}");
