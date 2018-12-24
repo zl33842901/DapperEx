@@ -5,7 +5,7 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    internal class UpdateEntityWhereExpression : IWhereExpression
+    internal class UpdateEntityWhereExpression : SetParam,IWhereExpression
     {
         #region sql指令
 
@@ -50,6 +50,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         {
             if (value != null)
             {
+                fileName = GetParamName(fileName);
                 _sqlCmd.Append("@" + fileName);
                 Param.Add(fileName, value);
             }

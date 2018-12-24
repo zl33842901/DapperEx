@@ -7,7 +7,7 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    public class UpdateExpression<T> : ExpressionVisitor
+    public class UpdateExpression<T> : SetParamVisitor
     {
         #region sql指令
 
@@ -47,6 +47,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         }
         private void SetParam(string sqlParamName, string paramName, object value)
         {
+            paramName = GetParamName(paramName);
             var n = $"@{Prefix}{paramName}";
             if (setAnyParam)
                 _sqlCmd.Append(",");
@@ -60,7 +61,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
 
 
-    public class UpdateExpressionEx<T> : ExpressionVisitor
+    public class UpdateExpressionEx<T> : SetParamVisitor
     {
         #region sql指令
 
@@ -96,6 +97,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         }
         private void SetParam(string sqlParamName, string paramName, object value)
         {
+            paramName = GetParamName(paramName);
             var n = $"@{Prefix}{paramName}";
             _sqlCmd.AppendFormat(" {0}={1} ", sqlParamName, n);
             Param.Add(n, value);

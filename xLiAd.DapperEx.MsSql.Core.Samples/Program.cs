@@ -74,7 +74,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
             ////var r443 = repository.Update(ddxx); //
             //var r44 = repository.Update(ddxx, x => x.Remark);
-            //var r1 = repository.UpdateWhere(x => x.DictID == 102098, x => x.Remark, "更新后的备注");
+            var r1 = repository.UpdateWhere(x => x.DictID == 102098 && (x.DictName == "哈哈哈" || x.DictName == "啦啦"), x => x.Remark, "更新后的备注");
             //r1 = repository.UpdateWhere(x => x.DictID > 102099 && x.DictID < 104066, new DictInfo() { DictName = "哈哈哈", OrderNum = OrderEnum.optionB }, x => x.DictName, x => x.OrderNum);
 
             //var eifjwoeif = repository.UpdateTrans(new DictInfo[]

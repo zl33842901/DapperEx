@@ -6,7 +6,7 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    public class DeleteExpression<T, TKey>
+    public class DeleteExpression<T, TKey> : SetParam
     {
         #region sql指令
 
@@ -51,6 +51,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         {
             if (value != null)
             {
+                fileName = GetParamName(fileName);
                 _sqlCmd.Append("@" + fileName);
                 Param.Add(fileName, value);
             }

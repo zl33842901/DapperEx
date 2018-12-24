@@ -10,7 +10,7 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    internal sealed class WhereExpression : ExpressionVisitor,IWhereExpression
+    internal sealed class WhereExpression : SetParamVisitor, IWhereExpression
     {
         #region sql指令
 
@@ -203,6 +203,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             {
                 if (string.IsNullOrEmpty(fileName))
                     fileName = $"Parameter{ParamIndex++}";
+                else
+                {
+                    fileName = GetParamName(fileName);
+                }
                 _sqlCmd.Append("@" + fileName);
                 Param.Add(fileName, value);
             }

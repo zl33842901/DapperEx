@@ -8,7 +8,7 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    internal sealed class UpdateExpression : ExpressionVisitor
+    internal sealed class UpdateExpression : SetParamVisitor
     {
         #region sql指令
 
@@ -87,6 +87,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         private void SetParam(string sqlParamName, string paramName, object value)
         {
+            paramName = GetParamName(paramName);
             var n = $"@{Prefix}{paramName}";
             _sqlCmd.AppendFormat(" {0}={1} ", sqlParamName, n);
             Param.Add(n, value);
