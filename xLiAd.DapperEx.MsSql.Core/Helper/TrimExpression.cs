@@ -104,7 +104,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 return null;
 
             exp = Sub(exp);
-            return base.Visit(exp);
+            try
+            {
+                return base.Visit(exp);
+            }
+            catch (Exception)
+            {
+                return exp;
+            }
         }
     }
 }

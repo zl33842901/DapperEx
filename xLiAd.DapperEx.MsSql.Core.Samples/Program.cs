@@ -96,7 +96,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             ////总数
             //var ccc = repository.CountAll;
             ////数量
-            var r2 = repository.Where(x => x.DictID == idaaa[0]);
+            var r2 = repository.Where(x => x.DictType == null);
             ////主键获取记录
             //var r3 = repository.Find(id);
             ////普通查询
