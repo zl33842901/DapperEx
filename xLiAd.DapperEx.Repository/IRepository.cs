@@ -40,7 +40,7 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="order">排序字段</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
         /// <returns></returns>
-        List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0);
+        List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0, bool desc = false);
         /// <summary>
         /// 根据条件排序查询 并投影
         /// </summary>
