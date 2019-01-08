@@ -91,6 +91,20 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         PageList<T> PageList(Expression<Func<T, bool>> filter, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders);
         /// <summary>
+        /// 根据条件分页（两个排序条件）
+        /// </summary>
+        /// <typeparam name="TKey1"></typeparam>
+        /// <typeparam name="TKey2"></typeparam>
+        /// <param name="filter">条件表达式</param>
+        /// <param name="order1">排序1</param>
+        /// <param name="order1Desc">是否倒序1</param>
+        /// <param name="order2">排序2</param>
+        /// <param name="order2Desc">是否倒序2</param>
+        /// <param name="pageindex">页码</param>
+        /// <param name="pagesize">页条数</param>
+        /// <returns></returns>
+        PageList<T> PageList<TKey1, TKey2>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey1>> order1, bool order1Desc, Expression<Func<T, TKey2>> order2, bool order2Desc, int pageindex = 1, int pagesize = 50);
+        /// <summary>
         /// 根据条件排序分页 并投影
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
