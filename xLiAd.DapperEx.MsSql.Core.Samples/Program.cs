@@ -72,9 +72,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #region 改
 
             //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
-            ////var r443 = repository.Update(ddxx); //
-            //var r44 = repository.Update(ddxx, x => x.Remark);
-            var r1 = repository.UpdateWhere(x => x.DictID == 102098 && (x.DictName == "哈哈哈" || x.DictName == "啦啦"), x => x.Remark, "更新后的备注");
+            //var r443 = repository.Update(ddxx); //
+            //var r44 = repository.Update(ddxx, x => x.Remark,x=>x.CreateTime);
+            //var r1 = repository.UpdateWhere(x => x.DictID == 102098 && (x.DictName == "哈哈哈" || x.DictName == "啦啦"), x => x.Remark, "更新后的备注");
             //r1 = repository.UpdateWhere(x => x.DictID > 102099 && x.DictID < 104066, new DictInfo() { DictName = "哈哈哈", OrderNum = OrderEnum.optionB }, x => x.DictName, x => x.OrderNum);
 
             //var eifjwoeif = repository.UpdateTrans(new DictInfo[]
@@ -96,7 +96,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             ////总数
             //var ccc = repository.CountAll;
             ////数量
-            var r2 = repository.Where(x => x.DictType == null);
+            //var r2 = repository.Where(x => x.DictType == null);
             ////主键获取记录
             //var r3 = repository.Find(id);
             ////普通查询
@@ -114,8 +114,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //var lrst = repository.WhereOrderSelect(x => x.DictID > id && x.DictName.Contains("总监") && x.CreateTime < new DateTime(2018, 1, 1), x => x.DictID, x => new { i1 = x.DictID, i2 = x.DictName });
             //查询实体方式
             //var dflkjsdf = repository.Where(new QueryDict() { Name = "技术副总裁", startdate = new DateTime(2016,1,1) }.Expression);
-            //var feifjwo = repository.Where(x => x.CreateTime > new DateTime(2018, 12, 1), x => x.DictID, x => x.DictName);
-            //var jsldkfjsl = repository.PageList(x => x.CreateTime > new DateTime(2018, 12, 1), 1, 10, new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.Deleted, SortOrder.Descending), new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.DictID, SortOrder.Descending));
+            var feifjwo = repository.Where(x => x.CreateTime > new DateTime(2018, 12, 1), x => x.DictID, x => x.DictName);
+
+            var kk = repository.Where(x => x.DictID > 5555, x => x.DictID);
+            var jsldkfjsl = repository.PageList(x => x.CreateTime > new DateTime(2018, 12, 1), 1, 10, new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.Deleted, SortOrder.Descending), new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.DictID, SortOrder.Descending));
+
+            repository.PageList(x => x.DictID > 5555, x => x.DictID, 1, 10, true);
             //return;
             #endregion
 
@@ -125,9 +129,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #endregion
 
             #region 执行XML
-            //var lbfs = repository.ExecuteXml("DictSelect");
-            //var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
-            //var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
+            var lbfs = repository.ExecuteXml("DictSelect");
+            var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
+            var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
             #endregion
 
             #region 事务

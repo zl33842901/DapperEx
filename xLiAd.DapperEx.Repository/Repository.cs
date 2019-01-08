@@ -63,12 +63,17 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="order">排序字段</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
         /// <returns></returns>
-        public List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T,TKey>> order, int top =0)
+        public List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T,TKey>> order, int top =0, bool desc = false)
         {
-            var q = con.QuerySet<T>().Where(predicate).OrderBy(order);
+            var q = con.QuerySet<T>().Where(predicate);
+            Order<T> o;
+            if (desc)
+                o = q.OrderByDescing(order);
+            else
+                o = q.OrderBy(order);
             if (top > 0)
-                return q.Top(top).ToList();
-            return q.ToList();
+                return o.Top(top).ToList();
+            return o.ToList();
         }
         /// <summary>
         /// 根据条件排序查询 并投影
