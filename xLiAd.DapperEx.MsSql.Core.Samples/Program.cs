@@ -17,7 +17,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
     }
     public class DictInfo
     {
-        [Identity]
+        //[Identity]
         [Key]
         public int DictID { get; set; }
         public string DictName { get; set; }
@@ -31,6 +31,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public int? DictType { get; set; }
         public List<int> TestList { get; set; }
         public int tttttttt { get; private set; }
+    }
+
+    public class TTTTTTtest
+    {
+        [Key]
+        [Identity]
+        public Guid Id { get; set; }
+        public string title { get; set; }
     }
     /// <summary>
     /// 本 ORM 优势：
@@ -52,14 +60,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);
             #endregion
             Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider);
+            Repository<TTTTTTtest> rep2 = new Repository<TTTTTTtest>(con);
             #region 增
+            //var mmmmm = new TTTTTTtest() { title = "sdfijwefi" };
+            //var iiiis = rep2.Add(mmmmm);
+            //Console.Write(iiiis);
             //当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
-            //var idd = repository.Add(new DictInfo() { DictName = "哇哈哈", CreateTime = DateTime.Now });
+            var idd = repository.Add(new DictInfo() { DictID = 126119, DictName = "哇哈哈", CreateTime = DateTime.Now });
             //var count = repository.AddTrans(new List<DictInfo>() {
             //    new DictInfo() { DictName = "康师傅5", CreateTime = DateTime.Now },
-            //    new DictInfo() { DictName = "康师傅6" }
+            //    new DictInfo() { DictName = "康师傅6", CreateTime = DateTime.Now }
             //});
-            //return;
+            return;
             #endregion
 
             #region 删
@@ -114,12 +126,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //var lrst = repository.WhereOrderSelect(x => x.DictID > id && x.DictName.Contains("总监") && x.CreateTime < new DateTime(2018, 1, 1), x => x.DictID, x => new { i1 = x.DictID, i2 = x.DictName });
             //查询实体方式
             //var dflkjsdf = repository.Where(new QueryDict() { Name = "技术副总裁", startdate = new DateTime(2016,1,1) }.Expression);
-            var feifjwo = repository.Where(x => x.CreateTime > new DateTime(2018, 12, 1), x => x.DictID, x => x.DictName);
+            //var feifjwo = repository.Where(x => x.CreateTime > new DateTime(2018, 12, 1), x => x.DictID, x => x.DictName);
 
-            var kk = repository.Where(x => x.DictID > 5555, x => x.DictID);
-            var jsldkfjsl = repository.PageList(x => x.CreateTime > new DateTime(2018, 12, 1), 1, 10, new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.Deleted, SortOrder.Descending), new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.DictID, SortOrder.Descending));
+            //var kk = repository.Where(x => x.DictID > 5555, x => x.DictID);
+            //var jsldkfjsl = repository.PageList(x => x.CreateTime > new DateTime(2018, 12, 1), 1, 10, new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.Deleted, SortOrder.Descending), new Tuple<Expression<Func<DictInfo, object>>, SortOrder>(x => x.DictID, SortOrder.Descending));
 
-            repository.PageList(x => x.DictID > 5555, x => x.DictID, 1, 10, true);
+            //repository.PageList(x => x.DictID > 5555, x => x.DictID, 1, 10, true);
             //return;
             #endregion
 
@@ -129,9 +141,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #endregion
 
             #region 执行XML
-            var lbfs = repository.ExecuteXml("DictSelect");
-            var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
-            var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
+            //var lbfs = repository.ExecuteXml("DictSelect");
+            //var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
+            //var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
             #endregion
 
             #region 事务

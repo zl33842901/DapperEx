@@ -231,9 +231,11 @@ namespace xLiAd.DapperEx.MsSql.Core
         /// <param name="entity"></param>
         /// <param name="isHaveIdentity">代表是否含有自增标识</param>
         /// <returns></returns>
-        public SqlProvider<T> FormatInsert(T entity, out bool isHaveIdentity, bool multiInsert = false)
+        public SqlProvider<T> FormatInsert(T entity, out IdentityTypeEnum isHaveIdentity,out PropertyInfo identityProperty, bool multiInsert = false)
         {
-            var paramsAndValuesSql = FormatInsertParamsAndValues(entity);
+            //标识属性
+            identityProperty = typeof(T).GetPropertiesInDb().FirstOrDefault(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)));
+            var paramsAndValuesSql = multiInsert ? FormatInsertParamsAndValues(entity,null) : FormatInsertParamsAndValues(entity, identityProperty);
 
             var ifnotexistsWhere = ResolveExpression.ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");
 
@@ -243,16 +245,28 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             if (!multiInsert)
             {
-                //bool isHaveIdentity = false; //代表是否含有自增标识
-                isHaveIdentity = typeof(T).GetPropertiesInDb().Count(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute))) > 0;
-                if (isHaveIdentity)
+                if (identityProperty != null)
                 {
-                    Params.Add("@id", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                    SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+                    if(identityProperty.PropertyType == typeof(Guid))
+                    {
+                        isHaveIdentity = IdentityTypeEnum.Guid;
+                        //Params.Add("@id", dbType: DbType.Guid, direction: ParameterDirection.Output);
+                        //SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+                    }
+                    else
+                    {
+                        isHaveIdentity = IdentityTypeEnum.Int;
+                        //Params.Add("@id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                        //SqlString = SqlString + ";SELECT @id=SCOPE_IDENTITY()";
+                    }
+                }
+                else
+                {
+                    isHaveIdentity = IdentityTypeEnum.NoIdentity;
                 }
             }
             else
-                isHaveIdentity = false;
+                isHaveIdentity = IdentityTypeEnum.NoIdentity;
             return this;
         }
 
@@ -383,8 +397,13 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             return SqlString;
         }
-
-        private string FormatInsertParamsAndValues(T entity)
+        /// <summary>
+        /// 生成列参数和值
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <param name="identityProperty">标识列（没有或批量插入时 这个应为null）</param>
+        /// <returns></returns>
+        private string FormatInsertParamsAndValues(T entity, PropertyInfo identityProperty)
         {
             var paramSqlBuilder = new StringBuilder(100);
             var valueSqlBuilder = new StringBuilder(100);
@@ -411,8 +430,12 @@ namespace xLiAd.DapperEx.MsSql.Core
 
                 isAppend = true;
             }
-
-            return $"({paramSqlBuilder}) VALUES  ({valueSqlBuilder})";
+            string outputString = string.Empty;
+            if(identityProperty != null)
+            {
+                outputString = $" OUTPUT INSERTED.{identityProperty.GetColumnAttributeName()} as insertedid ";
+            }
+            return $"({paramSqlBuilder}) {outputString} VALUES  ({valueSqlBuilder})";
         }
     }
 }

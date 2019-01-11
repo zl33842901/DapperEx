@@ -81,24 +81,29 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
 
         public int Insert(T entity)
         {
-            SqlProvider.FormatInsert(entity, out bool isHaveIdentity);
-
-            var r = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-            if (r > 0)
+            SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
+            if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Int)
             {
-                if (isHaveIdentity)
-                    return SqlProvider.Params.Get<int>("@id");
-                else
-                    return r;
+                var id = DbCon.ExecuteScalar<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                return id;
+            }
+            else if(isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Guid)
+            {
+                var gi = DbCon.ExecuteScalar<Guid>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                property.SetValue(entity, gi);
+                return 1;
             }
             else
-                return 0;
+            {
+                var r = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                return r;
+            }
         }
         public int Insert(IEnumerable<T> entitys)
         {
             if (entitys.Count() < 1)
                 return 0;
-            SqlProvider.FormatInsert(entitys.First(), out bool isHaveIdentity, true);
+            SqlProvider.FormatInsert(entitys.First(), out var isHaveIdentity,out var _, true);
             var rst = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
             return rst;
         }

@@ -11,4 +11,19 @@ namespace System.ComponentModel.DataAnnotations
     {
 
     }
+     public enum IdentityTypeEnum : byte
+    {
+        /// <summary>
+        /// 无标识
+        /// </summary>
+        NoIdentity = 0,
+        /// <summary>
+        /// Guid标识
+        /// </summary>
+        Guid = 1,
+        /// <summary>
+        /// 整型标识
+        /// </summary>
+        Int = 2
+    }
 }
