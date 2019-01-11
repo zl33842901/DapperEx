@@ -44,10 +44,30 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 
                 case ExpressionType.Convert:
                     var u = (UnaryExpression) expression;
+                    ////////////////当发生非空类型和空类型的转换时
                     if (TypeHelper.GetNonNullableType(u.Operand.Type) == TypeHelper.GetNonNullableType(type))
                     {
                         expression = u.Operand;
-                        return expression;
+                        if (expression.NodeType == ExpressionType.MemberAccess)
+                        {
+                            var s = Sub(expression);
+                            if (s.NodeType == ExpressionType.Constant)
+                            {
+                                var ss = s as ConstantExpression;
+                                if(u.Type != ss.Type)
+                                {
+                                    return Expression.Constant(ss.Value, u.Type);
+                                }
+                                else
+                                {
+                                    return ss;
+                                }
+                            }
+                            else
+                                return expression;
+                        }
+                        else
+                            return expression;
                     }
 
                     if (u.Operand.Type.IsEnum && u.Operand.NodeType == ExpressionType.MemberAccess)
@@ -108,7 +128,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             {
                 return base.Visit(exp);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return exp;
             }

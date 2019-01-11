@@ -19,7 +19,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
     {
         //[Identity]
         [Key]
-        public int DictID { get; set; }
+        public int? DictID { get; set; }
         public string DictName { get; set; }
         public string Remark { get; set; }
         [NotMapped]
@@ -66,12 +66,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //var iiiis = rep2.Add(mmmmm);
             //Console.Write(iiiis);
             //当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
-            var idd = repository.Add(new DictInfo() { DictID = 126119, DictName = "哇哈哈", CreateTime = DateTime.Now });
+            //var idd = repository.Add(new DictInfo() { DictID = 126119, DictName = "哇哈哈", CreateTime = DateTime.Now });
             //var count = repository.AddTrans(new List<DictInfo>() {
             //    new DictInfo() { DictName = "康师傅5", CreateTime = DateTime.Now },
             //    new DictInfo() { DictName = "康师傅6", CreateTime = DateTime.Now }
             //});
-            return;
+            //return;
             #endregion
 
             #region 删
@@ -108,7 +108,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             ////总数
             //var ccc = repository.CountAll;
             ////数量
-            //var r2 = repository.Where(x => x.DictType == null);
+            var aaa = 106071;
+            var bbb = "哈哈哈";
+            var r223 = repository.Where(x => x.DictName == bbb);
+            var r2 = repository.Where(x => x.DictID == aaa);
+            return;
             ////主键获取记录
             //var r3 = repository.Find(id);
             ////普通查询
