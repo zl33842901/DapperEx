@@ -25,6 +25,13 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         List<T> Where(Expression<Func<T, bool>> predicate);
         /// <summary>
+        /// 只获取指定字段
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="efdbd"></param>
+        /// <returns></returns>
+        List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd);
+        /// <summary>
         /// 根据条件获取数据并投影。
         /// </summary>
         /// <typeparam name="TResult"></typeparam>

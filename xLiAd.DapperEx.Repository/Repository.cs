@@ -11,7 +11,7 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.Repository
 {
-    public class Repository<T>
+    public class Repository<T> : IRepository<T>
     {
         protected SqlConnection con;
         RepoXmlProvider RepoXmlProvider;

@@ -49,3 +49,7 @@
 /.vs/config/applicationhost.config
 /xLiAd.DapperEx.Repository/.vs/xLiAd.DapperEx.Repository/v15/.suo
 /xLiAd.DapperEx.Repository/.vs
+/xLiAd.DapperEx.QueryHelper/bin
+/xLiAd.DapperEx.QueryHelper/obj
+/xLiAd.DapperEx.QueryHelper.Samples/bin/Debug/netcoreapp2.1
+/xLiAd.DapperEx.QueryHelper.Samples/obj
