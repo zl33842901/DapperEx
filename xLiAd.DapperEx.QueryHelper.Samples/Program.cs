@@ -61,7 +61,7 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
             QueryParamJoiner<Articles> qq = new QueryParamJoiner<Articles>();
             qq.AddItem<DictInfo, int>(x=>x.DictID, x => x.DictName, QueryParamJoinerOprater.Contains, x => x.DictID, repository);
             var nv2 = new System.Collections.Specialized.NameValueCollection();
-            nv2.Add("DictName", "技术副");
+            //nv2.Add("DictName", "技术副");
             var aa = qq.GetExpression(nv2);
             var l2 = repos.Where(aa);
 

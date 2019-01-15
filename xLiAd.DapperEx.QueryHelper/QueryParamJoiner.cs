@@ -61,6 +61,8 @@ namespace xLiAd.DapperEx.QueryHelper
         {
             Func<object, bool> func = x =>
             {
+                if (x == null)
+                    return false;
                 if (x.GetType() == typeof(string))
                 {
                     var vv = (string)x;
