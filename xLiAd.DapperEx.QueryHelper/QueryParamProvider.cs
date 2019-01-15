@@ -63,6 +63,8 @@ namespace xLiAd.DapperEx.QueryHelper
         {
             Func<object, bool> func = x =>
             {
+                if (x == null)
+                    return false;
                 if (x.GetType() == typeof(TKey) || (typeof(TKey).IsGenericType && typeof(TKey).GetGenericTypeDefinition() == typeof(Nullable<>) && typeof(TKey).GetGenericArguments()[0] == x.GetType()))
                 {
                     var vv = (TKey)x;
