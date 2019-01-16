@@ -75,7 +75,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                         object oo = (u.Operand as MemberExpression).MemberToValue();
                         if (oo != null)
                         {
-                            var value = Convert.ChangeType(oo, type);
+                            var value = Convert.ChangeType(oo, TypeHelper.GetNonNullableType(type));
                             return Expression.Constant(value, type);
                         }
                     }

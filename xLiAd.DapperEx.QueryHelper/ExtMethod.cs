@@ -73,8 +73,22 @@ namespace xLiAd.DapperEx.QueryHelper
             return realv;
         }
 
+        /// <summary>
+        /// 使用 DapperEx 模仿数据的 LeftJoin 功能，效率比 LeftJoin 高。 
+        /// </summary>
+        /// <typeparam name="TMain">主表实体类型</typeparam>
+        /// <typeparam name="TSub">副表实体类型</typeparam>
+        /// <typeparam name="TKey">关联字段的类型</typeparam>
+        /// <param name="l">主表实体列表</param>
+        /// <param name="table">副表仓储</param>
+        /// <param name="foreinKey">主表关联字段（外键）</param>
+        /// <param name="onEquals">副表关联字段</param>
+        /// <param name="action">关联后的操作</param>
+        /// <param name="subList">返回副表实体列表</param>
+        /// <param name="fields">副表需要查询的字段（关联字段无需指定）</param>
+        /// <returns></returns>
         public static ICollection<TMain> LeftJoin<TMain, TSub, TKey>(this ICollection<TMain> l, IRepository<TSub> table, Expression<Func<TMain,TKey>> foreinKey,
-            Expression<Func<TSub, TKey>> onEquals, Action<TMain, TSub> action, params Expression<Func<TSub, object>>[] fields)
+            Expression<Func<TSub, TKey>> onEquals, Action<TMain, TSub> action, out List<TSub> subList, params Expression<Func<TSub, object>>[] fields)
         {
             var lid = l.Select(foreinKey.Compile()).ToList();
 
@@ -85,13 +99,13 @@ namespace xLiAd.DapperEx.QueryHelper
             var eee = Expression.Lambda(Expression.Convert(onEquals.Body, typeof(object)), onEquals.Parameters) as Expression<Func<TSub, object>>;
             var fieldll = fields.ToList();
             fieldll.Add(eee);
-            var lr = table.Where(lamb, fieldll.ToArray());
+            subList = table.Where(lamb, fieldll.ToArray());
 
             foreach(var i in l)
             {
                 var value = foreinKey.Compile().Invoke(i);
                 var ee = Expression.Lambda<Func<TSub, bool>>(Expression.Equal(onEquals.Body, Expression.Constant(value)), onEquals.Parameters);
-                var r = lr.Where(ee.Compile()).FirstOrDefault();
+                var r = subList.Where(ee.Compile()).FirstOrDefault();
                 action.Invoke(i, r);
             }
             return l;

@@ -19,10 +19,10 @@ namespace xLiAd.DapperEx.QueryHelper
         /// </summary>
         /// <typeparam name="TKey">参数字段类型</typeparam>
         /// <param name="field">参数字段 请统一表达式参数名</param>
-        /// <param name="when">参数生效条件 默认为不为默认值</param>
-        /// <param name="paramName">参数在键值对里的名称 默认为和字段名称一致</param>
         /// <param name="oprater">比较符号 默认为相等</param>
-        public void AddItem<TKey>(Expression<Func<T, TKey>> field, Expression<Func<TKey, bool>> when = null, string paramName = null, QueryParamProviderOprater oprater = QueryParamProviderOprater.Equal)
+        /// <param name="when">参数生效条件 默认为不为默认值(string 的默认值为 不为null和string.Empty)</param>
+        /// <param name="paramName">参数在键值对里的名称 默认为和字段名称一致</param>
+        public void AddItem<TKey>(Expression<Func<T, TKey>> field, QueryParamProviderOprater oprater = QueryParamProviderOprater.Equal, Expression<Func<TKey, bool>> when = null, string paramName = null)
         {
             if (paramName == null)
                 paramName = ((MemberExpression)field.Body).Member.Name;
@@ -31,11 +31,20 @@ namespace xLiAd.DapperEx.QueryHelper
                 var vvv = default(TKey);
                 ParameterExpression para = Expression.Parameter(typeof(TKey));
                 when = Expression.Lambda<Func<TKey, bool>>(Expression.NotEqual(para, Expression.Constant(vvv)), para) as Expression<Func<TKey, bool>>;
+                //////////////////////////////////对string 的默认值进行处理
+                if (typeof(TKey) == typeof(string))
+                {
+                    when = when.And(Expression.Lambda<Func<TKey, bool>>(Expression.NotEqual(para, Expression.Constant(string.Empty)), para));
+                }
             }
             QueryParamProviderItem<T, TKey> item = new QueryParamProviderItem<T, TKey>(field, when, paramName, oprater);
             Items.Add(item);
         }
-
+        /// <summary>
+        /// 获取表达式
+        /// </summary>
+        /// <param name="nameValue"></param>
+        /// <returns></returns>
         public Expression<Func<T, bool>> GetExpression(NameValueCollection nameValue)
         {
             Expression<Func<T, bool>> expression = null;
@@ -54,11 +63,18 @@ namespace xLiAd.DapperEx.QueryHelper
     }
     internal class QueryParamProviderItem<T, TKey> : IQueryParamProviderItem<T>
     {
+        /// <summary>
+        /// 要查询的字段（属性）
+        /// </summary>
         public Expression<Func<T, TKey>> Field { get; private set; }
         /// <summary>
         /// 表达式什么时候生效
         /// </summary>
         public Expression<Func<TKey, bool>> When { get; private set; }
+        /// <summary>
+        /// 根据 When 计算出来的委托，表达式什么时候生效
+        /// </summary>
+        /// <returns></returns>
         public Func<object, bool> ValidWhen()
         {
             Func<object, bool> func = x =>
@@ -75,9 +91,21 @@ namespace xLiAd.DapperEx.QueryHelper
             };
             return func;
         }
+        /// <summary>
+        /// 参数名称 多数情况和属性名一样  在本类内只作记录，无实际用途
+        /// </summary>
         public string ParamName { get; private set; }
+        /// <summary>
+        /// 操作符
+        /// </summary>
         public QueryParamProviderOprater Oprater { get; private set; }
+        /// <summary>
+        /// 查询相关的值
+        /// </summary>
         public TKey Value { get; private set; }
+        /// <summary>
+        /// 属性的类型
+        /// </summary>
         public Type FieldType => typeof(TKey);
         /// <summary>
         /// 生成一个查询项
@@ -92,6 +120,11 @@ namespace xLiAd.DapperEx.QueryHelper
             ParamName = paramName;
             Oprater = oprater;
         }
+        /// <summary>
+        /// 获取表达式
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
         public Expression<Func<T, bool>> GetExpression(TKey v)
         {
             this.Value = v;

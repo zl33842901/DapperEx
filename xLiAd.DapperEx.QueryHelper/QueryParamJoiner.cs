@@ -12,10 +12,22 @@ namespace xLiAd.DapperEx.QueryHelper
     /// <summary>
     /// 类似JOIN的查询 （即 根据另一个表的 字符串 查到的ID 对主表进行查询）
     /// </summary>
-    /// <typeparam name="TMain"></typeparam>
+    /// <typeparam name="TMain">主表的实体类型</typeparam>
     public class QueryParamJoiner<TMain>
     {
         private List<IQueryParamJoinerItem<TMain>> Items = new List<IQueryParamJoinerItem<TMain>>();
+        /// <summary>
+        /// 添加一个查询项
+        /// </summary>
+        /// <typeparam name="TSub">副表的实体类型</typeparam>
+        /// <typeparam name="TKey">主表副表关联字段的类型</typeparam>
+        /// <param name="mainField">主表关联字段</param>
+        /// <param name="queryField">副表查询字段</param>
+        /// <param name="oprater">操作符</param>
+        /// <param name="keyField">副表关联字段</param>
+        /// <param name="repository">表仓储</param>
+        /// <param name="when">参数生效条件 默认值为 不为null和string.Empty</param>
+        /// <param name="paramName">参数在键值对里的名称 默认为和字段名称一致</param>
         public void AddItem<TSub, TKey>(Expression<Func<TMain, TKey>> mainField, Expression<Func<TSub,string>> queryField, 
             QueryParamJoinerOprater oprater, Expression<Func<TSub, TKey>> keyField, IRepository<TSub> repository,
             Expression<Func<string, bool>> when = null, string paramName = null)
@@ -27,11 +39,17 @@ namespace xLiAd.DapperEx.QueryHelper
                 var vvv = default(string);
                 ParameterExpression para = Expression.Parameter(typeof(string));
                 when = Expression.Lambda<Func<string, bool>>(Expression.NotEqual(para, Expression.Constant(vvv)), para) as Expression<Func<string, bool>>;
+                when = when.And(Expression.Lambda<Func<string, bool>>(Expression.NotEqual(para, Expression.Constant(string.Empty)), para));
             }
             QueryParamJoinerItem<TMain, TSub, TKey> item = new QueryParamJoinerItem<TMain, TSub, TKey>(mainField, queryField, oprater,keyField, repository,
                 when, paramName);
             Items.Add(item);
         }
+        /// <summary>
+        /// 获取表达式
+        /// </summary>
+        /// <param name="nameValue"></param>
+        /// <returns></returns>
         public Expression<Func<TMain, bool>> GetExpression(NameValueCollection nameValue)
         {
             Expression<Func<TMain, bool>> expression = null;

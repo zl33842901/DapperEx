@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace xLiAd.DapperEx.MsSql.Core.Samples
 {
-    public enum OrderEnum
+    public enum OrderEnum : int
     {
         optionA = 1,
         optionB = 2
@@ -27,7 +27,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public string DictName2 => DictName;
         public DateTime CreateTime { get; set; }
         public bool Deleted { get; set; }
-        public OrderEnum OrderNum { get; set; }
+        public OrderEnum? OrderNum { get; set; }
         public int? DictType { get; set; }
         public List<int> TestList { get; set; }
         public int tttttttt { get; private set; }
@@ -110,8 +110,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             ////数量
             var aaa = 106071;
             var bbb = "哈哈哈";
-            var r223 = repository.Where(x => x.DictName == bbb);
-            var r2 = repository.Where(x => x.DictID == aaa);
+            var ccc = OrderEnum.optionA;
+            var r223 = repository.Where(x => x.OrderNum == ccc);
+            //var r2 = repository.Where(x => x.DictID == aaa);
             return;
             ////主键获取记录
             //var r3 = repository.Find(id);

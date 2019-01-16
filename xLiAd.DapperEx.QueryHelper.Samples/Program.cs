@@ -42,18 +42,18 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
             Repository<DictInfo> repository = new Repository<DictInfo>(con, null);
 
             var q = new QueryParamProvider<DictInfo>();
-            q.AddItem(x => x.DictName, x=>x!=null, null, QueryParamProviderOprater.Contains);
-            q.AddItem(x => x.DictID, null, null, QueryParamProviderOprater.LessThanOrEqual);
-            q.AddItem(x => x.CreateTime, null, "startTime", QueryParamProviderOprater.GreaterThanOrEqual);
-            q.AddItem(x => x.CreateTime, null, "endTime", QueryParamProviderOprater.LessThan);
+            q.AddItem(x => x.DictName, QueryParamProviderOprater.Contains);
+            q.AddItem(x => x.DictID, QueryParamProviderOprater.LessThanOrEqual, null, null);
+            q.AddItem(x => x.CreateTime, QueryParamProviderOprater.GreaterThanOrEqual, null, "startTime");
+            q.AddItem(x => x.CreateTime, QueryParamProviderOprater.LessThan, null, "endTime");
             var nv = new System.Collections.Specialized.NameValueCollection();
-            nv.Add("DictName", "哈");
-            nv.Add("DictID", "106071");
-            nv.Add("startTime", "2018-12-1");
+            //nv.Add("DictName", "");
+            //nv.Add("DictID", "106071");
+            //nv.Add("startTime", "2018-12-1");
             //nv.Add("endTime", "2019-2-1");
             var ee = q.GetExpression(nv);
 
-            //var l = repository.Where(ee);
+            var l = repository.Where(ee);
 
 
 
