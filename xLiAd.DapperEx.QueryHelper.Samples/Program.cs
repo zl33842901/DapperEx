@@ -65,7 +65,7 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
             var aa = qq.GetExpression(nv2);
             var l2 = repos.Where(aa);
 
-            l2.LeftJoin(repository, x => x.DictID, x => x.DictID, (x, y) => { x.bbbb = y.DictName; }, x=>x.DictName);
+            l2.LeftJoin(repository, x => x.DictID, x => x.DictID, (x, y) => { x.bbbb = y.DictName; }, out var _, x=>x.DictName);
         }
     }
 }

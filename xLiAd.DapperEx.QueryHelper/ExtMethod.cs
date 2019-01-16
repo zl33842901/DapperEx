@@ -93,7 +93,7 @@ namespace xLiAd.DapperEx.QueryHelper
             var lid = l.Select(foreinKey.Compile()).ToList();
 
             ParameterExpression paraM = Expression.Parameter(typeof(TSub));
-            MethodCallExpression metM = Expression.Call(Expression.Constant(lid), typeof(List<TKey>).GetMethod("Contains"), foreinKey.Body);
+            MethodCallExpression metM = Expression.Call(Expression.Constant(lid), typeof(List<TKey>).GetMethod("Contains"), onEquals.Body);
             Expression<Func<TSub, bool>> lamb = Expression.Lambda<Func<TSub, bool>>(metM, paraM);
 
             var eee = Expression.Lambda(Expression.Convert(onEquals.Body, typeof(object)), onEquals.Parameters) as Expression<Func<TSub, object>>;
