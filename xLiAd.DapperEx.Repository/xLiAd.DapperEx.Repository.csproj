@@ -8,7 +8,7 @@
     <Copyright>Copyright © zhanglei 2019</Copyright>
     <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
-    <Version>1.7.9</Version>
+    <Version>1.9.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

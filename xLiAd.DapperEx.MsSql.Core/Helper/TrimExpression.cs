@@ -66,6 +66,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                             else
                                 return expression;
                         }
+                        else if(expression.NodeType == ExpressionType.Constant)
+                        {
+
+                            return Expression.Constant(((ConstantExpression)expression).Value, u.Type);
+                        }
                         else
                             return expression;
                     }

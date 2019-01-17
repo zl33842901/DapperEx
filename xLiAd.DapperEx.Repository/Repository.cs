@@ -6,6 +6,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using xLiAd.DapperEx.MsSql.Core;
+using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
+using xLiAd.DapperEx.MsSql.Core.Core.SetC;
 using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
 using xLiAd.DapperEx.MsSql.Core.Model;
 
@@ -25,25 +27,64 @@ namespace xLiAd.DapperEx.Repository
             con = _con;
             RepoXmlProvider = repoXmlProvider;
         }
+        private ISql Sql { get; set; }
+        /// <summary>
+        /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
+        /// </summary>
+        public string SqlString => Sql?.SqlString;
+        /// <summary>
+        /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
+        /// </summary>
+        public DynamicParameters Params => Sql?.Params;
+        private QuerySet<T> QuerySet
+        {
+            get
+            {
+                var qs = con.QuerySet<T>();
+                this.Sql = qs;
+                return qs;
+            }
+        }
+        private CommandSet<T> CommandSet
+        {
+            get
+            {
+                var cs = con.CommandSet<T>();
+                this.Sql = cs;
+                return cs;
+            }
+        }
+        private CommandSet<T> GetCommandSet(TransContext tc)
+        {
+            var cs = tc.CommandSet<T>();
+            this.Sql = cs;
+            return cs;
+        }
+
         public void Dispose() { if (con != null) con.Dispose(); }
         /// <summary>
         /// 获取所有数据
         /// </summary>
         /// <returns></returns>
-        public virtual List<T> All() { return con.QuerySet<T>().ToList(); }
+        public virtual List<T> All()
+        {
+            return QuerySet.ToList();
+        }
         /// <summary>
         /// 根据条件获取数据
         /// </summary>
         /// <param name="predicate">条件表达式</param>
         /// <returns></returns>
-        public List<T> Where(Expression<Func<T, bool>> predicate) { return con.QuerySet<T>().Where(predicate).ToList(); }
+        public List<T> Where(Expression<Func<T, bool>> predicate) {
+            return QuerySet.Where(predicate).ToList();
+        }
         /// <summary>
         /// 只获取指定字段
         /// </summary>
         /// <param name="predicate"></param>
         /// <param name="efdbd"></param>
         /// <returns></returns>
-        public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd) { return con.QuerySet<T>().Where(predicate).ToList(efdbd); }
+        public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd) { return QuerySet.Where(predicate).ToList(efdbd); }
         /// <summary>
         /// 根据条件获取数据并投影。
         /// </summary>
@@ -53,7 +94,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<TResult> WhereSelect<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T,TResult>> selector)
         {
-            return con.QuerySet<T>().Where(predicate).Select(selector).ToList();
+            return QuerySet.Where(predicate).Select(selector).ToList();
         }
         /// <summary>
         /// 根据条件排序查询
@@ -65,7 +106,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T,TKey>> order, int top =0, bool desc = false)
         {
-            var q = con.QuerySet<T>().Where(predicate);
+            var q = QuerySet.Where(predicate);
             Order<T> o;
             if (desc)
                 o = q.OrderByDescing(order);
@@ -87,7 +128,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T,TResult>> selector, int top =0)
         {
-            var q = con.QuerySet<T>().Where(predicate).OrderBy(order);
+            var q = QuerySet.Where(predicate).OrderBy(order);
             if(top > 0)
                 return q.Top(top).Select(selector).ToList();
             return q.Select(selector).ToList();
@@ -99,7 +140,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Add(T obj)
         {
-            var r = con.CommandSet<T>().Insert(obj);
+            var r = CommandSet.Insert(obj);
             return r;
         }
         /// <summary>
@@ -109,7 +150,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Add(IEnumerable<T> objs)
         {
-            var r = con.CommandSet<T>().Insert(objs);
+            var r = CommandSet.Insert(objs);
             return r;
         }
         /// <summary>
@@ -122,7 +163,7 @@ namespace xLiAd.DapperEx.Repository
             int c = 0;
             con.Transaction(tc =>
             {
-                c = tc.CommandSet<T>().Insert(objs);
+                c = GetCommandSet(tc).Insert(objs);
             });
             return c;
         }
@@ -138,7 +179,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<T> PageList<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> orderBy, int pageindex = 1, int pagesize = 50, bool desc = false)
         {
-            var q = con.QuerySet<T>().Where(filter);
+            var q = QuerySet.Where(filter);
             Order<T> qq;
             if (desc)
                 qq = q.OrderByDescing(orderBy);
@@ -157,7 +198,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<T> PageList(Expression<Func<T, bool>> filter, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T,object>>, SortOrder>[] orders)
         {
-            var q = con.QuerySet<T>().Where(filter);
+            var q = QuerySet.Where(filter);
             Order<T> qq = q;
             foreach(var order in orders)
             {
@@ -184,7 +225,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<T> PageList<TKey1, TKey2>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey1>> order1, bool order1Desc, Expression<Func<T, TKey2>> order2, bool order2Desc, int pageindex = 1, int pagesize = 50)
         {
-            var q = con.QuerySet<T>().Where(filter);
+            var q = QuerySet.Where(filter);
             Order<T> qq = q;
             if (order1Desc)
                 qq = qq.OrderByDescing(order1);
@@ -209,7 +250,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<TResult> PageListSelect<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T,TResult>> selector, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
         {
-            var q = con.QuerySet<T>().Where(filter);
+            var q = QuerySet.Where(filter);
             Order<T> qq = q;
             foreach (var order in orders)
             {
@@ -228,7 +269,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public T Find(Expression<Func<T, bool>> predicate)
         {
-            return con.QuerySet<T>().Where(predicate).Get();
+            return QuerySet.Where(predicate).Get();
         }
         /// <summary>
         /// 根据主键获取一条数据（实体类需要设置主键 在主键属性上加 Key特性）
@@ -238,7 +279,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public T Find<TKey>(TKey id)
         {
-            return con.QuerySet<T>().Get(id);
+            return QuerySet.Get(id);
         }
         /// <summary>
         /// 根据条件获取一条数据并投影
@@ -249,14 +290,14 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
         {
-            return con.QuerySet<T>().Where(predicate).Select(keySelector).Get();
+            return QuerySet.Where(predicate).Select(keySelector).Get();
         }
         /// <summary>
         /// 根据条件取得数据数量
         /// </summary>
         /// <param name="predicate">条件表达式</param>
         /// <returns></returns>
-        public int Count(Expression<Func<T, bool>> predicate) { return con.QuerySet<T>().Where(predicate).Count(); }
+        public int Count(Expression<Func<T, bool>> predicate) { return QuerySet.Where(predicate).Count(); }
         /// <summary>
         /// 是否存在符合条件的记录
         /// </summary>
@@ -269,7 +310,7 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 取得数据总数量
         /// </summary>
-        public int CountAll { get { return con.QuerySet<T>().Count(); } }
+        public int CountAll { get { return QuerySet.Count(); } }
         /// <summary>
         /// 根据条件删除数据
         /// </summary>
@@ -277,7 +318,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Delete(Expression<Func<T, bool>> predicate)
         {
-            return con.CommandSet<T>().Where(predicate).Delete();
+            return CommandSet.Where(predicate).Delete();
         }
         /// <summary>
         /// 根据主键删除数据（实体类需要设置主键 在主键属性上加 Key特性）
@@ -286,7 +327,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int Delete<TKey>(TKey id)
         {
-            return con.CommandSet<T>().Delete(id);
+            return CommandSet.Delete(id);
         }
         /// <summary>
         /// 根据主键删除数据(事务操作)（实体类需要设置主键 在主键属性上加 Key特性）
@@ -300,7 +341,7 @@ namespace xLiAd.DapperEx.Repository
             con.Transaction(tc =>
             {
                 foreach(var i in idList)
-                    c += tc.CommandSet<T>().Delete(i);
+                    c += GetCommandSet(tc).Delete(i);
             });
             return c;
         }
@@ -311,7 +352,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Update(T TObject)
         {
-            return con.CommandSet<T>().Update(TObject);
+            return CommandSet.Update(TObject);
         }
         /// <summary>
         /// 根据主键更新一些数据的 除主键外的全部属性字段（事务操作）
@@ -324,7 +365,7 @@ namespace xLiAd.DapperEx.Repository
             con.Transaction(tc =>
             {
                 foreach (var m in entityList)
-                    c += tc.CommandSet<T>().Update(m);
+                    c += GetCommandSet(tc).Update(m);
             });
             return c;
         }
@@ -336,7 +377,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Update(T d, params Expression<Func<T, object>>[] efdbd)
         {
-            return con.CommandSet<T>().Update(d, efdbd);
+            return CommandSet.Update(d, efdbd);
         }
         /// <summary>
         /// 根据条件更新某个字段
@@ -348,7 +389,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int UpdateWhere<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> key, TKey value)
         {
-            return con.CommandSet<T>().Where(predicate).Update(key, value);
+            return CommandSet.Where(predicate).Update(key, value);
         }
         /// <summary>
         /// 根据条件更新若干字段
@@ -359,7 +400,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int UpdateWhere(Expression<Func<T, bool>> predicate, T d, params Expression<Func<T, object>>[] efdbd)
         {
-            return con.CommandSet<T>().Where(predicate).Update(d, efdbd);
+            return CommandSet.Where(predicate).Update(d, efdbd);
         }
         /// <summary>
         /// 把参数字典转换为动态参数， 并替换语句中的转义参数名（如果有的话）

@@ -8,7 +8,7 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
 {
-    public class CommandSet<T> : Command<T>, Interfaces.ISet<T>
+    public class CommandSet<T> : Command<T>, Interfaces.ISet<T>, ISql
     {
         internal Type TableType { get; set; }
 

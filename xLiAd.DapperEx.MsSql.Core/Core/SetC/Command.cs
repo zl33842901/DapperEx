@@ -19,6 +19,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         protected readonly IDbConnection DbCon;
         private readonly IDbTransaction _dbTransaction;
         protected DataBaseContext<T> SetContext { get; set; }
+        /// <summary>
+        /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
+        /// </summary>
+        public string SqlString => SqlProvider?.SqlString;
+        /// <summary>
+        /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
+        /// </summary>
+        public DynamicParameters Params => SqlProvider?.Params;
 
         protected Command(IDbConnection conn, SqlProvider<T> sqlProvider)
         {

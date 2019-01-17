@@ -13,11 +13,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
     /// 查询
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class Query<T> : IQuery<T>, IUpdateSelect<T>
+    public abstract class Query<T> : IQuery<T>, IUpdateSelect<T>, ISql
     {
         protected readonly SqlProvider<T> SqlProvider;
         protected readonly IDbConnection DbCon;
         protected readonly IDbTransaction DbTransaction;
+        /// <summary>
+        /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
+        /// </summary>
+        public string SqlString => SqlProvider?.SqlString;
+        /// <summary>
+        /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
+        /// </summary>
+        public DynamicParameters Params => SqlProvider?.Params;
 
         protected DataBaseContext<T> SetContext { get; set; }
 

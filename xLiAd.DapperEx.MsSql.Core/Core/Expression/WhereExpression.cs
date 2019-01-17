@@ -219,27 +219,26 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private void Like(MethodCallExpression node)
         {
             Visit(node.Object);
-            var paramName = "@" + TempFileName;
-            _sqlCmd.AppendFormat(" LIKE {0}", paramName);
+            _sqlCmd.AppendFormat(" LIKE ");
 
             switch (node.Method.Name)
             {
                 case "StartsWith":
                     {
                         var argumentExpression = (ConstantExpression)node.Arguments[0];
-                        Param.Add(TempFileName, argumentExpression.Value + "%");
+                        SetParam(TempFileName, argumentExpression.Value + "%");
                     }
                     break;
                 case "EndsWith":
                     {
                         var argumentExpression = (ConstantExpression)node.Arguments[0];
-                        Param.Add(TempFileName, "%" + argumentExpression.Value);
+                        SetParam(TempFileName, "%" + argumentExpression.Value);
                     }
                     break;
                 case "Contains":
                     {
                         var argumentExpression = (ConstantExpression)node.Arguments[0];
-                        Param.Add(TempFileName, "%" + argumentExpression.Value + "%");
+                        SetParam(TempFileName, "%" + argumentExpression.Value + "%");
                     }
                     break;
                 default:
@@ -270,19 +269,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                     return;
                 }
                 Visit(node.Arguments[0]);
-                var paramName = "@" + TempFileName;
-                _sqlCmd.AppendFormat(" IN {0}", paramName);
-                Param.Add(TempFileName, arrayValue);
+                _sqlCmd.AppendFormat(" IN ");
+                SetParam(TempFileName, arrayValue);
             }
             else
             {
                 if(node.Arguments.Count == 2 && typeof(IEnumerable).IsAssignableFrom(node.Arguments[0].Type))
                 {
                     Visit(node.Arguments[1]);
-                    var paramName = "@" + TempFileName;
-                    _sqlCmd.AppendFormat(" IN {0}", paramName);
+                    _sqlCmd.AppendFormat(" IN ");
                     var o = ((ConstantExpression)node.Arguments[0]).Value;
-                    Param.Add(TempFileName, o);
+                    SetParam(TempFileName, o);
                 }
             }
         }
