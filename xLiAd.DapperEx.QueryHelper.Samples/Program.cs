@@ -53,15 +53,15 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
             //nv.Add("endTime", "2019-2-1");
             var ee = q.GetExpression(nv);
 
-            var l = repository.Where(ee);
+            //var l = repository.Where(ee);
 
 
 
             Repository<Articles> repos = new Repository<Articles>(con, null);
             QueryParamJoiner<Articles> qq = new QueryParamJoiner<Articles>();
-            qq.AddItem<DictInfo, int>(x=>x.DictID, x => x.DictName, QueryParamJoinerOprater.Contains, x => x.DictID, repository);
+            qq.AddItem<DictInfo, int>(repository, x => x.DictName, QueryParamJoinerOprater.Contains, x => x.DictID, x => x.DictID);
             var nv2 = new System.Collections.Specialized.NameValueCollection();
-            //nv2.Add("DictName", "技术副");
+            nv2.Add("DictName", "技术副");
             var aa = qq.GetExpression(nv2);
             var l2 = repos.Where(aa);
 

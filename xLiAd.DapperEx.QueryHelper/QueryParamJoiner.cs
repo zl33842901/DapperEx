@@ -28,8 +28,8 @@ namespace xLiAd.DapperEx.QueryHelper
         /// <param name="repository">表仓储</param>
         /// <param name="when">参数生效条件 默认值为 不为null和string.Empty</param>
         /// <param name="paramName">参数在键值对里的名称 默认为和字段名称一致</param>
-        public void AddItem<TSub, TKey>(Expression<Func<TMain, TKey>> mainField, Expression<Func<TSub,string>> queryField, 
-            QueryParamJoinerOprater oprater, Expression<Func<TSub, TKey>> keyField, IRepository<TSub> repository,
+        public void AddItem<TSub, TKey>(IRepository<TSub> repository, Expression<Func<TSub, string>> queryField,
+            QueryParamJoinerOprater oprater, Expression<Func<TMain, TKey>> mainField, Expression<Func<TSub, TKey>> keyField, 
             Expression<Func<string, bool>> when = null, string paramName = null)
         {
             if (paramName == null)
@@ -97,6 +97,10 @@ namespace xLiAd.DapperEx.QueryHelper
         public IRepository<TSub> Repository { get; private set; }
         public string Value { get; private set; }
         /// <summary>
+        /// 选出来的关联字段值，此字段是调试用的（注意，在单例模式下可能会发生线程访问问题，所以不应该在程序中使用此字段值）
+        /// </summary>
+        public List<TKey> KeySelectedList { get; private set; }
+        /// <summary>
         /// 这个在这边没什么用了。
         /// </summary>
         public Type FieldType => typeof(TKey);
@@ -131,8 +135,8 @@ namespace xLiAd.DapperEx.QueryHelper
                     throw new NotSupportedException();
             }
             var l = Repository.WhereSelect(exp, KeyField);
-
-            ParameterExpression paraM = Expression.Parameter(typeof(TMain));
+            KeySelectedList = l;
+            ParameterExpression paraM = Expression.Parameter(typeof(TMain), this.MainField.Parameters[0].Name);
             MethodCallExpression metM = Expression.Call(Expression.Constant(l), typeof(List<TKey>).GetMethod("Contains"),
                 MainField.Body);
             Expression<Func<TMain, bool>> lamb = Expression.Lambda<Func<TMain, bool>>(metM, paraM);
