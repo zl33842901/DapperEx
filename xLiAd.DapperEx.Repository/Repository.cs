@@ -28,14 +28,19 @@ namespace xLiAd.DapperEx.Repository
             RepoXmlProvider = repoXmlProvider;
         }
         private ISql Sql { get; set; }
+        private void DoSetSql()
+        {
+            this.SqlString = this.Sql?.SqlString;
+            this.Params = this.Sql?.Params;
+        }
         /// <summary>
         /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public string SqlString => Sql?.SqlString;
+        public string SqlString { get; private set; }
         /// <summary>
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public DynamicParameters Params => Sql?.Params;
+        public DynamicParameters Params { get; private set; }
         private QuerySet<T> QuerySet
         {
             get
@@ -68,7 +73,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual List<T> All()
         {
-            return QuerySet.ToList();
+            var rst = QuerySet.ToList();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件获取数据
@@ -76,7 +83,9 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="predicate">条件表达式</param>
         /// <returns></returns>
         public List<T> Where(Expression<Func<T, bool>> predicate) {
-            return QuerySet.Where(predicate).ToList();
+            var rst = QuerySet.Where(predicate).ToList();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 只获取指定字段
@@ -84,7 +93,11 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="predicate"></param>
         /// <param name="efdbd"></param>
         /// <returns></returns>
-        public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd) { return QuerySet.Where(predicate).ToList(efdbd); }
+        public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd) {
+            var rst = QuerySet.Where(predicate).ToList(efdbd);
+            DoSetSql();
+            return rst;
+        }
         /// <summary>
         /// 根据条件获取数据并投影。
         /// </summary>
@@ -94,7 +107,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<TResult> WhereSelect<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T,TResult>> selector)
         {
-            return QuerySet.Where(predicate).Select(selector).ToList();
+            var rst = QuerySet.Where(predicate).Select(selector).ToList();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件排序查询
@@ -114,7 +129,9 @@ namespace xLiAd.DapperEx.Repository
                 o = q.OrderBy(order);
             if (top > 0)
                 return o.Top(top).ToList();
-            return o.ToList();
+            var rst = o.ToList();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件排序查询 并投影
@@ -131,7 +148,9 @@ namespace xLiAd.DapperEx.Repository
             var q = QuerySet.Where(predicate).OrderBy(order);
             if(top > 0)
                 return q.Top(top).Select(selector).ToList();
-            return q.Select(selector).ToList();
+            var rst = q.Select(selector).ToList();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 单条数据插入  请在标识属性上加 Identity 特性
@@ -140,8 +159,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Add(T obj)
         {
-            var r = CommandSet.Insert(obj);
-            return r;
+            var rst = CommandSet.Insert(obj);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 多条数据插入  请在标识属性上加 Identity 特性
@@ -150,8 +170,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Add(IEnumerable<T> objs)
         {
-            var r = CommandSet.Insert(objs);
-            return r;
+            var rst = CommandSet.Insert(objs);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 多条数据插入(事务操作)  请在标识属性上加 Identity 特性
@@ -165,6 +186,7 @@ namespace xLiAd.DapperEx.Repository
             {
                 c = GetCommandSet(tc).Insert(objs);
             });
+            DoSetSql();
             return c;
         }
         /// <summary>
@@ -186,6 +208,7 @@ namespace xLiAd.DapperEx.Repository
             else
                 qq = q.OrderBy(orderBy);
             var rst = qq.PageList(pageindex, pagesize);
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -208,6 +231,7 @@ namespace xLiAd.DapperEx.Repository
                     qq = qq.OrderBy(order.Item1);
             }
             var rst = qq.PageList(pageindex, pagesize);
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -236,6 +260,7 @@ namespace xLiAd.DapperEx.Repository
             else
                 qq = qq.OrderBy(order2);
             var rst = qq.PageList(pageindex, pagesize);
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -260,6 +285,7 @@ namespace xLiAd.DapperEx.Repository
                     qq = qq.OrderBy(order.Item1);
             }
             var rst = qq.Select(selector).PageList(pageindex, pagesize);
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -269,7 +295,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public T Find(Expression<Func<T, bool>> predicate)
         {
-            return QuerySet.Where(predicate).Get();
+            var rst = QuerySet.Where(predicate).Get();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据主键获取一条数据（实体类需要设置主键 在主键属性上加 Key特性）
@@ -279,7 +307,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public T Find<TKey>(TKey id)
         {
-            return QuerySet.Get(id);
+            var rst = QuerySet.Get(id);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件获取一条数据并投影
@@ -290,14 +320,20 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
         {
-            return QuerySet.Where(predicate).Select(keySelector).Get();
+            var rst = QuerySet.Where(predicate).Select(keySelector).Get();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件取得数据数量
         /// </summary>
         /// <param name="predicate">条件表达式</param>
         /// <returns></returns>
-        public int Count(Expression<Func<T, bool>> predicate) { return QuerySet.Where(predicate).Count(); }
+        public int Count(Expression<Func<T, bool>> predicate) {
+            var rst = QuerySet.Where(predicate).Count();
+            DoSetSql();
+            return rst;
+        }
         /// <summary>
         /// 是否存在符合条件的记录
         /// </summary>
@@ -310,7 +346,13 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 取得数据总数量
         /// </summary>
-        public int CountAll { get { return QuerySet.Count(); } }
+        public int CountAll {
+            get {
+                var rst = QuerySet.Count();
+                DoSetSql();
+                return rst;
+            }
+        }
         /// <summary>
         /// 根据条件删除数据
         /// </summary>
@@ -318,7 +360,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Delete(Expression<Func<T, bool>> predicate)
         {
-            return CommandSet.Where(predicate).Delete();
+            var rst = CommandSet.Where(predicate).Delete();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据主键删除数据（实体类需要设置主键 在主键属性上加 Key特性）
@@ -327,7 +371,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int Delete<TKey>(TKey id)
         {
-            return CommandSet.Delete(id);
+            var rst = CommandSet.Delete(id);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据主键删除数据(事务操作)（实体类需要设置主键 在主键属性上加 Key特性）
@@ -343,6 +389,7 @@ namespace xLiAd.DapperEx.Repository
                 foreach(var i in idList)
                     c += GetCommandSet(tc).Delete(i);
             });
+            DoSetSql();
             return c;
         }
         /// <summary>
@@ -352,7 +399,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Update(T TObject)
         {
-            return CommandSet.Update(TObject);
+            var rst = CommandSet.Update(TObject);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据主键更新一些数据的 除主键外的全部属性字段（事务操作）
@@ -367,6 +416,7 @@ namespace xLiAd.DapperEx.Repository
                 foreach (var m in entityList)
                     c += GetCommandSet(tc).Update(m);
             });
+            DoSetSql();
             return c;
         }
         /// <summary>
@@ -377,7 +427,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Update(T d, params Expression<Func<T, object>>[] efdbd)
         {
-            return CommandSet.Update(d, efdbd);
+            var rst = CommandSet.Update(d, efdbd);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件更新某个字段
@@ -389,7 +441,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int UpdateWhere<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> key, TKey value)
         {
-            return CommandSet.Where(predicate).Update(key, value);
+            var rst = CommandSet.Where(predicate).Update(key, value);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件更新若干字段
@@ -400,7 +454,9 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int UpdateWhere(Expression<Func<T, bool>> predicate, T d, params Expression<Func<T, object>>[] efdbd)
         {
-            return CommandSet.Where(predicate).Update(d, efdbd);
+            var rst = CommandSet.Where(predicate).Update(d, efdbd);
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 把参数字典转换为动态参数， 并替换语句中的转义参数名（如果有的话）
