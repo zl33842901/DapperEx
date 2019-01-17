@@ -345,15 +345,23 @@ namespace xLiAd.DapperEx.Repository
         {
             return Count(predicate) > 0;
         }
+
+        private int? countAll = null;
         /// <summary>
         /// 取得数据总数量
         /// </summary>
         public int CountAll {
             get {
-                var rst = QuerySet.Count();
-                DoSetSql();
-                return rst;
+                if (countAll == null)
+                    countAll = Count();
+                return countAll.Value;
             }
+        }
+        public int Count()
+        {
+            var rst = QuerySet.Count();
+            DoSetSql();
+            return rst;
         }
         /// <summary>
         /// 根据条件删除数据
