@@ -30,8 +30,10 @@ namespace xLiAd.DapperEx.Repository
         private ISql Sql { get; set; }
         private void DoSetSql()
         {
-            this.SqlString = this.Sql?.SqlString;
-            this.Params = this.Sql?.Params;
+            if (this.Sql?.SqlString != null)
+                this.SqlString = this.Sql?.SqlString;
+            if (this.Sql?.Params != null)
+                this.Params = this.Sql?.Params;
         }
         /// <summary>
         /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）

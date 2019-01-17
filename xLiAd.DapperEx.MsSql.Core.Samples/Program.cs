@@ -114,7 +114,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var r223 = repository.Where(x => x.DictID == 106071 && idaaa.Contains(x.DictID));
             var r224 = repository.All();
             //var r2 = repository.Where(x => x.DictID == aaa);
-            return;
+            //return;
             ////主键获取记录
             //var r3 = repository.Find(id);
             ////普通查询
@@ -143,7 +143,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
 
             #region 分页查询
 
-            //var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
+            var l = repository.PageList(x => x.DictID >= id, x => x.DictID, 1, 5, true);
             #endregion
 
             #region 执行XML

@@ -22,11 +22,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         /// <summary>
         /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public string SqlString => SqlProvider?.SqlString;
+        public string SqlString { get; private set; }
         /// <summary>
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public DynamicParameters Params => SqlProvider?.Params;
+        public DynamicParameters Params { get; private set; }
+        private void SetSql()
+        {
+            if (SqlProvider.SqlString != null)
+                this.SqlString = SqlProvider.SqlString;
+            if (SqlProvider.Params != null)
+                this.Params = SqlProvider.Params;
+        }
 
         protected Command(IDbConnection conn, SqlProvider<T> sqlProvider)
         {
@@ -44,39 +51,39 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Update(T entity)
         {
             SqlProvider.FormatUpdate(entity);
-
+            SetSql();
             return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
         public int Delete<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
-
+            SetSql();
             return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
         public int Update(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
-
+            SetSql();
             return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
         public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             SqlProvider.FormatUpdateZhanglei(model, updateExpression);
-
+            SetSql();
             return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
         public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             SqlProvider.FormatUpdateZhanglei(expression, value);
-
+            SetSql();
             return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
         public int Delete()
         {
             SqlProvider.FormatDelete();
-
+            SetSql();
             return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
 
@@ -90,6 +97,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Insert(T entity)
         {
             SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
+            SetSql();
             if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Int)
             {
                 var id = DbCon.ExecuteScalar<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
@@ -112,6 +120,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             if (entitys.Count() < 1)
                 return 0;
             SqlProvider.FormatInsert(entitys.First(), out var isHaveIdentity,out var _, true);
+            SetSql();
             var rst = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
             return rst;
         }
