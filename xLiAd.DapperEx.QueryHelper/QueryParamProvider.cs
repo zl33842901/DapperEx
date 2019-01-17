@@ -52,6 +52,8 @@ namespace xLiAd.DapperEx.QueryHelper
             {
                 var mtd = i.GetType().GetMethod("GetExpression");
                 var v = nameValue[i.ParamName];
+                if (v.NullOrEmpty() && i.FieldType != typeof(string))
+                    continue;
                 var realv = v.ConvertTo(i.FieldType);
                 if (!i.ValidWhen()(realv))
                     continue;
