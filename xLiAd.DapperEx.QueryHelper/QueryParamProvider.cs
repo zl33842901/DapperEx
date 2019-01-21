@@ -75,7 +75,7 @@ namespace xLiAd.DapperEx.QueryHelper
             p = p ?? nameValue["p"];
             if (p != null)
             {
-                PageIndex = ps.ToInt(1).Limit(1, int.MaxValue, 1);
+                PageIndex = p.ToInt(1).Limit(1, int.MaxValue, 1);
             }
         }
         /// <summary>
