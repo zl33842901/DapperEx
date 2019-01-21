@@ -55,3 +55,6 @@
 /xLiAd.DapperEx.QueryHelper.Samples/obj
 /xLiAd.DapperEx.QueryHelper/nupkgs
 /xLiAd.DapperEx.QueryHelper.Samples/bin/Release/netcoreapp2.1
+/xLiAd.DapperEx.MsSql.Core/发布到NUGET.bat
+/xLiAd.DapperEx.QueryHelper/发布到NUGET.bat
+/xLiAd.DapperEx.Repository/发布到NUGET.bat

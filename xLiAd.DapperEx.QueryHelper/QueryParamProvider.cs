@@ -60,8 +60,32 @@ namespace xLiAd.DapperEx.QueryHelper
                 var e = mtd.Invoke(i, new object[] { realv }) as Expression<Func<T, bool>>;
                 expression = expression.And(e);
             }
+            SetPages(nameValue);
             return expression;
         }
+        private void SetPages(NameValueCollection nameValue)
+        {
+            var ps = nameValue["pagesize"];
+            if (ps != null)
+            {
+                PageSize = ps.ToInt(10).Limit(1, int.MaxValue, 20);
+            }
+            var p = nameValue["pageindex"];
+            p = p ?? nameValue["page"];
+            p = p ?? nameValue["p"];
+            if (p != null)
+            {
+                PageIndex = ps.ToInt(1).Limit(1, int.MaxValue, 1);
+            }
+        }
+        /// <summary>
+        /// 页条数（本属性只作为查询参数，在获取表达式时无作用）
+        /// </summary>
+        public int? PageSize { get; private set; }
+        /// <summary>
+        /// 页码（本属性只作为查询参数，在获取表达式时无作用）
+        /// </summary>
+        public int? PageIndex { get; private set; }
     }
     internal class QueryParamProviderItem<T, TKey> : IQueryParamProviderItem<T>
     {
