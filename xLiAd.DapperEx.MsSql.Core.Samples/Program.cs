@@ -150,6 +150,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //var lbfs = repository.ExecuteXml("DictSelect");
             //var rsss = repository.ExecuteXml("deleteUser", new Dictionary<string, string>() { { "id", "4321" } });
             //var oiehfwie = repository.QueryXml<DictInfo>("DictSelect");
+
+            var rrrr = repository.QueryBySql<string>("select top 1 dictid from dictinfo");
             #endregion
 
             #region 事务
