@@ -274,12 +274,36 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             }
             else
             {
-                if(node.Arguments.Count == 2 && typeof(IEnumerable).IsAssignableFrom(node.Arguments[0].Type))
+                if(node.Arguments.Count == 2 && typeof(IList).IsAssignableFrom(node.Arguments[0].Type))
                 {
                     Visit(node.Arguments[1]);
                     _sqlCmd.AppendFormat(" IN ");
-                    var o = ((ConstantExpression)node.Arguments[0]).Value;
-                    SetParam(TempFileName, o);
+                    var o = (IList)((ConstantExpression)node.Arguments[0]).Value;
+                    if(o.Count > 2199)
+                    {
+                        _sqlCmd.Append('(');
+                        int i = 0;
+                        foreach(var v in o)
+                        {
+                            if (i++ > 0)
+                            {
+                                _sqlCmd.Append(',');
+                            }
+                            if (v == null)
+                            {
+                                _sqlCmd.Append("NULL");
+                            }
+                            else
+                            {
+                                _sqlCmd.Append(v.ToString().Replace("'","''"));
+                            }
+                        }
+                        _sqlCmd.Append(')');
+                    }
+                    else
+                    {
+                        SetParam(TempFileName, o);
+                    }
                 }
             }
         }

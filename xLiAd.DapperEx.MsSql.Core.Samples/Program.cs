@@ -105,13 +105,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #region 查
             var id = 106071;
             var idaaa = new List<int?>() { 106071, 106072 };
+            var idbbb = Enumerable.Range(106071, 2200).Select(x=> new int?(x)).ToArray();
             ////总数
             //var ccc = repository.CountAll;
             ////数量
             var aaa = 106071;
             var bbb = "哈哈哈";
             var ccc = OrderEnum.optionA;
-            var r223 = repository.Where(x => x.DictID == 106071 && idaaa.Contains(x.DictID));
+            var r223 = repository.Where(x => x.DictID == 106071 && idbbb.Contains(x.DictID));
             var r224 = repository.All();
             //var r2 = repository.Where(x => x.DictID == aaa);
             //return;
