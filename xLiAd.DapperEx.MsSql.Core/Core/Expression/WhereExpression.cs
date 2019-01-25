@@ -277,7 +277,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                     }
                     else
                     {
+                        _sqlCmd.Append("'");
                         _sqlCmd.Append(v.ToString().Replace("'", "''"));
+                        _sqlCmd.Append("'");
                     }
                 }
                 _sqlCmd.Append(')');
