@@ -62,7 +62,7 @@ namespace xLiAd.DapperEx.Repository
             }
         }
         /// <summary>
-        /// 回滚事务
+        /// 回滚事务  需要在catch 里显示调用，不然直到资源释放才能把表解锁。
         /// </summary>
         public void Rollback()
         {
