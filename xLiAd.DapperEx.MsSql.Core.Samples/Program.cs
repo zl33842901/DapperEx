@@ -32,12 +32,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public List<int> TestList { get; set; }
         public int tttttttt { get; private set; }
     }
-
+    [Table("Articles")]
     public class TTTTTTtest
     {
         [Key]
         [Identity]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string title { get; set; }
     }
     /// <summary>
@@ -54,7 +54,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         static void Main(string[] args)
         {
             //连接字符串
-            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=feih#rj87");
+            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=zhanglei");
             #region 需要使用类似 mybatis 的XML方式存SQL语句时，需要下边这个对象，否则不需要。
             var xmlPath = System.IO.Directory.GetCurrentDirectory() + "\\sql.xml";
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);
@@ -82,7 +82,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #endregion
 
             #region 改
-
+            var trans = repository.GetTransaction();
+            var trepo = trans.GetRepository<DictInfo>();
+            var trepo2 = trans.GetRepository<TTTTTTtest>();
+            try
+            {
+                trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
+                var i = 0;
+                var j = 5 / i;
+                trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
+                trans.Commit();
+            }
+            catch(Exception eeeee)
+            {
+                trans.Rollback();
+            }
             //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
             //var r443 = repository.Update(ddxx); //
             //var r44 = repository.Update(ddxx, x => x.Remark,x=>x.CreateTime);

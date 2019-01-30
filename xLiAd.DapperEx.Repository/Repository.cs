@@ -13,6 +13,10 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.Repository
 {
+    /// <summary>
+    /// 仓储类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Repository<T> : IRepository<T>
     {
         protected SqlConnection con;
@@ -52,7 +56,7 @@ namespace xLiAd.DapperEx.Repository
                 return qs;
             }
         }
-        private CommandSet<T> CommandSet
+        protected virtual CommandSet<T> CommandSet
         {
             get
             {
@@ -593,6 +597,14 @@ namespace xLiAd.DapperEx.Repository
                 throw new Exception(msg);
             DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return QueryBySql<TResult>(sql, dic);
+        }
+        /// <summary>
+        /// 获取事务提供
+        /// </summary>
+        /// <returns></returns>
+        public TransactionProvider GetTransaction()
+        {
+            return new TransactionProvider(con);
         }
         /*
          con.QuerySet<Model>().Sum(a => a.IntField);
