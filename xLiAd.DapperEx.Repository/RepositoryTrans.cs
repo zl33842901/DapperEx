@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using xLiAd.DapperEx.MsSql.Core;
 using xLiAd.DapperEx.MsSql.Core.Core.SetC;
+using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
 
 namespace xLiAd.DapperEx.Repository
 {
@@ -25,10 +26,12 @@ namespace xLiAd.DapperEx.Repository
         {
             Transaction = _tran;
             Command = new CommandSet<T>(_con, new SqlProvider<T>(), _tran);
+            Query = new QuerySet<T>(_con, new SqlProvider<T>(), _tran);
         }
 
         readonly IDbTransaction Transaction;
         readonly CommandSet<T> Command;
+        readonly QuerySet<T> Query;
         /// <summary>
         /// 重写 CommandSet
         /// </summary>
@@ -37,6 +40,13 @@ namespace xLiAd.DapperEx.Repository
             get
             {
                 return Command;
+            }
+        }
+        protected override QuerySet<T> QuerySet
+        {
+            get
+            {
+                return Query;
             }
         }
     }

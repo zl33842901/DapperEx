@@ -47,7 +47,7 @@ namespace xLiAd.DapperEx.Repository
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
         public DynamicParameters Params { get; private set; }
-        private QuerySet<T> QuerySet
+        protected virtual QuerySet<T> QuerySet
         {
             get
             {

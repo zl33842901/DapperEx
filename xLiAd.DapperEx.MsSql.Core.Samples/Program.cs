@@ -89,6 +89,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             {
                 trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
                 var i = 0;
+                var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
                 var j = 5 / i;
                 trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
                 trans.Commit();
