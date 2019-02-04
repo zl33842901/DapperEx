@@ -35,19 +35,14 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 重写 CommandSet
         /// </summary>
-        protected override CommandSet<T> CommandSet
-        {
-            get
-            {
-                return Command;
-            }
-        }
-        protected override QuerySet<T> QuerySet
-        {
-            get
-            {
-                return Query;
-            }
-        }
+        protected override CommandSet<T> CommandSet => Command;
+        /// <summary>
+        /// 重写 QuerySet
+        /// </summary>
+        protected override QuerySet<T> QuerySet => Query;
+        /// <summary>
+        /// 重写事务对象
+        /// </summary>
+        protected override IDbTransaction DbTransaction => Transaction;
     }
 }

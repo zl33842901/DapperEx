@@ -19,13 +19,26 @@ namespace xLiAd.DapperEx.Repository
     /// <typeparam name="T"></typeparam>
     public class Repository<T> : IRepository<T>
     {
+        /// <summary>
+        /// 数据库连接
+        /// </summary>
         protected SqlConnection con;
         RepoXmlProvider RepoXmlProvider;
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="connectionString">连接字符串</param>
+        /// <param name="repoXmlProvider"></param>
         public Repository(string connectionString, RepoXmlProvider repoXmlProvider = null)
         {
             con = new SqlConnection(connectionString);
             RepoXmlProvider = repoXmlProvider;
         }
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="_con"></param>
+        /// <param name="repoXmlProvider"></param>
         public Repository(SqlConnection _con, RepoXmlProvider repoXmlProvider = null)
         {
             con = _con;
@@ -47,6 +60,9 @@ namespace xLiAd.DapperEx.Repository
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
         public DynamicParameters Params { get; private set; }
+        /// <summary>
+        /// QuerySet 实例
+        /// </summary>
         protected virtual QuerySet<T> QuerySet
         {
             get
@@ -56,6 +72,9 @@ namespace xLiAd.DapperEx.Repository
                 return qs;
             }
         }
+        /// <summary>
+        /// CommandSet 实例
+        /// </summary>
         protected virtual CommandSet<T> CommandSet
         {
             get
@@ -65,13 +84,24 @@ namespace xLiAd.DapperEx.Repository
                 return cs;
             }
         }
+        /// <summary>
+        /// 事务对象
+        /// </summary>
+        protected virtual IDbTransaction DbTransaction => null;
+        /// <summary>
+        /// 使用这个 CommandSet 方法的方法，不和 RepositoryTrans 使用同一事务对象
+        /// </summary>
+        /// <param name="tc"></param>
+        /// <returns></returns>
         private CommandSet<T> GetCommandSet(TransContext tc)
         {
             var cs = tc.CommandSet<T>();
             this.Sql = cs;
             return cs;
         }
-
+        /// <summary>
+        /// 释放连接（如果连接还有其他用途，请不要释放）
+        /// </summary>
         public void Dispose() { if (con != null) con.Dispose(); }
         /// <summary>
         /// 获取所有数据
@@ -361,6 +391,10 @@ namespace xLiAd.DapperEx.Repository
                 return countAll.Value;
             }
         }
+        /// <summary>
+        /// 取得数据总数量
+        /// </summary>
+        /// <returns></returns>
         public int Count()
         {
             var rst = QuerySet.Count();
@@ -505,7 +539,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual bool ExecuteSql(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
         {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.Execute(sql, param, commandType: cmdType) > 0;
+            return con.Execute(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
         }
         /// <summary>
         /// 执行存储过程
@@ -527,7 +561,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
         {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.ExecuteScalar<TResult>(sql, param);
+            return con.ExecuteScalar<TResult>(sql, param, transaction: DbTransaction);
         }
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
@@ -540,7 +574,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
         {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.Query<TResult>(sql, param, commandType: cmdType);
+            return con.Query<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
         }
         /// <summary>
         /// 判断XML文件载入的状态
