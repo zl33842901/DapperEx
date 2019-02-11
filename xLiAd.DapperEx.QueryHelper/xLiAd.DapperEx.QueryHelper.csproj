@@ -11,6 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="nupkgsSymb\**" />
+    <Compile Remove="nupkgs\**" />
+    <EmbeddedResource Remove="nupkgsSymb\**" />
+    <EmbeddedResource Remove="nupkgs\**" />
+    <None Remove="nupkgsSymb\**" />
+    <None Remove="nupkgs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="xLiAd.ExtMethods" Version="1.1.7" />
   </ItemGroup>
 
