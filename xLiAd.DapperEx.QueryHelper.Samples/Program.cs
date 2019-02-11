@@ -34,6 +34,14 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
         [NotMapped]
         public string bbbb { get; set; }
     }
+    public class Author
+    {
+        [Identity]
+        [Key]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int AId { get; set; }
+    }
     class Program
     {
         static void Main(string[] args)
@@ -58,6 +66,7 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
 
 
             Repository<Articles> repos = new Repository<Articles>(con, null);
+            Repository<Author> reposAuthor = new Repository<Author>(con, null);
             QueryParamJoiner<Articles> qq = new QueryParamJoiner<Articles>();
             qq.AddItem<DictInfo, int>(repository, x => x.DictName, QueryParamJoinerOprater.Contains, x => x.DictID, x => x.DictID);
             var nv2 = new System.Collections.Specialized.NameValueCollection();
@@ -65,7 +74,10 @@ namespace xLiAd.DapperEx.QueryHelper.Samples
             var aa = qq.GetExpression(nv2);
             var l2 = repos.Where(aa);
 
-            l2.LeftJoin(repository, x => x.DictID, x => x.DictID, (x, y) => { x.bbbb = y.DictName; }, out var _, x=>x.DictName);
+            //l2.LeftJoin(repository, x => x.DictID, x => x.DictID, (x, y) => { x.bbbb = y.DictName; }, out var _, x=>x.DictName);
+
+            var bb = aa.LeftExpression<Author, Articles, int>(repos, x => x.AId, x => x.Id);
+            var l3 = reposAuthor.Where(bb);
         }
     }
 }

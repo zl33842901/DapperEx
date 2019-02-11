@@ -110,5 +110,25 @@ namespace xLiAd.DapperEx.QueryHelper
             }
             return l;
         }
+
+        /// <summary>
+        /// 以外键的形式把副表的条件表达式 转换为主表的条件表达式
+        /// </summary>
+        /// <typeparam name="TMain">主表类型</typeparam>
+        /// <typeparam name="TSub">副表类型</typeparam>
+        /// <typeparam name="TKey">外键类型</typeparam>
+        /// <param name="exp">副表条件表达式</param>
+        /// <param name="table">副表仓储</param>
+        /// <param name="foreinKey">主表外键</param>
+        /// <param name="onEquals">副表关键外键</param>
+        /// <returns></returns>
+        public static Expression<Func<TMain, bool>> LeftExpression<TMain, TSub, TKey>(this Expression<Func<TSub,bool>> exp, IRepository<TSub> table, Expression<Func<TMain, TKey>> foreinKey, Expression<Func<TSub, TKey>> onEquals)
+        {
+            var lid = table.WhereSelect(exp, onEquals);
+            ParameterExpression paraM = Expression.Parameter(typeof(TMain), foreinKey.Parameters[0].Name);
+            MethodCallExpression metM = Expression.Call(Expression.Constant(lid), typeof(List<TKey>).GetMethod("Contains"), foreinKey.Body);
+            Expression<Func<TMain, bool>> lamb = Expression.Lambda<Func<TMain, bool>>(metM, paraM);
+            return lamb;
+        }
     }
 }
