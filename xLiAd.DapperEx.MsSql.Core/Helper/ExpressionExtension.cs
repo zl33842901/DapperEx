@@ -139,7 +139,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 
         internal static string GetColumnAttributeName(this MemberInfo memberInfo)
         {
-            return memberInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? memberInfo.Name;
+            var rst = memberInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? memberInfo.Name;
+            if (Attribute.IsDefined(memberInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
+            {
+                return $"CONVERT(BIGINT, {rst})";
+            }
+            else
+            {
+                return rst;
+            }
         }
     }
 }

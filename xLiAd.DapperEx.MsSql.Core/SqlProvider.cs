@@ -30,7 +30,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatGet()
         {
-            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, 1);
+            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
 
             var fromTableSql = FormatTableName();
 
@@ -48,7 +48,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         }
         public SqlProvider<T> FormatGet<TKey>(TKey id)
         {
-            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, 1);
+            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
 
             var fromTableSql = FormatTableName();
 
@@ -234,7 +234,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         public SqlProvider<T> FormatInsert(T entity, out IdentityTypeEnum isHaveIdentity,out PropertyInfo identityProperty, bool multiInsert = false)
         {
             //标识属性
-            identityProperty = typeof(T).GetPropertiesInDb().FirstOrDefault(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)));
+            identityProperty = typeof(T).GetPropertiesInDb(false).FirstOrDefault(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)));
             var paramsAndValuesSql = multiInsert ? FormatInsertParamsAndValues(entity,null) : FormatInsertParamsAndValues(entity, identityProperty);
 
             var ifnotexistsWhere = ResolveExpression.ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");
@@ -342,7 +342,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatSum(LambdaExpression lambdaExpression)
         {
-            var selectSql = ResolveExpression.ResolveSum(typeof(T).GetPropertiesInDb(), lambdaExpression);
+            var selectSql = ResolveExpression.ResolveSum(typeof(T).GetPropertiesInDb(true), lambdaExpression);
 
             var fromTableSql = FormatTableName();
 
@@ -361,7 +361,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             var update = ResolveExpression.ResolveUpdate(updator);
 
-            var selectSql = ResolveExpression.ResolveSelectOfUpdate(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.ResolveSelectOfUpdate(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression);
 
             var where = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
 
@@ -408,7 +408,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             var paramSqlBuilder = new StringBuilder(100);
             var valueSqlBuilder = new StringBuilder(100);
 
-            var properties = entity.GetProperties();
+            var properties = entity.GetProperties(false);
 
             var isAppend = false;
             foreach (var property in properties)

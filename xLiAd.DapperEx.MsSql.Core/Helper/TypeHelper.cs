@@ -61,7 +61,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 
         public static string GetColumnAttributeName(this PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? propertyInfo.Name;
+            var rst = propertyInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? propertyInfo.Name;
+            if (Attribute.IsDefined(propertyInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
+            {
+                return $"CONVERT(BIGINT, {rst})";
+            }
+            else
+            {
+                return rst;
+            }
         }
 
         public static string GetTableAttributeName(this Type type)

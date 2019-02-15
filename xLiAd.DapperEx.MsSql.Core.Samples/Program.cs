@@ -40,6 +40,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public int Id { get; set; }
         public string title { get; set; }
     }
+    public class TestStamp
+    {
+        [Key]
+        [Identity]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime CreateTime { get; set; }
+        /// <summary>
+        /// 这是一个 timestamp 字段
+        /// </summary>
+        [Timestamp]
+        public string ROWVERSION { get; set; }
+    }
     /// <summary>
     /// 本 ORM 优势：
     /// 0，使用表达式写条件、排序 等能提高工作效率（避免字段名称写错，简化语法。）
@@ -61,6 +74,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #endregion
             Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider);
             Repository<TTTTTTtest> rep2 = new Repository<TTTTTTtest>(con);
+
+            //timestamp 字段测试
+            Repository<TestStamp> repoStamp = new Repository<TestStamp>(con);
+            repoStamp.Add(new TestStamp()
+            {
+                CreateTime = DateTime.Now,
+                Name = "我我我",
+                ROWVERSION = "aaaa"
+            });
+            var feijfwo = repoStamp.Where(x => x.Name.Contains("我"));
+            return;
+
             #region 增
             //var mmmmm = new TTTTTTtest() { title = "sdfijwefi" };
             //var iiiis = rep2.Add(mmmmm);

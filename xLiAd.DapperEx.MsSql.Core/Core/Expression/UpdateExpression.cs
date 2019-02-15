@@ -46,7 +46,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
             var entity = ((ConstantExpression)TrimExpression.Trim(memberInitExpression)).Value;
 
-            var properties = memberInitExpression.Type.GetPropertiesInDb();
+            var properties = memberInitExpression.Type.GetPropertiesInDb(false);
             foreach (var item in properties)
             {
                 if (item.CustomAttributes.Any(b => b.AttributeType == typeof(KeyAttribute)))
