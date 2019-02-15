@@ -61,12 +61,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         public static string ResolveSelectZhanglei(Type type, LambdaExpression selector, int? topNum)
         {
             if (selector == null)
-                return ResolveSelect(type.GetPropertiesInDb(), selector, topNum);
+                return ResolveSelect(type.GetPropertiesInDb(true), selector, topNum);
             var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
             var selectSql = "";
             var lfields = new ExpressionPropertyFinder(selector, type).MemberList;
             /////////////////////////下面要过滤不在DB里的。
-            var nameList = type.GetPropertiesInDb().Select(x => x.Name).ToArray();
+            var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name));
             /////////////////////////
             selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x=>x.Name)), $" TOP {topNum} ");
@@ -75,14 +75,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         public static string ResolveSelectZhanglei(Type type, IEnumerable<LambdaExpression> selector, int? topNum)
         {
             if (selector == null || selector.Count() < 1)
-                return ResolveSelect(type.GetPropertiesInDb(), null, topNum);
+                return ResolveSelect(type.GetPropertiesInDb(true), null, topNum);
             var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
             var selectSql = "";
             List<MemberInfo> lfields = new List<MemberInfo>();
             foreach(var slct in selector)
                 lfields.AddRange(new ExpressionPropertyFinder(slct, type).MemberList);
             /////////////////////////下面要过滤不在DB里的。
-            var nameList = type.GetPropertiesInDb().Select(x => x.Name).ToArray();
+            var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
             /////////////////////////
             selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => x.Name)), $" TOP {topNum} ");

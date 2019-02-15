@@ -10,17 +10,28 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
     internal static class ReflectExtension
     {
-        internal static PropertyInfo[] GetProperties(this object obj)
+        internal static PropertyInfo[] GetProperties(this object obj, bool forSelect)
         {
-            return obj.GetType().GetPropertiesInDb();
+            return obj.GetType().GetPropertiesInDb(forSelect);
         }
-        internal static PropertyInfo[] GetPropertiesInDb(this Type type)
+        /// <summary>
+        /// 获取某个类型的所有与数据库对应的属性（字段）
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <param name="forSelect">是 Select 语句（而不是insert、update语句）吗？</param>
+        /// <returns></returns>
+        internal static PropertyInfo[] GetPropertiesInDb(this Type type, bool forSelect)
         {
             var plist = type.GetProperties().Where(x => x.CanRead && x.CanWrite &&
                 !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) && !Attribute.IsDefined(x, typeof(NotMappedAttribute))
                 && !typeof(IList).IsAssignableFrom(x.PropertyType)
                 ).ToArray();
             plist = plist.Where(x => x.SetMethod.IsPublic && x.GetMethod.IsPublic).ToArray();
+            if (!forSelect)
+            {
+                ////insert\update 语句不取 timestamp 类型的字段
+                plist = plist.Where(x => !Attribute.IsDefined(x, typeof(TimestampAttribute))).ToArray();
+            }
             return plist;
         }
 

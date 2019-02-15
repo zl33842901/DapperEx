@@ -18,7 +18,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         {
             var type = typeof(T);
 
-            var properties = type.GetPropertiesInDb().ToList();
+            var properties = type.GetPropertiesInDb(true).ToList();
 
             var newDt = new DataTable(type.Name);
 
