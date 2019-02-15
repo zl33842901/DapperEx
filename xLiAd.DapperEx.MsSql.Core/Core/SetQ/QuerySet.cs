@@ -7,6 +7,10 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
+    /// <summary>
+    /// 带有所有参数的查询器（比Aggregation<T> 多了Where参数）
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class QuerySet<T> : Aggregation<T>, Interfaces.ISet<T>
     {
         internal Type TableType { get; set; }

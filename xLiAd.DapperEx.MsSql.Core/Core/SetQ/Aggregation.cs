@@ -7,7 +7,7 @@ using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
     /// <summary>
-    /// 聚合
+    /// 聚合查询器 带有的参数和 Order<T>一致
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Aggregation<T> : Order<T>, IAggregation

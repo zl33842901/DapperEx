@@ -6,6 +6,11 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
+    /// <summary>
+    /// 给我一个类型、一个和类型对应的值，我获取到这个类型的主键，再根据主键和值，返回给你一个SQL条件子句（这个类名起的有问题，应该叫KeyWhereExpression）
+    /// </summary>
+    /// <typeparam name="T">类型</typeparam>
+    /// <typeparam name="TKey">主键类型</typeparam>
     public class DeleteExpression<T, TKey> : SetParam
     {
         #region sql指令

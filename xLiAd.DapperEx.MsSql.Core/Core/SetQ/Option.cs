@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
     /// <summary>
-    /// 
+    /// 具有Select 参数和Top 参数的查询器
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Option<T> : Query<T>
@@ -39,13 +39,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
             var thisObject = (QuerySet<T>)this;
 
-            return new QuerySet<TResult,T>(DbCon, new SqlProvider<TResult>(), typeof(T), thisObject.WhereExpression, selector, thisObject.TopNum, thisObject.OrderbyExpressionList, DbTransaction);
+            return new QuerySet<TResult, T>(DbCon, new SqlProvider<TResult>(), typeof(T), thisObject.WhereExpression, selector, thisObject.TopNum, thisObject.OrderbyExpressionList, DbTransaction);
         }
 
         public virtual Option<T> Top(int num)
-    {
-        TopNum = num;
-        return this;
+        {
+            TopNum = num;
+            return this;
+        }
     }
-}
 }

@@ -10,10 +10,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
     internal static class ReflectExtension
     {
+        /// <summary>
+        /// 获取对象的与数据库有对映关系的所有属性
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         internal static PropertyInfo[] GetProperties(this object obj)
         {
             return obj.GetType().GetPropertiesInDb();
         }
+
+        /// <summary>
+        /// 获取类型的与数据库有对映关系的所有属性
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         internal static PropertyInfo[] GetPropertiesInDb(this Type type)
         {
             var plist = type.GetProperties().Where(x => x.CanRead && x.CanWrite &&
@@ -24,6 +35,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return plist;
         }
 
+        /// <summary>
+        /// 获取主键
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         internal static PropertyInfo GetKeyPropertity(this object obj)
         {
             var properties = obj.GetType().GetProperties().Where(a => a.GetCustomAttribute<KeyAttribute>() != null).ToArray();
@@ -36,6 +52,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
 
             return properties.First();
         }
+
+        /// <summary>
+        /// 获取主键  这个方法有空应该和上边那个方法合并一下。
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         internal static PropertyInfo GetKeyPropertity(this Type type)
         {
             var properties = type.GetProperties().Where(a => a.GetCustomAttribute<KeyAttribute>() != null).ToArray();

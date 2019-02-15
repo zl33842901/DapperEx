@@ -5,6 +5,9 @@ using System.Linq.Expressions;
 
 namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
+    /// <summary>
+    /// 对表达式进行And、Or拼接的帮助类
+    /// </summary>
     public static class ExpressionBuilder
     {
         /// <summary>
@@ -40,8 +43,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         }
 
         private static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second,
-            Func<Expression, Expression, Expression> merge
-        )
+            Func<Expression, Expression, Expression> merge)
         {
             var map = first.Parameters
                 .Select((oldParam, index) => new { oldParam, newParam = second.Parameters[index] })

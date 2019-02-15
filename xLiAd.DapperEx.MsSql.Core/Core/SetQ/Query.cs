@@ -10,7 +10,7 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
     /// <summary>
-    /// 查询
+    /// 查询器抽象基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Query<T> : IQuery<T>, IUpdateSelect<T>, ISql

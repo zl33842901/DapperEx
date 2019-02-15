@@ -9,6 +9,11 @@ using System.Text;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
+    /// <summary>
+    /// 具有不同类型的查询类和结果类的查询器
+    /// </summary>
+    /// <typeparam name="TResult">结果类型</typeparam>
+    /// <typeparam name="TSource">查询类型</typeparam>
     public class QuerySet<TResult,TSource> : QuerySet<TResult>
     {
         protected readonly SqlProvider<TSource> SqlProviderSource;

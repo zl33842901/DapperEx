@@ -8,7 +8,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
     /// <inheritdoc />
     /// <summary>
-    /// 排序
+    /// 具有排序条件的查询器（可能同时具有Select参数、Top参数）
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Order<T> : Option<T>
