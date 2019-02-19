@@ -25,21 +25,18 @@ namespace xLiAd.DapperEx.Repository
         internal RepositoryTrans(SqlConnection _con, IDbTransaction _tran) : base(_con)
         {
             Transaction = _tran;
-            Command = new CommandSet<T>(_con, new SqlProvider<T>(), _tran);
-            Query = new QuerySet<T>(_con, new SqlProvider<T>(), _tran);
+            Connection = _con;
         }
-
+        readonly SqlConnection Connection;
         readonly IDbTransaction Transaction;
-        readonly CommandSet<T> Command;
-        readonly QuerySet<T> Query;
         /// <summary>
         /// 重写 CommandSet
         /// </summary>
-        protected override CommandSet<T> CommandSet => Command;
+        protected override CommandSet<T> CommandSet => new CommandSet<T>(Connection, new SqlProvider<T>(), Transaction);
         /// <summary>
         /// 重写 QuerySet
         /// </summary>
-        protected override QuerySet<T> QuerySet => Query;
+        protected override QuerySet<T> QuerySet => new QuerySet<T>(Connection, new SqlProvider<T>(), Transaction);
         /// <summary>
         /// 重写事务对象
         /// </summary>
