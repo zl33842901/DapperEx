@@ -67,7 +67,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         static void Main(string[] args)
         {
             //连接字符串
-            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=zhanglei");
+            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sc;Password=zhanglei");
             #region 需要使用类似 mybatis 的XML方式存SQL语句时，需要下边这个对象，否则不需要。
             var xmlPath = System.IO.Directory.GetCurrentDirectory() + "\\sql.xml";
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);
@@ -76,15 +76,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             Repository<TTTTTTtest> rep2 = new Repository<TTTTTTtest>(con);
 
             //timestamp 字段测试
-            Repository<TestStamp> repoStamp = new Repository<TestStamp>(con);
-            repoStamp.Add(new TestStamp()
-            {
-                CreateTime = DateTime.Now,
-                Name = "我我我",
-                ROWVERSION = "aaaa"
-            });
-            var feijfwo = repoStamp.Where(x => x.Name.Contains("我"));
-            return;
+            //Repository<TestStamp> repoStamp = new Repository<TestStamp>(con);
+            //repoStamp.Add(new TestStamp()
+            //{
+            //    CreateTime = DateTime.Now,
+            //    Name = "我我我",
+            //    ROWVERSION = "aaaa"
+            //});
+            //var feijfwo = repoStamp.Where(x => x.Name.Contains("我"));
+            //return;
 
             #region 增
             //var mmmmm = new TTTTTTtest() { title = "sdfijwefi" };
@@ -107,22 +107,22 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #endregion
 
             #region 改
-            var trans = repository.GetTransaction();
-            var trepo = trans.GetRepository<DictInfo>();
-            var trepo2 = trans.GetRepository<TTTTTTtest>();
-            try
-            {
-                trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
-                var i = 0;
-                var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
-                var j = 5 / i;
-                trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
-                trans.Commit();
-            }
-            catch(Exception eeeee)
-            {
-                trans.Rollback();
-            }
+            //var trans = repository.GetTransaction();
+            //var trepo = trans.GetRepository<DictInfo>();
+            //var trepo2 = trans.GetRepository<TTTTTTtest>();
+            //try
+            //{
+            //    trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
+            //    var i = 0;
+            //    var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
+            //    var j = 5 / i;
+            //    trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
+            //    trans.Commit();
+            //}
+            //catch(Exception eeeee)
+            //{
+            //    trans.Rollback();
+            //}
             //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
             //var r443 = repository.Update(ddxx); //
             //var r44 = repository.Update(ddxx, x => x.Remark,x=>x.CreateTime);
@@ -152,8 +152,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var aaa = 106071;
             var bbb = "哈哈哈";
             var ccc = OrderEnum.optionA;
-            var r223 = repository.Where(x => x.DictID == 106071 && idbbb.Contains(x.DictID));
-            var r224 = repository.All();
+            //var r223 = repository.Where(x => x.DictID == 106071 && idbbb.Contains(x.DictID));
+            //var r225 = repository.WhereSelect(x => x.DictID >= 106071, x => x.DictName);
+            //return;
+            //var r224 = repository.All();
             //var r2 = repository.Where(x => x.DictID == aaa);
             //return;
             ////主键获取记录

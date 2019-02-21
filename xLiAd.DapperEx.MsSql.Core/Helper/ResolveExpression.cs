@@ -104,7 +104,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name));
             /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x=>x.Name)), $" TOP {topNum} ");
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName()} {x.Name}")), $" TOP {topNum} ");
             return selectSql;
         }
 
@@ -128,7 +128,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
             /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => x.Name)), $" TOP {topNum} ");
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName()} {x.Name}")), $" TOP {topNum} ");
             return selectSql;
         }
 

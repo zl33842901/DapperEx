@@ -130,5 +130,18 @@ namespace xLiAd.DapperEx.QueryHelper
             Expression<Func<TMain, bool>> lamb = Expression.Lambda<Func<TMain, bool>>(metM, paraM);
             return lamb;
         }
+
+        /// <summary>
+        /// 对数据列表进行分页
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="s"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> DoPage<T>(this IEnumerable<T> s, int pageIndex, int pageSize)
+        {
+            return s.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        }
     }
 }
