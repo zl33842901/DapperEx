@@ -158,7 +158,7 @@ namespace xLiAd.DapperEx.QueryHelper
                     exp = Expression.Lambda<Func<TSub, bool>>(met, para);
                     break;
                 case QueryParamJoinerOprater.Equal:
-                    exp = Expression.Lambda<Func<TSub, bool>>(Expression.Equal(QueryField.Body, Expression.Constant(Value, this.FieldType)), QueryField.Parameters);
+                    exp = Expression.Lambda<Func<TSub, bool>>(Expression.Equal(QueryField.Body, Expression.Constant(Value)), QueryField.Parameters);
                     break;
                 default:
                     throw new NotSupportedException();
