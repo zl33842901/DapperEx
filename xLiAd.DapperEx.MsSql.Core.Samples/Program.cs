@@ -31,6 +31,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public int? DictType { get; set; }
         public List<int> TestList { get; set; }
         public int tttttttt { get; private set; }
+        [NotMapped]
+        public string Table { get; set; }
     }
     [Table("Articles")]
     public class TTTTTTtest
@@ -154,7 +156,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var ccc = OrderEnum.optionA;
             //var r223 = repository.Where(x => x.DictID == 106071 && idbbb.Contains(x.DictID));
             //var r225 = repository.WhereSelect(x => x.DictID >= 106071, x => x.DictName);
-            //return;
+            var r228 = repository.Where(x => x.Remark.Contains("%"));
+            return;
             //var r224 = repository.All();
             //var r2 = repository.Where(x => x.DictID == aaa);
             //return;

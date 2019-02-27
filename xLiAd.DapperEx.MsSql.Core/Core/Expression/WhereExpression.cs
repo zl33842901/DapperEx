@@ -221,24 +221,25 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             Visit(node.Object);
             _sqlCmd.AppendFormat(" LIKE ");
 
+
+            var argumentExpression = (ConstantExpression)node.Arguments[0];
+            var value = argumentExpression.Value?.ToString() ?? string.Empty;
+            value = value.Replace("%", "[%]");
             switch (node.Method.Name)
             {
                 case "StartsWith":
                     {
-                        var argumentExpression = (ConstantExpression)node.Arguments[0];
-                        SetParam(TempFileName, argumentExpression.Value + "%");
+                        SetParam(TempFileName, $"{value}%");
                     }
                     break;
                 case "EndsWith":
                     {
-                        var argumentExpression = (ConstantExpression)node.Arguments[0];
-                        SetParam(TempFileName, "%" + argumentExpression.Value);
+                        SetParam(TempFileName, $"%{value}");
                     }
                     break;
                 case "Contains":
                     {
-                        var argumentExpression = (ConstantExpression)node.Arguments[0];
-                        SetParam(TempFileName, "%" + argumentExpression.Value + "%");
+                        SetParam(TempFileName, $"%{value}%");
                     }
                     break;
                 default:
