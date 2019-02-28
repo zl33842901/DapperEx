@@ -14,13 +14,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
     public abstract class Order<T> : Option<T>
     {
         internal List<(EOrderBy Key, LambdaExpression Value)> OrderbyExpressionList { get; set; }
-
-        protected Order(IDbConnection conn, SqlProvider<T> sqlProvider) : base(conn, sqlProvider)
-        {
-            OrderbyExpressionList = new List<(EOrderBy Key, LambdaExpression Value)>();
-        }
-
-        protected Order(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        
+        protected Order(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction = null, bool throws = true) : base(conn, sqlProvider, dbTransaction, throws)
         {
             OrderbyExpressionList = new List<(EOrderBy Key, LambdaExpression Value)>();
         }

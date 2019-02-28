@@ -15,9 +15,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
     /// <typeparam name="T"></typeparam>
     public abstract class Query<T> : IQuery<T>, IUpdateSelect<T>, ISql
     {
+        public event DapperExExceptionHandler ErrorHappened;
         protected readonly SqlProvider<T> SqlProvider;
         protected readonly IDbConnection DbCon;
         protected readonly IDbTransaction DbTransaction;
+        /// <summary>
+        /// 是否抛出错误，如果不抛，可以用 event 实现日志功能
+        /// </summary>
+        public bool Throws { get; }
         /// <summary>
         /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
@@ -35,18 +40,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
 
         protected DataBaseContext<T> SetContext { get; set; }
-
-        protected Query(IDbConnection conn, SqlProvider<T> sqlProvider)
-        {
-            SqlProvider = sqlProvider;
-            DbCon = conn;
-        }
-
-        protected Query(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction)
+        /// <summary>
+        /// 新建一个查询器
+        /// </summary>
+        /// <param name="conn">数据库连接</param>
+        /// <param name="sqlProvider">SQL转换器</param>
+        /// <param name="dbTransaction">事务</param>
+        /// <param name="throws">是否抛出错误</param>
+        protected Query(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction = null, bool throws = true)
         {
             SqlProvider = sqlProvider;
             DbCon = conn;
             DbTransaction = dbTransaction;
+            Throws = throws;
         }
 
         public T Get()
@@ -91,7 +97,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             }
             catch (Exception e)
             {
-                throw new Exception($"{e.Message} sql:{SqlProvider.SqlString} params:{SqlProvider.Params}", e);
+                CallEvent(SqlProvider.SqlString, SqlProvider.Params, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{SqlProvider.SqlString} params:{SqlProvider.Params}", e);
+                else
+                    return new PageList<T>(0, 0, 0, new List<T>());
             }
         }
 
@@ -109,7 +119,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             }
             catch (Exception e)
             {
-                throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                CallEvent(sqlString, param, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                else
+                    return new List<T>();
             }
         }
         private T QrFd(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
@@ -120,8 +134,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             }
             catch (Exception e)
             {
-                throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                CallEvent(sqlString, param, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                else
+                    return default(T);
             }
+        }
+        private void CallEvent(string sqlString, DynamicParameters param, string message)
+        {
+            try
+            {
+                var args = new DapperExEventArgs(sqlString, param, message);
+                ErrorHappened(this, args);
+            }
+            catch { }
         }
     }
 }

@@ -12,12 +12,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
     /// <typeparam name="T"></typeparam>
     public abstract class Aggregation<T> : Order<T>, IAggregation
     {
-        protected Aggregation(IDbConnection conn, SqlProvider<T> sqlProvider) : base(conn, sqlProvider)
-        {
-
-        }
-
-        protected Aggregation(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        protected Aggregation(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction = null, bool throws = true) : base(conn, sqlProvider, dbTransaction, throws)
         {
 
         }

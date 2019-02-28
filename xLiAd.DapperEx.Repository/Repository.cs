@@ -24,25 +24,40 @@ namespace xLiAd.DapperEx.Repository
         /// </summary>
         protected SqlConnection con;
         RepoXmlProvider RepoXmlProvider;
+        MsSql.Core.Core.DapperExExceptionHandler ExceptionHandler;
+        bool Throws;
         /// <summary>
         /// 初始化仓储
         /// </summary>
-        /// <param name="connectionString">连接字符串</param>
+        /// <param name="connectionString">数据库连接串</param>
         /// <param name="repoXmlProvider"></param>
-        public Repository(string connectionString, RepoXmlProvider repoXmlProvider = null)
+        /// <param name="exceptionHandler">抛错时的委托</param>
+        /// <param name="throws">是否抛出错误，强烈建议保持默认值 true 不然报错时会返回正常数据。</param>
+        public Repository(string connectionString, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
         {
             con = new SqlConnection(connectionString);
             RepoXmlProvider = repoXmlProvider;
+            ExceptionHandler = exceptionHandler;
+            Throws = throws;
         }
         /// <summary>
         /// 初始化仓储
         /// </summary>
-        /// <param name="_con"></param>
+        /// <param name="_con">数据库连接串</param>
         /// <param name="repoXmlProvider"></param>
-        public Repository(SqlConnection _con, RepoXmlProvider repoXmlProvider = null)
+        /// <param name="exceptionHandler">抛错时的委托</param>
+        /// <param name="throws">是否抛出错误，强烈建议保持默认值 true 不然报错时会返回正常数据。</param>
+        public Repository(SqlConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
         {
             con = _con;
             RepoXmlProvider = repoXmlProvider;
+            ExceptionHandler = exceptionHandler;
+            Throws = throws;
+        }
+        internal Repository(SqlConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true, IDbTransaction _tran = null)
+            : this(_con, repoXmlProvider, exceptionHandler, throws)
+        {
+            DbTransaction = _tran;
         }
         private ISql Sql { get; set; }
         private void DoSetSql()
@@ -67,7 +82,8 @@ namespace xLiAd.DapperEx.Repository
         {
             get
             {
-                var qs = con.QuerySet<T>();
+                var qs = new QuerySet<T>(con, new SqlProvider<T>(), DbTransaction, Throws);
+                qs.ErrorHappened += ExceptionHandler;
                 this.Sql = qs;
                 return qs;
             }
@@ -79,7 +95,8 @@ namespace xLiAd.DapperEx.Repository
         {
             get
             {
-                var cs = con.CommandSet<T>();
+                var cs = new CommandSet<T>(con, new SqlProvider<T>(), DbTransaction, Throws);
+                cs.ErrorHappened += ExceptionHandler;
                 this.Sql = cs;
                 return cs;
             }
@@ -87,7 +104,7 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 事务对象
         /// </summary>
-        protected virtual IDbTransaction DbTransaction => null;
+        protected virtual IDbTransaction DbTransaction { get; }
         /// <summary>
         /// 使用这个 CommandSet 方法的方法，不和 RepositoryTrans 使用同一事务对象
         /// </summary>
@@ -638,7 +655,10 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public TransactionProvider GetTransaction()
         {
-            return new TransactionProvider(con);
+            if (DbTransaction != null)
+                throw new Exception("已有事务实例的仓储不允许执行此操作。");
+            else
+                return new TransactionProvider(con, RepoXmlProvider, ExceptionHandler, Throws);
         }
         /*
          con.QuerySet<Model>().Sum(a => a.IntField);

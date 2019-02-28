@@ -17,19 +17,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
         internal LambdaExpression WhereExpression { get; set; }
 
-        public QuerySet(IDbConnection conn, SqlProvider<T> sqlProvider) : base(conn, sqlProvider)
-        {
-            TableType = typeof(T);
-            SetContext = new DataBaseContext<T>
-            {
-                Set = this,
-                OperateType = EOperateType.Query
-            };
-
-            sqlProvider.Context = SetContext;
-        }
-
-        public QuerySet(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        public QuerySet(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction = null, bool throws = true) : base(conn, sqlProvider, dbTransaction, throws)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>

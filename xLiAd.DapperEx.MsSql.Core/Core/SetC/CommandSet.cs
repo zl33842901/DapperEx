@@ -16,19 +16,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
 
         internal LambdaExpression IfNotExistsExpression { get; set; }
 
-        public CommandSet(IDbConnection conn, SqlProvider<T> sqlProvider) : base(conn, sqlProvider)
-        {
-            TableType = typeof(T);
-            SetContext = new DataBaseContext<T>
-            {
-                Set = this,
-                OperateType = EOperateType.Command
-            };
 
-            sqlProvider.Context = SetContext;
-        }
-
-        public CommandSet(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        public CommandSet(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction = null, bool throws = true) : base(conn, sqlProvider, dbTransaction, throws)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>

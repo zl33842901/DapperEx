@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 using System.Collections.Generic;
+using xLiAd.DapperEx.MsSql.Core.Core;
 
 namespace xLiAd.DapperEx.MsSql.Core.Samples
 {
@@ -31,7 +32,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public int? DictType { get; set; }
         public List<int> TestList { get; set; }
         public int tttttttt { get; private set; }
-        [NotMapped]
+        //[NotMapped]
         public string Table { get; set; }
     }
     [Table("Articles")]
@@ -66,6 +67,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
     /// </summary>
     class Program
     {
+        private static void Log(object sender, DapperExEventArgs eventArgs)
+        {
+            Console.Write(eventArgs.ToString());
+        }
         static void Main(string[] args)
         {
             //连接字符串
@@ -74,7 +79,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var xmlPath = System.IO.Directory.GetCurrentDirectory() + "\\sql.xml";
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);
             #endregion
-            Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider);
+            Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider, Log, false);
             Repository<TTTTTTtest> rep2 = new Repository<TTTTTTtest>(con);
 
             //timestamp 字段测试
@@ -117,11 +122,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //    trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
             //    var i = 0;
             //    var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
-            //    var j = 5 / i;
+            //    //var j = 5 / i;
             //    trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
             //    trans.Commit();
             //}
-            //catch(Exception eeeee)
+            //catch (Exception eeeee)
             //{
             //    trans.Rollback();
             //}
@@ -156,7 +161,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var ccc = OrderEnum.optionA;
             //var r223 = repository.Where(x => x.DictID == 106071 && idbbb.Contains(x.DictID));
             //var r225 = repository.WhereSelect(x => x.DictID >= 106071, x => x.DictName);
-            var r228 = repository.Where(x => x.Remark.Contains("%"));
+            var r228 = repository.Where(x => x.DictID >= 106071);
             return;
             //var r224 = repository.All();
             //var r2 = repository.Where(x => x.DictID == aaa);

@@ -15,10 +15,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
     /// <typeparam name="T"></typeparam>
     public abstract class Command<T> : ICommand<T>, IInsert<T>
     {
+        public event DapperExExceptionHandler ErrorHappened;
         protected readonly SqlProvider<T> SqlProvider;
         protected readonly IDbConnection DbCon;
         private readonly IDbTransaction _dbTransaction;
         protected DataBaseContext<T> SetContext { get; set; }
+        /// <summary>
+        /// 是否抛出错误，如果不抛，可以用 event 实现日志功能
+        /// </summary>
+        public bool Throws { get; }
         /// <summary>
         /// 刚刚执行过的SQL语句（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
@@ -34,18 +39,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             if (SqlProvider.Params != null)
                 this.Params = SqlProvider.Params;
         }
-
-        protected Command(IDbConnection conn, SqlProvider<T> sqlProvider)
-        {
-            SqlProvider = sqlProvider;
-            DbCon = conn;
-        }
-
-        protected Command(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction)
+        /// <summary>
+        /// 新建立命令器
+        /// </summary>
+        /// <param name="conn">数据库连接</param>
+        /// <param name="sqlProvider">SQL转换器</param>
+        /// <param name="dbTransaction">事务</param>
+        /// <param name="throws">是否抛出错误</param>
+        protected Command(IDbConnection conn, SqlProvider<T> sqlProvider, IDbTransaction dbTransaction = null, bool throws = true)
         {
             SqlProvider = sqlProvider;
             DbCon = conn;
             _dbTransaction = dbTransaction;
+            Throws = throws;
         }
 
         public int Update(T entity)
@@ -133,8 +139,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             }
             catch(Exception e)
             {
-                throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                CallEvent(sqlString, param, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                else
+                    return 0;
             }
+        }
+        private void CallEvent(string sqlString, DynamicParameters param, string message)
+        {
+            try
+            {
+                var args = new DapperExEventArgs(sqlString, param, message);
+                ErrorHappened(this, args);
+            }
+            catch { }
         }
     }
 }
