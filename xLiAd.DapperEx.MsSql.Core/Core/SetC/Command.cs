@@ -151,7 +151,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             try
             {
                 var args = new DapperExEventArgs(sqlString, param, message);
-                ErrorHappened(this, args);
+                ErrorHappened?.Invoke(this, args);
             }
             catch { }
         }

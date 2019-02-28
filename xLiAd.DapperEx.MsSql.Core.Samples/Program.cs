@@ -74,7 +74,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         static void Main(string[] args)
         {
             //连接字符串
-            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sc;Password=zhanglei");
+            var con = new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=zhanglei");
             #region 需要使用类似 mybatis 的XML方式存SQL语句时，需要下边这个对象，否则不需要。
             var xmlPath = System.IO.Directory.GetCurrentDirectory() + "\\sql.xml";
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);

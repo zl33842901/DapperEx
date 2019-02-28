@@ -141,14 +141,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return default(T);
             }
         }
-        private void CallEvent(string sqlString, DynamicParameters param, string message)
+        protected void CallEvent(string sqlString, DynamicParameters param, string message)
         {
             try
             {
                 var args = new DapperExEventArgs(sqlString, param, message);
-                ErrorHappened(this, args);
+                ErrorHappened?.Invoke(this, args);
             }
             catch { }
+        }
+        internal void ResetErrorHandler<Told>(Query<Told> old)
+        {
+            this.ErrorHappened = old.ErrorHappened;
         }
     }
 }

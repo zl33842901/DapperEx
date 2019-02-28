@@ -29,7 +29,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             sqlProvider.Context = SetContext;
         }
 
-        internal QuerySet(IDbConnection conn, SqlProvider<T> sqlProvider, Type tableType, LambdaExpression whereExpression, LambdaExpression selectExpression, int? topNum, List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionList, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        internal QuerySet(IDbConnection conn, SqlProvider<T> sqlProvider, Type tableType, LambdaExpression whereExpression, LambdaExpression selectExpression, int? topNum, List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionList, IDbTransaction dbTransaction, bool throws = true)
+            : this(conn, sqlProvider, dbTransaction, throws)
         {
             TableType = tableType;
             WhereExpression = whereExpression;

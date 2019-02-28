@@ -17,13 +17,23 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
     public class QuerySet<TResult,TSource> : QuerySet<TResult>
     {
         protected readonly SqlProvider<TSource> SqlProviderSource;
-        public QuerySet(IDbConnection conn, SqlProvider<TResult> sqlProvider) : base(conn, sqlProvider) { }
-        internal QuerySet(IDbConnection conn, SqlProvider<TResult> sqlProvider, Type tableType, LambdaExpression whereExpression, LambdaExpression selectExpression, int? topNum, List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionList, IDbTransaction dbTransaction) : base(conn, sqlProvider, tableType, whereExpression,selectExpression,topNum,orderbyExpressionList, dbTransaction) { }
+        internal QuerySet(IDbConnection conn, SqlProvider<TResult> sqlProvider, Type tableType, LambdaExpression whereExpression, LambdaExpression selectExpression, int? topNum, List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionList, IDbTransaction dbTransaction, bool throws = true)
+            : base(conn, sqlProvider, tableType, whereExpression,selectExpression,topNum,orderbyExpressionList, dbTransaction, throws) { }
         public override List<TResult> ToList()
         {
             SqlProvider.FormatToListZhanglei(typeof(TSource));
-
-            return DbCon.Query<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList().Select(((Expression<Func<TSource,TResult>>)SelectExpression).Compile()).ToList();
+            try
+            {
+                return DbCon.Query<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList().Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
+            }
+            catch (Exception e)
+            {
+                CallEvent(SqlProvider.SqlString, SqlProvider.Params, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{SqlProvider.SqlString} params:{SqlProvider.Params}", e);
+                else
+                    return new List<TResult>();
+            }
         }
     }
 }
