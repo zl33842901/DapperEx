@@ -32,7 +32,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         public int? DictType { get; set; }
         public List<int> TestList { get; set; }
         public int tttttttt { get; private set; }
-        //[NotMapped]
+        [NotMapped]
         public string Table { get; set; }
     }
     [Table("Articles")]
@@ -79,7 +79,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var xmlPath = System.IO.Directory.GetCurrentDirectory() + "\\sql.xml";
             RepoXmlProvider repoXmlProvider = new RepoXmlProvider(xmlPath);
             #endregion
-            Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider, Log, false);
+            Repository<DictInfo> repository = new Repository<DictInfo>(con, repoXmlProvider, Log, true);
             Repository<TTTTTTtest> rep2 = new Repository<TTTTTTtest>(con);
 
             //timestamp 字段测试
@@ -114,22 +114,22 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             #endregion
 
             #region 改
-            //var trans = repository.GetTransaction();
-            //var trepo = trans.GetRepository<DictInfo>();
-            //var trepo2 = trans.GetRepository<TTTTTTtest>();
-            //try
-            //{
-            //    trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
-            //    var i = 0;
-            //    var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
-            //    //var j = 5 / i;
-            //    trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
-            //    trans.Commit();
-            //}
-            //catch (Exception eeeee)
-            //{
-            //    trans.Rollback();
-            //}
+            var trans = repository.GetTransaction();
+            var trepo = trans.GetRepository<DictInfo>();
+            var trepo2 = trans.GetRepository<TTTTTTtest>();
+            try
+            {
+                trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
+                var i = 0;
+                var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
+                //var j = 5 / i;
+                trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
+                trans.Commit();
+            }
+            catch (Exception eeeee)
+            {
+                trans.Rollback();
+            }
             //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
             //var r443 = repository.Update(ddxx); //
             //var r44 = repository.Update(ddxx, x => x.Remark,x=>x.CreateTime);
@@ -160,7 +160,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             var bbb = "哈哈哈";
             var ccc = OrderEnum.optionA;
             //var r223 = repository.Where(x => x.DictID == 106071 && idbbb.Contains(x.DictID));
-            //var r225 = repository.WhereSelect(x => x.DictID >= 106071, x => x.DictName);
+            var r225 = repository.WhereSelect(x => x.DictID >= 106071, x => x.DictName);
             var r228 = repository.Where(x => x.DictID >= 106071);
             return;
             //var r224 = repository.All();

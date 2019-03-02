@@ -22,6 +22,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public override List<TResult> ToList()
         {
             SqlProvider.FormatToListZhanglei(typeof(TSource));
+            SetSql();
             try
             {
                 return DbCon.Query<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList().Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();

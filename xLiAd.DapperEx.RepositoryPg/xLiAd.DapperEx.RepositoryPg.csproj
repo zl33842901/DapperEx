@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="4.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xLiAd.DapperEx.MsSql.Core\xLiAd.DapperEx.MsSql.Core.csproj" />
+    <ProjectReference Include="..\xLiAd.DapperEx.Repository\xLiAd.DapperEx.Repository.csproj" />
+  </ItemGroup>
+
+</Project>

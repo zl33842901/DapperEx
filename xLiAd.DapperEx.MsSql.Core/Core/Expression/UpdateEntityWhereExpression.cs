@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
@@ -24,6 +25,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private readonly object _obj;
 
         #endregion
+        readonly ISqlDialect Dialect;
 
         #region 执行解析
 
@@ -33,18 +35,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public UpdateEntityWhereExpression(object obj)
+        public UpdateEntityWhereExpression(object obj, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
             _obj = obj;
+            Dialect = dialect;
         }
         #endregion
 
         public void Resolve()
         {
             var propertyInfo = _obj.GetKeyPropertity();
-            _sqlCmd.Append(propertyInfo.GetColumnAttributeName());
+            _sqlCmd.Append(propertyInfo.GetColumnAttributeName(Dialect));
             _sqlCmd.Append(" = ");
             SetParam(propertyInfo.Name, propertyInfo.GetValue(_obj));
         }

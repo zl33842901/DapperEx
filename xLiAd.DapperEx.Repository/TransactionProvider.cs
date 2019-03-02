@@ -13,12 +13,11 @@ namespace xLiAd.DapperEx.Repository
     /// </summary>
     public class TransactionProvider
     {
-
         /// <summary>
         /// 不让随便 new
         /// </summary>
         /// <param name="_con"></param>
-        internal TransactionProvider(SqlConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+        internal TransactionProvider(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
         {
             Connection = _con;
             if (Connection.State == ConnectionState.Closed)
@@ -30,7 +29,7 @@ namespace xLiAd.DapperEx.Repository
         }
 
         readonly IDbTransaction Transaction;
-        readonly SqlConnection Connection;
+        readonly IDbConnection Connection;
         RepoXmlProvider RepoXmlProvider;
         MsSql.Core.Core.DapperExExceptionHandler ExExceptionHandler;
         bool Throws;

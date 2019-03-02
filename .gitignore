@@ -62,3 +62,7 @@
 /xLiAd.DapperEx.MsSql.Core/nupkgsSymb
 /xLiAd.DapperEx.QueryHelper/nupkgsSymb/xLiAd.DapperEx.QueryHelper.1.1.7.symbols.nupkg
 /xLiAd.DapperEx.QueryHelper/nupkgsSymb
+/xLiAd.DapperEx.PostgreSql.Samples/bin/Debug/netcoreapp2.1
+/xLiAd.DapperEx.PostgreSql.Samples/obj
+/xLiAd.DapperEx.RepositoryPg/bin/Debug
+/xLiAd.DapperEx.RepositoryPg/obj

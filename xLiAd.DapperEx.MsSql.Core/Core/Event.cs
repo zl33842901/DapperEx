@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core
 {
@@ -20,25 +21,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core
         }
         public override string ToString()
         {
-            try
-            {
-                var p = typeof(DynamicParameters).GetField("parameters", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var di = p.GetValue(this.Params) as IDictionary;// Dictionary<string, Dapper.DynamicParameters.ParamInfo>;
-                Type paramInfoType = Type.GetType("Dapper.DynamicParameters+ParamInfo,Dapper");
-                var pp = paramInfoType.GetProperty("Value");
-                StringBuilder sbP = new StringBuilder();
-                sbP.Append("{ ");
-                foreach (DictionaryEntry i in di)
-                {
-                    sbP.Append($"\"{i.Key}\" : \"{pp.GetValue(i.Value)}\",\r\n");
-                }
-                sbP.Append("}");
-                return $"sql:{this.Sql} params:{sbP.ToString()} message:{this.ExtMessage}";
-            }
-            catch (Exception)
-            {
-                return $"sql:{this.Sql} message:{this.ExtMessage}";
-            }
+            return $"sql:{this.Sql} params:{this.Params.FormatString()} message:{this.ExtMessage}";
         }
     }
 

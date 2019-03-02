@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
@@ -27,6 +28,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private readonly TKey _obj;
 
         #endregion
+        readonly ISqlDialect Dialect;
 
         #region 执行解析
 
@@ -36,18 +38,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public DeleteExpression(TKey id)
+        public DeleteExpression(TKey id, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
             _obj = id;
+            Dialect = dialect;
         }
         #endregion
 
         public void Resolve()
         {
             var propertyInfo = typeof(T).GetKeyPropertity();
-            _sqlCmd.Append(propertyInfo.GetColumnAttributeName());
+            _sqlCmd.Append(propertyInfo.GetColumnAttributeName(Dialect));
             _sqlCmd.Append(" = ");
             SetParam(propertyInfo.Name, _obj);
         }

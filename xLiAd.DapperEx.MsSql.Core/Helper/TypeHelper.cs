@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 
 namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
@@ -59,9 +60,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return type;
         }
 
-        public static string GetColumnAttributeName(this PropertyInfo propertyInfo)
+        public static string GetColumnAttributeName(this PropertyInfo propertyInfo, ISqlDialect dialect)
         {
             var rst = propertyInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? propertyInfo.Name;
+            rst = dialect.ParseColumnName(rst);
             if (Attribute.IsDefined(propertyInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
             {
                 return $"CONVERT(BIGINT, {rst})";

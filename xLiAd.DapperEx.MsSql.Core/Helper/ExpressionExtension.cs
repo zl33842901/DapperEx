@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 
 namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
@@ -137,9 +138,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return compileExpression.Compile();
         }
 
-        internal static string GetColumnAttributeName(this MemberInfo memberInfo)
+        internal static string GetColumnAttributeName(this MemberInfo memberInfo, ISqlDialect dialect)
         {
             var rst = memberInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? memberInfo.Name;
+            rst = dialect.ParseColumnName(rst);
             if (Attribute.IsDefined(memberInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
             {
                 return $"CONVERT(BIGINT, {rst})";

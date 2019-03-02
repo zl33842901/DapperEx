@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
@@ -23,6 +24,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public DynamicParameters Param { get; }
 
         #endregion
+        readonly ISqlDialect Dialect;
 
         #region 执行解析
         /// <inheritdoc />
@@ -31,11 +33,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public UpdateExpression(LambdaExpression expression)
+        public UpdateExpression(LambdaExpression expression, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
-
+            Dialect = dialect;
             Visit(expression);
         }
         #endregion
@@ -57,7 +59,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
                 var paramName = item.Name;
                 var value = item.GetValue(entity);
-                var c = item.GetColumnAttributeName();
+                var c = item.GetColumnAttributeName(Dialect);
                 SetParam(c, paramName, value);
             }
 
@@ -77,7 +79,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                     _sqlCmd.Append(",");
 
                 var paramName = memberAssignment.Member.Name;
-                var c = memberAssignment.Member.GetColumnAttributeName();
+                var c = memberAssignment.Member.GetColumnAttributeName(Dialect);
                 var constantExpression = (ConstantExpression)memberAssignment.Expression;
                 SetParam(c, paramName, constantExpression.Value);
             }

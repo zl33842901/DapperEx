@@ -57,9 +57,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             return this;
         }
 
-        public void BatchInsert(IEnumerable<T> entities, int timeout = 120)
-        {
-            SqlHelper.BulkCopy(DbCon, entities);
-        }
+        //public void BatchInsert(IEnumerable<T> entities, int timeout = 120)
+        //{
+        //    SqlHelper.BulkCopy(DbCon, entities);
+        //}
     }
 }

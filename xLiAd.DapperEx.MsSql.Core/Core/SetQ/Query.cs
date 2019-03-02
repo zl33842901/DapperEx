@@ -31,7 +31,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
         public DynamicParameters Params { get; private set; }
-        private void SetSql()
+        protected void SetSql()
         {
             if (SqlProvider.SqlString != null)
                 this.SqlString = SqlProvider.SqlString;
@@ -74,7 +74,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             SetSql();
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
-        public virtual List<T> ToList(IEnumerable<LambdaExpression> selector)
+        public virtual List<T> ToList(LambdaExpression[] selector)
         {
             SqlProvider.FormatToList(selector);
             SetSql();

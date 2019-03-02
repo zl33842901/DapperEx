@@ -34,7 +34,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
             var thisObject = (QuerySet<T>)this;
 
-            var rst = new QuerySet<TResult, T>(DbCon, new SqlProvider<TResult>(), typeof(T), thisObject.WhereExpression, selector, thisObject.TopNum, thisObject.OrderbyExpressionList, DbTransaction, this.Throws);
+            var rst = new QuerySet<TResult, T>(DbCon, new SqlProvider<TResult>(SqlProvider.Dialect), typeof(T), thisObject.WhereExpression, selector, thisObject.TopNum, thisObject.OrderbyExpressionList, DbTransaction, this.Throws);
             //考虑一下  这块要改成  return this; 可以避免很多问题。
             rst.ResetErrorHandler(thisObject);
 

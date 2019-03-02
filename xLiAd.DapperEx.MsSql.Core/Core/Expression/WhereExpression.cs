@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
@@ -39,6 +40,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private ExpressionTypeEnum lastExpression = ExpressionTypeEnum.None;/////最后一次的表达式
         private ExpressionTypeEnum lastSecondExpression = ExpressionTypeEnum.None;
         private ExpressionType? lastBinaryType = null;
+        readonly ISqlDialect Dialect;
         #region 执行解析
 
         /// <inheritdoc />
@@ -48,11 +50,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <param name="expression"></param>
         /// <param name="prefix">字段前缀</param>
         /// <returns></returns>
-        public WhereExpression(LambdaExpression expression, string prefix)
+        public WhereExpression(LambdaExpression expression, string prefix, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
             _prefix = prefix;
+            Dialect = dialect;
 
             var exp = TrimExpression.Trim(expression);
             Visit(exp);
@@ -87,14 +90,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             if(lastExpression == ExpressionTypeEnum.None && node.Member is System.Reflection.PropertyInfo && ((System.Reflection.PropertyInfo)node.Member).PropertyType == typeof(bool))
             {
                 //////////这里是  表达式只有表的某个BOOL型字段时   x => x.Deleted
-                string fn = node.Member.GetColumnAttributeName();
+                string fn = node.Member.GetColumnAttributeName(Dialect);
                 _sqlCmd.Append(fn);
                 _sqlCmd.Append("=");
                 SetParam(fn, true);
             }
             else
             {
-                _sqlCmd.Append(node.Member.GetColumnAttributeName());
+                _sqlCmd.Append(node.Member.GetColumnAttributeName(Dialect));
                 TempFileName = node.Member.Name;
             }
 

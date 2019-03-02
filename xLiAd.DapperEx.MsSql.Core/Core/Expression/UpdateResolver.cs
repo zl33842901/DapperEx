@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
@@ -22,12 +23,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public DynamicParameters Param { get; }
 
         #endregion
+        readonly ISqlDialect Dialect;
+
         T Model;
         bool setAnyParam = false;
-        public UpdateExpression(IEnumerable<LambdaExpression> expressionList, T model)
+        public UpdateExpression(IEnumerable<LambdaExpression> expressionList, T model, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
+            Dialect = dialect;
             Model = model;
             foreach(var expression in expressionList)
             {
@@ -40,7 +44,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
             var paramName = node.Member.Name;
             var value = typeof(T).GetProperty(paramName).GetValue(Model);
-            var c = node.Member.GetColumnAttributeName();
+            var c = node.Member.GetColumnAttributeName(Dialect);
             SetParam(c, paramName, value);
 
             return node;
@@ -77,11 +81,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         #endregion
         object Value;
+        readonly ISqlDialect Dialect;
 
-        public UpdateExpressionEx(LambdaExpression expression, object value)
+        public UpdateExpressionEx(LambdaExpression expression, object value, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
+            Dialect = dialect;
             Value = value;
             Visit(expression);
         }
@@ -90,7 +96,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             var memberInitExpression = node;
 
             var paramName = node.Member.Name;
-            var c = node.Member.GetColumnAttributeName();
+            var c = node.Member.GetColumnAttributeName(Dialect);
             SetParam(c, paramName, Value);
 
             return node;

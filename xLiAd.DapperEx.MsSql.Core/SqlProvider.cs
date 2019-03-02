@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
@@ -19,9 +20,11 @@ namespace xLiAd.DapperEx.MsSql.Core
     {
         internal DataBaseContext<T> Context { get; set; }
 
-        public SqlProvider()
+        internal readonly ISqlDialect Dialect;
+        public SqlProvider(ISqlDialect dialect = null)
         {
             Params = new DynamicParameters();
+            Dialect = dialect ?? new SqlServerDialect();
         }
 
         public string SqlString { get; private set; }
@@ -30,17 +33,17 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatGet()
         {
-            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
             Params = whereParams.Param;
 
-            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
 
@@ -48,17 +51,17 @@ namespace xLiAd.DapperEx.MsSql.Core
         }
         public SqlProvider<T> FormatGet<TKey>(TKey id)
         {
-            var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere<T,TKey>(id);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere<T,TKey>(id);
 
             var whereSql = whereParams.SqlCmd;
 
             Params = whereParams.Param;
 
-            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
 
@@ -68,36 +71,36 @@ namespace xLiAd.DapperEx.MsSql.Core
         public SqlProvider<T> FormatToList()
         {
             //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
-            var selectSql = ResolveExpression.ResolveSelectZhanglei(typeof(T), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
             Params = whereParams.Param;
 
-            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
 
             return this;
         }
-        public SqlProvider<T> FormatToList(IEnumerable<LambdaExpression> selector)
+        public SqlProvider<T> FormatToList(LambdaExpression[] selector)
         {
             //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
-            var selectSql = ResolveExpression.ResolveSelectZhanglei(typeof(T), selector, Context.QuerySet.TopNum);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, selector);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
             Params = whereParams.Param;
 
-            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
 
@@ -105,17 +108,17 @@ namespace xLiAd.DapperEx.MsSql.Core
         }
         public SqlProvider<T> FormatToListZhanglei(Type type)
         {
-            var selectSql = ResolveExpression.ResolveSelectZhanglei(type, Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
             Params = whereParams.Param;
 
-            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
 
@@ -124,15 +127,15 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatToPageList(int pageIndex, int pageSize)
         {
-            var orderbySql = ResolveExpression.ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
             if (string.IsNullOrEmpty(orderbySql))
                 throw new Exception("分页查询需要排序条件");
 
-            var selectSql = ResolveExpression.ResolveSelectZhanglei(typeof(T), Context.QuerySet.SelectExpression, pageSize);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), pageSize, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
@@ -157,7 +160,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
@@ -174,7 +177,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
@@ -189,7 +192,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.CommandSet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.CommandSet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
@@ -203,7 +206,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             var fromTableSql = FormatTableName();
 
-            var where = ResolveExpression.ResolveWhere<T, TKey>(id);
+            var where = ResolveExpression.Instance(Dialect).ResolveWhere<T, TKey>(id);
 
             var whereSql = where.SqlCmd;
 
@@ -237,7 +240,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             identityProperty = typeof(T).GetPropertiesInDb(false).FirstOrDefault(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)));
             var paramsAndValuesSql = multiInsert ? FormatInsertParamsAndValues(entity,null) : FormatInsertParamsAndValues(entity, identityProperty);
 
-            var ifnotexistsWhere = ResolveExpression.ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");
+            var ifnotexistsWhere = ResolveExpression.Instance(Dialect).ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");
 
             Params.AddDynamicParams(ifnotexistsWhere.Param);
 
@@ -272,9 +275,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatUpdate(Expression<Func<T, T>> updateExpression)
         {
-            var update = ResolveExpression.ResolveUpdate(updateExpression);
+            var update = ResolveExpression.Instance(Dialect).ResolveUpdate(updateExpression);
 
-            var where = ResolveExpression.ResolveWhere(Context.CommandSet.WhereExpression);
+            var where = ResolveExpression.Instance(Dialect).ResolveWhere(Context.CommandSet.WhereExpression);
 
             var whereSql = where.SqlCmd;
 
@@ -288,9 +291,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatUpdate(T entity)
         {
-            var update = ResolveExpression.ResolveUpdate<T>(a => entity);
+            var update = ResolveExpression.Instance(Dialect).ResolveUpdate<T>(a => entity);
 
-            var where = ResolveExpression.ResolveWhere(entity);
+            var where = ResolveExpression.Instance(Dialect).ResolveWhere(entity);
 
             var whereSql = where.SqlCmd;
 
@@ -303,13 +306,13 @@ namespace xLiAd.DapperEx.MsSql.Core
         }
         public SqlProvider<T> FormatUpdateZhanglei(T entity, IEnumerable<LambdaExpression> expressionList)
         {
-            var update = ResolveExpression.ResolveUpdateZhanglei<T>(expressionList, entity);
+            var update = ResolveExpression.Instance(Dialect).ResolveUpdateZhanglei<T>(expressionList, entity);
 
             IWhereExpression where;
             if(Context.CommandSet.WhereExpression == null)
-                where = ResolveExpression.ResolveWhere(entity);
+                where = ResolveExpression.Instance(Dialect).ResolveWhere(entity);
             else
-                where = ResolveExpression.ResolveWhere(Context.CommandSet.WhereExpression);
+                where = ResolveExpression.Instance(Dialect).ResolveWhere(Context.CommandSet.WhereExpression);
 
             var whereSql = where.SqlCmd;
 
@@ -326,9 +329,9 @@ namespace xLiAd.DapperEx.MsSql.Core
             if (m == null)
                 throw new FieldAccessException("Field Not Found");
 
-            var update = ResolveExpression.ResolveUpdateZhanglei<T>(expression , value);
+            var update = ResolveExpression.Instance(Dialect).ResolveUpdateZhanglei<T>(expression , value);
 
-            var where = ResolveExpression.ResolveWhere(Context.CommandSet.WhereExpression);
+            var where = ResolveExpression.Instance(Dialect).ResolveWhere(Context.CommandSet.WhereExpression);
 
             var whereSql = where.SqlCmd;
 
@@ -342,11 +345,11 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatSum(LambdaExpression lambdaExpression)
         {
-            var selectSql = ResolveExpression.ResolveSum(typeof(T).GetPropertiesInDb(true), lambdaExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSum(typeof(T).GetPropertiesInDb(true), lambdaExpression);
 
             var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = whereParams.SqlCmd;
 
@@ -359,11 +362,11 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatUpdateSelect(Expression<Func<T, T>> updator)
         {
-            var update = ResolveExpression.ResolveUpdate(updator);
+            var update = ResolveExpression.Instance(Dialect).ResolveUpdate(updator);
 
-            var selectSql = ResolveExpression.ResolveSelectOfUpdate(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelectOfUpdate(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression);
 
-            var where = ResolveExpression.ResolveWhere(Context.QuerySet.WhereExpression);
+            var where = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
             var whereSql = where.SqlCmd;
 
@@ -393,7 +396,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var tableName = typeOfTableClass.GetTableAttributeName();
 
-            SqlString = isNeedFrom ? $" FROM {tableName} " : $" {tableName} ";
+            SqlString = isNeedFrom ? $" FROM {Dialect.ParseTableName(tableName)} " : $" {Dialect.ParseTableName(tableName)} ";
 
             return SqlString;
         }
@@ -421,7 +424,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                     valueSqlBuilder.Append(",");
                 }
 
-                var name = property.GetColumnAttributeName();
+                var name = property.GetColumnAttributeName(Dialect);
 
                 paramSqlBuilder.Append(name);
                 valueSqlBuilder.Append("@" + name);
@@ -433,7 +436,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             string outputString = string.Empty;
             if(identityProperty != null)
             {
-                outputString = $" OUTPUT INSERTED.{identityProperty.GetColumnAttributeName()} as insertedid ";
+                outputString = $" OUTPUT INSERTED.{identityProperty.GetColumnAttributeName(Dialect)} as insertedid ";
             }
             return $"({paramSqlBuilder}) {outputString} VALUES  ({valueSqlBuilder})";
         }

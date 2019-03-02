@@ -8,21 +8,8 @@ namespace xLiAd.DapperEx.MsSql.Core
 {
     public static class DataBase
     {
-        public static QuerySet<T> QuerySet<T>(this SqlConnection sqlConnection)
-        {
-            return new QuerySet<T>(sqlConnection, new SqlProvider<T>());
-        }
-        //public static QuerySet<TResult,TSource> QuerySet<TResult, TSource>(this SqlConnection sqlConnection)
-        //{
-        //    return new QuerySet<TResult, TSource>(sqlConnection, new SqlProvider<TResult>());
-        //}
 
-        public static CommandSet<T> CommandSet<T>(this SqlConnection sqlConnection)
-        {
-            return new CommandSet<T>(sqlConnection, new SqlProvider<T>());
-        }
-
-        public static void Transaction(this SqlConnection sqlConnection, Action<TransContext> action)
+        public static void Transaction(this IDbConnection sqlConnection, Action<TransContext> action)
         {
             if (sqlConnection.State == ConnectionState.Closed)
                 sqlConnection.Open();
@@ -47,7 +34,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
     public class TransContext
     {
-        public SqlConnection SqlConnection { internal get; set; }
+        public IDbConnection SqlConnection { internal get; set; }
 
         public IDbTransaction IDbTransaction { internal get; set; }
 

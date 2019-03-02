@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Model;
 
@@ -13,27 +14,36 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
     /// <summary>
     /// 各种表达式转换为SQL子句的帮助类
     /// </summary>
-    internal static class ResolveExpression
+    internal class ResolveExpression
     {
+        readonly ISqlDialect Dialect;
+        public ResolveExpression(ISqlDialect dialect)
+        {
+            Dialect = dialect;
+        }
+        public static ResolveExpression Instance(ISqlDialect dialect)
+        {
+            return new ResolveExpression(dialect);
+        }
         /// <summary>
         /// 把排序表达式 转换为 排序SQL子句
         /// </summary>
         /// <param name="orderbyExpressionDic"></param>
         /// <returns></returns>
-        public static string ResolveOrderBy(List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionDic)
+        public string ResolveOrderBy(List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionDic)
         {
             var orderByList = orderbyExpressionDic.Select(a =>
             {
                 if(a.Value.Body is MemberExpression)
                 {
                     var memberExpress = (MemberExpression)a.Value.Body;
-                    return memberExpress.Member.GetColumnAttributeName() + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
+                    return memberExpress.Member.GetColumnAttributeName(Dialect) + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
                 }
                 else if(a.Value.Body is UnaryExpression)
                 {
                     var ue = (UnaryExpression)a.Value.Body;
                     var memberExpress = (MemberExpression)ue.Operand;
-                    return memberExpress.Member.GetColumnAttributeName() + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
+                    return memberExpress.Member.GetColumnAttributeName(Dialect) + (a.Key == EOrderBy.Asc ? " ASC " : " DESC ");
                 }
                 else
                 {
@@ -53,9 +63,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <param name="whereExpression"></param>
         /// <param name="prefix"></param>
         /// <returns></returns>
-        public static WhereExpression ResolveWhere(LambdaExpression whereExpression, string prefix = null)
+        public WhereExpression ResolveWhere(LambdaExpression whereExpression, string prefix = null)
         {
-            var where = new WhereExpression(whereExpression, prefix);
+            var where = new WhereExpression(whereExpression, prefix, Dialect);
 
             return where;
         }
@@ -65,9 +75,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static UpdateEntityWhereExpression ResolveWhere(object obj)
+        public UpdateEntityWhereExpression ResolveWhere(object obj)
         {
-            var where = new UpdateEntityWhereExpression(obj);
+            var where = new UpdateEntityWhereExpression(obj, Dialect);
             where.Resolve();
             return where;
         }
@@ -79,33 +89,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <typeparam name="TKey"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static DeleteExpression<T, TKey> ResolveWhere<T, TKey>(TKey id)
+        public DeleteExpression<T, TKey> ResolveWhere<T, TKey>(TKey id)
         {
-            var where = new DeleteExpression<T, TKey>(id);
+            var where = new DeleteExpression<T, TKey>(id, Dialect);
             where.Resolve();
             return where;
-        }
-
-        /// <summary>
-        ///  根据给定的 SELECT表达式，生成SELECT子句
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="selector"></param>
-        /// <param name="topNum"></param>
-        /// <returns></returns>
-        public static string ResolveSelectZhanglei(Type type, LambdaExpression selector, int? topNum)
-        {
-            if (selector == null)
-                return ResolveSelect(type.GetPropertiesInDb(true), selector, topNum);
-            var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
-            var selectSql = "";
-            var lfields = new ExpressionPropertyFinder(selector, type).MemberList;
-            /////////////////////////下面要过滤不在DB里的。
-            var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
-            lfields = lfields.Where(x => nameList.Contains(x.Name));
-            /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName()} {x.Name}")), $" TOP {topNum} ");
-            return selectSql;
         }
 
         /// <summary>
@@ -115,9 +103,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <param name="selector"></param>
         /// <param name="topNum"></param>
         /// <returns></returns>
-        public static string ResolveSelectZhanglei(Type type, IEnumerable<LambdaExpression> selector, int? topNum)
+        public string ResolveSelect(Type type, int? topNum, params LambdaExpression[] selector)
         {
-            if (selector == null || selector.Count() < 1)
+            if (selector == null || selector.Count() < 1 || selector.Count(x => x != null) < 1)
                 return ResolveSelect(type.GetPropertiesInDb(true), null, topNum);
             var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
             var selectSql = "";
@@ -128,7 +116,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
             /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName()} {x.Name}")), $" TOP {topNum} ");
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(x.Name)}")), $" TOP {topNum} ");
             return selectSql;
         }
 
@@ -139,7 +127,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <param name="selector"></param>
         /// <param name="topNum"></param>
         /// <returns></returns>
-        public static string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum)
+        public string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum)
         {
             var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
             var selectSql = "";
@@ -151,7 +139,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 {
                     if (propertyBuilder.Length > 0)
                         propertyBuilder.Append(",");
-                    propertyBuilder.AppendFormat($"{propertyInfo.GetColumnAttributeName()} {propertyInfo.Name}");
+                    propertyBuilder.AppendFormat($"{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name)}");
                 }
                 selectSql = string.Format(selectFormat, propertyBuilder, $" TOP {topNum} ");
             }
@@ -161,19 +149,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 if (nodeType == ExpressionType.MemberAccess)
                 {
                     var memberExpression = (MemberExpression)selector.Body;
-                    selectSql = string.Format(selectFormat, memberExpression.Member.GetColumnAttributeName(), $" TOP {topNum} ");
+                    selectSql = string.Format(selectFormat, memberExpression.Member.GetColumnAttributeName(Dialect), $" TOP {topNum} ");
                 }
                 else if (nodeType == ExpressionType.MemberInit)
                 {
                     var memberInitExpression = (MemberInitExpression)selector.Body;
-                    selectSql = string.Format(selectFormat, string.Join(",", memberInitExpression.Bindings.Select(a => a.Member.GetColumnAttributeName())), $" TOP {topNum} ");
+                    selectSql = string.Format(selectFormat, string.Join(",", memberInitExpression.Bindings.Select(a => a.Member.GetColumnAttributeName(Dialect))), $" TOP {topNum} ");
                 }
             }
 
             return selectSql;
         }
 
-        public static string ResolveSelectOfUpdate(PropertyInfo[] propertyInfos, LambdaExpression selector)
+        public string ResolveSelectOfUpdate(PropertyInfo[] propertyInfos, LambdaExpression selector)
         {
             var selectSql = "";
 
@@ -193,7 +181,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                         continue;
                     if (propertyBuilder.Length > 0)
                         propertyBuilder.Append(",");
-                    propertyBuilder.AppendFormat($"INSERTED.{propertyInfo.GetColumnAttributeName()} {propertyInfo.Name}");
+                    propertyBuilder.AppendFormat($"INSERTED.{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name)}");
                 }
                 selectSql = propertyBuilder.ToString();
             }
@@ -203,19 +191,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 if (nodeType == ExpressionType.MemberAccess)
                 {
                     var memberExpression = (MemberExpression)selector.Body;
-                    selectSql = "INSERTED." + memberExpression.Member.GetColumnAttributeName();
+                    selectSql = "INSERTED." + memberExpression.Member.GetColumnAttributeName(Dialect);
                 }
                 else if (nodeType == ExpressionType.MemberInit)
                 {
                     var memberInitExpression = (MemberInitExpression)selector.Body;
-                    selectSql = string.Join(",", memberInitExpression.Bindings.Select(a => "INSERTED." + a.Member.GetColumnAttributeName()));
+                    selectSql = string.Join(",", memberInitExpression.Bindings.Select(a => "INSERTED." + a.Member.GetColumnAttributeName(Dialect)));
                 }
             }
 
             return "OUTPUT " + selectSql;
         }
 
-        public static string ResolveSum(PropertyInfo[] propertyInfos, LambdaExpression selector)
+        public string ResolveSum(PropertyInfo[] propertyInfos, LambdaExpression selector)
         {
             var selectFormat = " SELECT ISNULL(SUM({0}),0)  ";
             var selectSql = "";
@@ -227,7 +215,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             if (nodeType == ExpressionType.MemberAccess)
             {
                 var memberExpression = (MemberExpression)selector.Body;
-                selectSql = string.Format(selectFormat, memberExpression.Member.GetColumnAttributeName());
+                selectSql = string.Format(selectFormat, memberExpression.Member.GetColumnAttributeName(Dialect));
             }
             else if (nodeType == ExpressionType.MemberInit)
                 throw new Exception("不支持该表达式类型");
@@ -235,9 +223,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return selectSql;
         }
 
-        public static UpdateExpression ResolveUpdate<T>(Expression<Func<T, T>> updateExpression)
+        public UpdateExpression ResolveUpdate<T>(Expression<Func<T, T>> updateExpression)
         {
-            return new UpdateExpression(updateExpression);
+            return new UpdateExpression(updateExpression, Dialect);
         }
 
         /// <summary>
@@ -247,9 +235,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <param name="expressionList"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static UpdateExpression<T> ResolveUpdateZhanglei<T>(IEnumerable<LambdaExpression> expressionList, T model)
+        public UpdateExpression<T> ResolveUpdateZhanglei<T>(IEnumerable<LambdaExpression> expressionList, T model)
         {
-            return new UpdateExpression<T>(expressionList, model);
+            return new UpdateExpression<T>(expressionList, model, Dialect);
         }
 
         /// <summary>
@@ -259,9 +247,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <param name="expression"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static UpdateExpressionEx<T> ResolveUpdateZhanglei<T>(LambdaExpression expression, object value)
+        public UpdateExpressionEx<T> ResolveUpdateZhanglei<T>(LambdaExpression expression, object value)
         {
-            return new UpdateExpressionEx<T>(expression, value);
+            return new UpdateExpressionEx<T>(expression, value, Dialect);
         }
     }
 }
