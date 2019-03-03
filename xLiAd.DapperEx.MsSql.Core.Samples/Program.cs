@@ -18,7 +18,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
     }
     public class DictInfo
     {
-        //[Identity]
+        [Identity]
         [Key]
         public int? DictID { get; set; }
         public string DictName { get; set; }
@@ -42,6 +42,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
         [Identity]
         public int Id { get; set; }
         public string title { get; set; }
+        public int DictID { get; set; }
     }
     public class TestStamp
     {
@@ -87,7 +88,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //repoStamp.Add(new TestStamp()
             //{
             //    CreateTime = DateTime.Now,
-            //    Name = "我我我",
+            //    Name = "我我我asdf",
             //    ROWVERSION = "aaaa"
             //});
             //var feijfwo = repoStamp.Where(x => x.Name.Contains("我"));
@@ -97,7 +98,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
             //var mmmmm = new TTTTTTtest() { title = "sdfijwefi" };
             //var iiiis = rep2.Add(mmmmm);
             //Console.Write(iiiis);
-            //当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
+            ////当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
             //var idd = repository.Add(new DictInfo() { DictID = 126119, DictName = "哇哈哈", CreateTime = DateTime.Now });
             //var count = repository.AddTrans(new List<DictInfo>() {
             //    new DictInfo() { DictName = "康师傅5", CreateTime = DateTime.Now },
@@ -108,28 +109,28 @@ namespace xLiAd.DapperEx.MsSql.Core.Samples
 
             #region 删
             //这种方式需要类定义主键字段(Key特性)
-            //var r = repository.Delete(9999);
-            //var rdf1 = repository.Delete(x => x.DictID > 106092 && x.DictName == "哈哈哈");
+            //var r = repository.Delete(1234);
+            //var rdf1 = repository.Delete(x => x.DictID > 106093 && x.DictName == "哈哈哈");
             //var eifwjo = repository.DeleteTrans(new int[] { 106097, 106098 });
             #endregion
 
             #region 改
-            var trans = repository.GetTransaction();
-            var trepo = trans.GetRepository<DictInfo>();
-            var trepo2 = trans.GetRepository<TTTTTTtest>();
-            try
-            {
-                trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
-                var i = 0;
-                var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
-                //var j = 5 / i;
-                trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别");
-                trans.Commit();
-            }
-            catch (Exception eeeee)
-            {
-                trans.Rollback();
-            }
+            //var trans = repository.GetTransaction();
+            //var trepo = trans.GetRepository<DictInfo>();
+            //var trepo2 = trans.GetRepository<TTTTTTtest>();
+            //try
+            //{
+            //    trepo.UpdateWhere(x => x.DictID == 100018, x => x.CreateTime, DateTime.Now);
+            //    var i = 0;
+            //    var tijwoeifj = trepo.Where(x => x.DictID == 100018); //如果要使用
+            //    //var j = 5 / i;
+            //    trepo2.UpdateWhere(x => x.Id == 3, x => x.title, "个人资料类别222");
+            //    trans.Commit();
+            //}
+            //catch (Exception eeeee)
+            //{
+            //    trans.Rollback();
+            //}
             //var ddxx = new DictInfo() { DictID = 100020, CreateTime = DateTime.Now, DictType = 101, DictName = "某层某层会议室", Remark = "今天交流的内容是DapperEx使用", Deleted = true, OrderNum = OrderEnum.optionA };
             //var r443 = repository.Update(ddxx); //
             //var r44 = repository.Update(ddxx, x => x.Remark,x=>x.CreateTime);

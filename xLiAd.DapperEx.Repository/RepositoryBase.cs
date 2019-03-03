@@ -20,10 +20,10 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 数据库连接
         /// </summary>
-        protected IDbConnection con;
-        RepoXmlProvider RepoXmlProvider;
-        MsSql.Core.Core.DapperExExceptionHandler ExceptionHandler;
-        bool Throws;
+        protected readonly IDbConnection con;
+        protected readonly RepoXmlProvider RepoXmlProvider;
+        protected readonly MsSql.Core.Core.DapperExExceptionHandler ExceptionHandler;
+        protected readonly bool Throws;
         protected abstract ISqlDialect Dialect { get; }
         /// <summary>
         /// 初始化仓储
@@ -670,12 +670,6 @@ namespace xLiAd.DapperEx.Repository
         /// 获取事务提供
         /// </summary>
         /// <returns></returns>
-        public TransactionProvider GetTransaction()
-        {
-            if (DbTransaction != null)
-                throw new Exception("已有事务实例的仓储不允许执行此操作。");
-            else
-                return new TransactionProvider(con, RepoXmlProvider, ExceptionHandler, Throws);
-        }
+        public abstract TransactionProviderBase GetTransaction();
     }
 }

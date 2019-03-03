@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using xLiAd.DapperEx.Repository;
 
-namespace xLiAd.DapperEx.Repository
+namespace xLiAd.DapperEx.RepositoryPg
 {
-    /// <summary>
-    /// 事务查询提供
-    /// </summary>
-    public class TransactionProvider : TransactionProviderBase
+    public class TransactionProviderPg : TransactionProviderBase
     {
         /// <summary>
         /// 不让随便 new
         /// </summary>
         /// <param name="_con"></param>
-        internal TransactionProvider(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+        internal TransactionProviderPg(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
             : base(_con, repoXmlProvider, exceptionHandler, throws)
         {
-            
+
         }
         /// <summary>
         /// 获取事务仓储对象
@@ -29,7 +24,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public override IRepository<T> GetRepository<T>()
         {
-            return new Repository<T>(Connection, this.RepoXmlProvider, ExExceptionHandler, Throws, Transaction);
+            return new RepositoryPg<T>(Connection, this.RepoXmlProvider, ExExceptionHandler, Throws, Transaction);
         }
     }
 }

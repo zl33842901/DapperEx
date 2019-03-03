@@ -32,5 +32,17 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         }
         protected override ISqlDialect Dialect => new PostgreSqlDialect();
+
+        /// <summary>
+        /// 获取事务提供
+        /// </summary>
+        /// <returns></returns>
+        public override TransactionProviderBase GetTransaction()
+        {
+            if (DbTransaction != null)
+                throw new Exception("已有事务实例的仓储不允许执行此操作。");
+            else
+                return new TransactionProviderPg(con, this.RepoXmlProvider, ExceptionHandler, Throws);
+        }
     }
 }
