@@ -60,10 +60,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return type;
         }
 
-        public static string GetColumnAttributeName(this PropertyInfo propertyInfo, ISqlDialect dialect)
+        public static string GetColumnAttributeName(this PropertyInfo propertyInfo, ISqlDialect dialect = null)
         {
             var rst = propertyInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? propertyInfo.Name;
-            rst = dialect.ParseColumnName(rst);
+            if(dialect != null)
+                rst = dialect.ParseColumnName(rst);
             if (Attribute.IsDefined(propertyInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
             {
                 return $"CONVERT(BIGINT, {rst})";
@@ -74,9 +75,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             }
         }
 
-        public static string GetTableAttributeName(this Type type)
+        public static string GetTableAttributeName(this Type type, out TableAttribute att)
         {
-            return type.GetCustomAttribute<TableAttribute>()?.Name ?? type.Name;
+            att = type.GetCustomAttribute<TableAttribute>();
+            return att?.Name ?? type.Name;
         }
     }
 

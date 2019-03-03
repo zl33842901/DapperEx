@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -45,7 +46,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(1);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
@@ -63,7 +66,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(1);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
@@ -83,7 +88,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
@@ -102,7 +109,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
@@ -120,7 +129,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql}";
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
@@ -141,6 +152,8 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             Params = whereParams.Param;
 
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(pageSize);
+
             SqlString = $"SELECT COUNT(1) {fromTableSql} {whereSql};";
             SqlString += $@"{selectSql}
             FROM    ( SELECT *
@@ -149,7 +162,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                       {whereSql}
                     ) T
             WHERE   ROWNUMBER > {(pageIndex - 1) * pageSize}
-                    AND ROWNUMBER <= {pageIndex * pageSize} {orderbySql};";
+                    AND ROWNUMBER <= {pageIndex * pageSize} {orderbySql} {limitSql};";
 
             return this;
         }
@@ -173,7 +186,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatExists()
         {
-            var selectSql = "SELECT TOP 1 1";
+            var selectSql = Dialect.IsUseLimitInsteadOfTop ? "SELECT 1" : "SELECT TOP 1 1";
 
             var fromTableSql = FormatTableName();
 
@@ -183,7 +196,9 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             Params = whereParams.Param;
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql}";
+            var limitSql = Dialect.IsUseLimitInsteadOfTop ? " Limit 1" : string.Empty;
+
+            SqlString = $"{selectSql} {fromTableSql} {whereSql} {limitSql}";
 
             return this;
         }
@@ -373,8 +388,11 @@ namespace xLiAd.DapperEx.MsSql.Core
             Params = where.Param;
             Params.AddDynamicParams(update.Param);
 
-            var topSql = Context.QuerySet.TopNum.HasValue ? " TOP " + Context.QuerySet.TopNum.Value : "";
-            SqlString = $"UPDATE {topSql} {FormatTableName(false)} WITH ( UPDLOCK, READPAST ) {update.SqlCmd} {selectSql} {whereSql}";
+            var topSql = Context.QuerySet.TopNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? " TOP " + Context.QuerySet.TopNum.Value : "";
+
+            var limitSql = Context.QuerySet.TopNum.HasValue && Dialect.IsUseLimitInsteadOfTop ? $" Limit {Context.QuerySet.TopNum.Value}" : "";
+
+            SqlString = $"UPDATE {topSql} {FormatTableName(false)} WITH ( UPDLOCK, READPAST ) {update.SqlCmd} {selectSql} {whereSql} {limitSql}";
 
             return this;
         }
@@ -394,9 +412,16 @@ namespace xLiAd.DapperEx.MsSql.Core
                     throw new Exception("error EOperateType");
             }
 
-            var tableName = typeOfTableClass.GetTableAttributeName();
+            TableAttribute att;
 
-            SqlString = isNeedFrom ? $" FROM {Dialect.ParseTableName(tableName)} " : $" {Dialect.ParseTableName(tableName)} ";
+            var tableName = typeOfTableClass.GetTableAttributeName(out att);
+
+            var sc = att?.Schema ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(sc))
+                sc = $"{sc}.";
+
+            SqlString = isNeedFrom ? $" FROM {sc}{Dialect.ParseTableName(tableName)} " : $" {sc}{Dialect.ParseTableName(tableName)} ";
 
             return SqlString;
         }
@@ -425,20 +450,24 @@ namespace xLiAd.DapperEx.MsSql.Core
                 }
 
                 var name = property.GetColumnAttributeName(Dialect);
+                var namenw = property.GetColumnAttributeName();
 
                 paramSqlBuilder.Append(name);
-                valueSqlBuilder.Append("@" + name);
+                valueSqlBuilder.Append("@" + namenw);
 
-                Params.Add("@" + name, property.GetValue(entity));
+                Params.Add("@" + namenw, property.GetValue(entity));
 
                 isAppend = true;
             }
-            string outputString = string.Empty;
-            if(identityProperty != null)
-            {
-                outputString = $" OUTPUT INSERTED.{identityProperty.GetColumnAttributeName(Dialect)} as insertedid ";
-            }
-            return $"({paramSqlBuilder}) {outputString} VALUES  ({valueSqlBuilder})";
+
+            return Dialect.FormatInsertValues(identityProperty?.GetColumnAttributeName(Dialect), paramSqlBuilder.ToString(), valueSqlBuilder.ToString());
+
+            //string outputString = string.Empty;
+            //if(identityProperty != null)
+            //{
+            //    outputString = $" OUTPUT INSERTED.{identityProperty.GetColumnAttributeName(Dialect)} as insertedid ";
+            //}
+            //return $"({paramSqlBuilder}) {outputString} VALUES  ({valueSqlBuilder})";
         }
     }
 }

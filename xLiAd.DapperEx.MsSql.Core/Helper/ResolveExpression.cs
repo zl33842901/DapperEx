@@ -107,7 +107,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         {
             if (selector == null || selector.Count() < 1 || selector.Count(x => x != null) < 1)
                 return ResolveSelect(type.GetPropertiesInDb(true), null, topNum);
-            var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
+            var selectFormat = topNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? " SELECT {1} {0} " : " SELECT {0} ";
             var selectSql = "";
             List<MemberInfo> lfields = new List<MemberInfo>();
             foreach(var slct in selector)
@@ -129,7 +129,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <returns></returns>
         public string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum)
         {
-            var selectFormat = topNum.HasValue ? " SELECT {1} {0} " : " SELECT {0} ";
+            var selectFormat = topNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? " SELECT {1} {0} " : " SELECT {0} ";
             var selectSql = "";
 
             if (selector == null)
@@ -159,6 +159,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             }
 
             return selectSql;
+        }
+
+        public string ResolveLimit(int? topNum)
+        {
+            if (topNum.HasValue && Dialect.IsUseLimitInsteadOfTop)
+                return $" Limit {topNum}";
+            else
+                return string.Empty;
         }
 
         public string ResolveSelectOfUpdate(PropertyInfo[] propertyInfos, LambdaExpression selector)

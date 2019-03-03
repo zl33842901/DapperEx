@@ -138,10 +138,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return compileExpression.Compile();
         }
 
-        internal static string GetColumnAttributeName(this MemberInfo memberInfo, ISqlDialect dialect)
+        internal static string GetColumnAttributeName(this MemberInfo memberInfo, ISqlDialect dialect = null)
         {
             var rst = memberInfo.GetCustomAttribute<ColumnAttribute>()?.Name ?? memberInfo.Name;
-            rst = dialect.ParseColumnName(rst);
+            if (dialect != null)
+                rst = dialect.ParseColumnName(rst);
             if (Attribute.IsDefined(memberInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
             {
                 return $"CONVERT(BIGINT, {rst})";

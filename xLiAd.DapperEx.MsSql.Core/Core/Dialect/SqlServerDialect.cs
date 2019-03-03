@@ -38,5 +38,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
 
             return columnName;
         }
+
+        public bool IsUseLimitInsteadOfTop => false;
+
+        public string FormatInsertValues(string identityPropertyName, string paramString, string valueString)
+        {
+            string outputString;
+            if (!string.IsNullOrEmpty(identityPropertyName))
+                outputString = $" OUTPUT INSERTED.{identityPropertyName} as insertedid ";
+            else
+                outputString = string.Empty;
+            return $"({paramString}) {outputString} VALUES  ({valueString})";
+        }
     }
 }

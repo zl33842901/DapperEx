@@ -10,5 +10,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
         string ParameterPrefix { get; }
         string ParseTableName(string tableName);
         string ParseColumnName(string columnName);
+        bool IsUseLimitInsteadOfTop { get; }
+        string FormatInsertValues(string identityPropertyName, string paramString, string valueString);
     }
 }

@@ -18,6 +18,8 @@ namespace xLiAd.DapperEx.RepositoryPg
             get { return _parameterPrefix; }
         }
 
+        public bool IsUseLimitInsteadOfTop => true;
+
         public string ParseTableName(string tableName)
         {
             if (!tableName.StartsWith("\""))
@@ -36,6 +38,16 @@ namespace xLiAd.DapperEx.RepositoryPg
             }
 
             return columnName;
+        }
+
+        public string FormatInsertValues(string identityPropertyName, string paramString, string valueString)
+        {
+            string outputString;
+            if (!string.IsNullOrEmpty(identityPropertyName))
+                outputString = $" RETURNING {identityPropertyName}";
+            else
+                outputString = string.Empty;
+            return $"({paramString}) VALUES  ({valueString}) {outputString}";
         }
     }
 }
