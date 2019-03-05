@@ -19,3 +19,21 @@ TABLESPACE pg_default;
 
 ALTER TABLE public."DictInfo"
     OWNER to postgres;
+
+
+
+	CREATE TABLE public."News"
+(
+    "Id" serial NOT NULL,
+    "Title" character varying(50) COLLATE pg_catalog."default",
+    "Content" text COLLATE pg_catalog."default",
+    "Author" jsonb,
+    CONSTRAINT "News_pkey" PRIMARY KEY ("Id")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public."News"
+    OWNER to postgres;
