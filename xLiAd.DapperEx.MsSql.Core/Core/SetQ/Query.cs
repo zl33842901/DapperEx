@@ -157,6 +157,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     foreach (var p in ps)
                     {
                         var col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
+                        object o = Reader.GetValue(col);
+                        if (o == DBNull.Value)
+                            continue;
                         var s = Reader.GetString(col);
                         var pv = Deserializer(s, p.PropertyType);
                         p.SetValue(rst, pv);

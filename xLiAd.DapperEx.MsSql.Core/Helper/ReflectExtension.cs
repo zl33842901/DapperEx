@@ -24,7 +24,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         {
             var plist = type.GetProperties().Where(x => x.CanRead && x.CanWrite &&
                 !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) && !Attribute.IsDefined(x, typeof(NotMappedAttribute))
-                && !typeof(IList).IsAssignableFrom(x.PropertyType)
+                && (!typeof(IList).IsAssignableFrom(x.PropertyType) || Attribute.IsDefined(x, typeof(JsonColumnAttribute)))
                 ).ToArray();
             plist = plist.Where(x => x.SetMethod.IsPublic && x.GetMethod.IsPublic).ToArray();
             if (!forSelect)

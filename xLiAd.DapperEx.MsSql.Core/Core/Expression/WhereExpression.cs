@@ -350,10 +350,40 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             {
                 if(node.Arguments.Count == 2 && typeof(IList).IsAssignableFrom(node.Arguments[0].Type))
                 {
-                    Visit(node.Arguments[1]);
-                    _sqlCmd.AppendFormat(" IN ");
-                    var o = (IList)((ConstantExpression)node.Arguments[0]).Value;
-                    InDo(TempFileName, o);
+                    var arg0 = node.Arguments[0];
+                    var arg1 = node.Arguments[1];
+                    //正常情况下，应该是 arg0 是常数，包含某列里的对象。但是JSONB列的情况特殊。
+                    if(arg0.NodeType == ExpressionType.Constant)
+                    {
+                        Visit(arg1);
+                        _sqlCmd.AppendFormat(" IN ");
+                        var o = (IList)((ConstantExpression)arg0).Value;
+                        InDo(TempFileName, o);
+                    }
+                    else
+                    {
+                        if (arg1.NodeType == ExpressionType.Constant && arg0.NodeType == ExpressionType.MemberAccess)
+                        {
+                            var pi = ((MemberExpression)arg0).Member as PropertyInfo;
+                            if(pi != null && pi.CustomAttributes.Any(x=>x.AttributeType == typeof(JsonColumnAttribute)))
+                            {
+                                Visit(arg0);
+                                _sqlCmd.AppendFormat(" @> '");
+                                var cv = (ConstantExpression)arg1;
+                                if(cv.Type == typeof(int))
+                                {
+                                    _sqlCmd.Append(cv.Value);
+                                }
+                                else
+                                {
+                                    _sqlCmd.Append("\"");
+                                    _sqlCmd.Append(cv.Value.ToString().Replace("'","''"));
+                                    _sqlCmd.Append("\"");
+                                }
+                                _sqlCmd.Append("'");
+                            }
+                        }
+                    }
                 }
             }
         }

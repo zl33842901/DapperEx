@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using xLiAd.DapperEx.RepositoryPg;
 
 namespace xLiAd.DapperEx.PostgreSql.Samples
@@ -16,6 +17,17 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime BirthDay { get; set; }
+    }
+    [Table("News2", Schema = "public")]
+    public class News2
+    {
+        [Key]
+        [Identity]
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        [JsonColumn]
+        public string[] Author { get; set; }
     }
     [Table("News", Schema="public")]
     public class TTTTTTtest
@@ -57,6 +69,17 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             var constring = "Host=127.0.0.1;Port=5432;Database=zhanglei;Username=postgres;Password=zhanglei";
             RepositoryPg<TTTTTTtest> repository = new RepositoryPg<TTTTTTtest>(constring);
             RepositoryPg<DictInfo> repod = new RepositoryPg<DictInfo>(constring);
+            RepositoryPg<News2> reponews2 = new RepositoryPg<News2>(constring);
+            //News2 news2 = new News2()
+            //{
+            //    Content = "今天天气也不错呢",
+            //    Title = "今天天气也不错呢",
+            //    Author = new string[] { "c", "d", "e" }
+            //};
+            //var rtid = reponews2.Add(news2);
+            var l270 = reponews2.Where(x => x.Author.Contains("c"));
+
+
             //TTTTTTtest ttest = new TTTTTTtest()
             //{
             //    Content = "今天天气不错",
@@ -69,8 +92,8 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             //var l257 = repository.Where(x => x.Author.Name.Contains("张"));
             //var l258 = repository.Where(x => x.Id > 2 && x.Author.Name.Contains("张"));
             //var l259 = repository.Where(x => x.Id > 2);
-            var d = new DateTime(2019, 3, 6, 11, 12, 0);
-            var l1260 = repository.Where(x => x.Author.BirthDay > d);
+            //var d = new DateTime(2019, 3, 6, 11, 12, 0);
+            //var l1260 = repository.Where(x => x.Author.BirthDay > d);
             //var l1261 = repository.Where(x => x.Author.Id > 6);
             //var r225 = repository.WhereSelect(x => x.Id >= 3, x => x.Author);
             //var id = 1;
