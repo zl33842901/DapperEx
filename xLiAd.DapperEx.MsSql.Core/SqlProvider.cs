@@ -443,19 +443,30 @@ namespace xLiAd.DapperEx.MsSql.Core
             {
                 if (property.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)))
                     continue;
+                bool isJsonColumn = property.CustomAttributes.Any(b => b.AttributeType == typeof(JsonColumnAttribute));//是否是JSON列
                 if (isAppend)
                 {
                     paramSqlBuilder.Append(",");
                     valueSqlBuilder.Append(",");
                 }
 
-                var name = property.GetColumnAttributeName(Dialect);
-                var namenw = property.GetColumnAttributeName();
+                var name = property.GetColumnAttributeName(Dialect);//带方言符号的名称  如 [Title]
+                var namenw = property.GetColumnAttributeName();//不带方言符号的纯名称  如  Title
 
                 paramSqlBuilder.Append(name);
-                valueSqlBuilder.Append("@" + namenw);
 
-                Params.Add("@" + namenw, property.GetValue(entity));
+                object paramValue;
+                if(isJsonColumn && Dialect.SupportJsonColumn && Dialect.HasSerializer)
+                {
+                    valueSqlBuilder.Append("@" + namenw + "::jsonb");
+                    paramValue = Dialect.Serializer(property.GetValue(entity));
+                }
+                else
+                {
+                    valueSqlBuilder.Append("@" + namenw);
+                    paramValue = property.GetValue(entity);
+                }
+                Params.Add("@" + namenw, paramValue);
 
                 isAppend = true;
             }

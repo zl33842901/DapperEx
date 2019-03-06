@@ -25,6 +25,7 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
         public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        [JsonColumn]
         public Author Author { get; set; }
     }
     [Table("DictInfo", Schema = "public")]

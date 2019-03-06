@@ -31,7 +31,15 @@ namespace xLiAd.DapperEx.RepositoryPg
         {
 
         }
-        protected override ISqlDialect Dialect => new PostgreSqlDialect();
+        protected override ISqlDialect Dialect
+        {
+            get
+            {
+                var dialect = new PostgreSqlDialect();
+                dialect.SetSerializeFunc(Newtonsoft.Json.JsonConvert.SerializeObject, Newtonsoft.Json.JsonConvert.DeserializeObject);
+                return dialect;
+            }
+        }
 
         /// <summary>
         /// 获取事务提供

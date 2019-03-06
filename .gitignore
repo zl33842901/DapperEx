@@ -66,3 +66,8 @@
 /xLiAd.DapperEx.PostgreSql.Samples/obj
 /xLiAd.DapperEx.RepositoryPg/bin/Debug
 /xLiAd.DapperEx.RepositoryPg/obj
+/xLiAd.DapperEx.RepositoryPg/bin/Release
+/xLiAd.DapperEx.RepositoryPg/nupkgs
+/xLiAd.DapperEx.RepositoryPg/nupkgsSymb
+/xLiAd.DapperEx.RepositoryPg/xLiAd.DapperEx.RepositoryPg.nuspec
+/xLiAd.DapperEx.RepositoryPg/发布到NUGET.bat

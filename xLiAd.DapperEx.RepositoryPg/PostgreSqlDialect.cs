@@ -20,6 +20,14 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         public bool IsUseLimitInsteadOfTop => true;
 
+        public bool SupportJsonColumn => true;
+
+        public bool HasSerializer { get; private set; } = false;
+
+        public Func<object, string> Serializer { get; private set; }
+
+    public Func<string, Type, object> Deserializer { get; private set; }
+
         public string ParseTableName(string tableName)
         {
             if (!tableName.StartsWith("\""))
@@ -48,6 +56,16 @@ namespace xLiAd.DapperEx.RepositoryPg
             else
                 outputString = string.Empty;
             return $"({paramString}) VALUES  ({valueString}) {outputString}";
+        }
+
+        public void SetSerializeFunc(Func<object, string> serializer, Func<string, Type, object> deserializer)
+        {
+            if(serializer != null && deserializer != null)
+            {
+                this.Serializer = serializer;
+                this.Deserializer = deserializer;
+                HasSerializer = true;
+            }
         }
     }
 }

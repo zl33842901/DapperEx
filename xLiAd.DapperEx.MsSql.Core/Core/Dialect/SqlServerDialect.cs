@@ -41,6 +41,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
 
         public bool IsUseLimitInsteadOfTop => false;
 
+        public bool SupportJsonColumn => false;
+
+        public bool HasSerializer => false;
+
+        public Func<object, string> Serializer => throw new NotImplementedException();
+
+        public Func<string, Type, object> Deserializer => throw new NotImplementedException();
+
         public string FormatInsertValues(string identityPropertyName, string paramString, string valueString)
         {
             string outputString;
@@ -49,6 +57,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
             else
                 outputString = string.Empty;
             return $"({paramString}) {outputString} VALUES  ({valueString})";
+        }
+
+        public void SetSerializeFunc(Func<object, string> serializer, Func<string, Type, object> deserializer)
+        {
+            throw new NotSupportedException();
         }
     }
 }
