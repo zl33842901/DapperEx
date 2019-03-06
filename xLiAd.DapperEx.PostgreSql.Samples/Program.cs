@@ -27,7 +27,7 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
         public string Title { get; set; }
         public string Content { get; set; }
         [JsonColumn]
-        public string[] Author { get; set; }
+        public Author[] Author { get; set; }
     }
     [Table("News", Schema="public")]
     public class TTTTTTtest
@@ -70,14 +70,14 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             RepositoryPg<TTTTTTtest> repository = new RepositoryPg<TTTTTTtest>(constring);
             RepositoryPg<DictInfo> repod = new RepositoryPg<DictInfo>(constring);
             RepositoryPg<News2> reponews2 = new RepositoryPg<News2>(constring);
-            //News2 news2 = new News2()
-            //{
-            //    Content = "今天天气也不错呢",
-            //    Title = "今天天气也不错呢",
-            //    Author = new string[] { "c", "d", "e" }
-            //};
-            //var rtid = reponews2.Add(news2);
-            var l270 = reponews2.Where(x => x.Author.Contains("c"));
+            News2 news2 = new News2()
+            {
+                Content = "今天天气也不错",
+                Title = "今天天气也不错",
+                Author = new Author[] { new Author() { BirthDay = DateTime.Now, Id = 6, Name = "王治胜" }, new Author() { BirthDay = DateTime.Today, Id = 7, Name = "李明浩" } }
+            };
+            var rtid = reponews2.Add(news2);
+            //var l270 = reponews2.Where(x => x.Author.Contains("c"));
 
 
             //TTTTTTtest ttest = new TTTTTTtest()
