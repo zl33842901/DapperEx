@@ -65,7 +65,13 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             //};
             //var iiid = repository.Add(ttest);
 
-            //var l = repository.Where(x => true);
+            //var l256 = repository.Where(x => x.Author.Name == "王治胜");
+            //var l257 = repository.Where(x => x.Author.Name.Contains("张"));
+            //var l258 = repository.Where(x => x.Id > 2 && x.Author.Name.Contains("张"));
+            //var l259 = repository.Where(x => x.Id > 2);
+            var d = new DateTime(2019, 3, 6, 11, 12, 0);
+            var l1260 = repository.Where(x => x.Author.BirthDay > d);
+            //var l1261 = repository.Where(x => x.Author.Id > 6);
             //var r225 = repository.WhereSelect(x => x.Id >= 3, x => x.Author);
             //var id = 1;
             //var r3 = repository.Find(id);
@@ -75,7 +81,7 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             //var ddxx = new TTTTTTtest() { Id = 4, Author = new Author() { BirthDay = DateTime.Now, Id = 99, Name = "王治胜" } };
             //var r443 = repository.Update(ddxx, x=>x.Author);
 
-            var l = repository.PageList(x => x.Id > 1, x=>x.Id , 1, 3, true);
+            //var l = repository.PageList(x => x.Id > 1, x=>x.Id , 1, 3, true);
             //var trans = repository.GetTransaction();
             //var trepo = trans.GetRepository<DictInfo>();
             //var trepo2 = trans.GetRepository<TTTTTTtest>();

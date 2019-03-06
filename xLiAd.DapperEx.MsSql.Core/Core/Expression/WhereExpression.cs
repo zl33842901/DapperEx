@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
@@ -97,8 +99,45 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             }
             else
             {
-                _sqlCmd.Append(node.Member.GetColumnAttributeName(Dialect));
-                TempFileName = node.Member.Name;
+                if(node.Expression is MemberExpression)
+                {
+                    var pi = ((MemberExpression)node.Expression).Member;
+                    bool isJsonColumn = pi.CustomAttributes.Any(x => x.AttributeType == typeof(JsonColumnAttribute));
+                    if (isJsonColumn)
+                    {
+                        var ss = node.ToString().Split('.');
+                        if(ss.Length > 2)
+                        {
+                            var pmst = new StringBuilder();
+                            pmst.Append(pi.GetColumnAttributeName(Dialect));
+                            pmst.Append("->>");
+                            pmst.Append(string.Join("->>", ss.Skip(2).Select(x => $"'{x}'")));
+                            if (node.Member is PropertyInfo && ((PropertyInfo)node.Member).PropertyType == typeof(int))
+                            {
+                                _sqlCmd.Append("cast(");
+                                _sqlCmd.Append(pmst.ToString());
+                                _sqlCmd.Append(" as int)");
+                            }
+                            else if(node.Member is PropertyInfo && ((PropertyInfo)node.Member).PropertyType == typeof(DateTime))
+                            {
+                                _sqlCmd.Append("cast(");
+                                _sqlCmd.Append(pmst.ToString());
+                                _sqlCmd.Append(" as timestamp)");
+                            }
+                            else
+                            {
+                                _sqlCmd.Append(pmst.ToString());
+                            }
+                            
+                            TempFileName = node.Member.Name;
+                        }
+                    }
+                }
+                else
+                {
+                    _sqlCmd.Append(node.Member.GetColumnAttributeName(Dialect));
+                    TempFileName = node.Member.Name;
+                }
             }
 
             lastSecondExpression = lastExpression;
