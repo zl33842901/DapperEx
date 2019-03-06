@@ -26,7 +26,7 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         public Func<object, string> Serializer { get; private set; }
 
-    public Func<string, Type, object> Deserializer { get; private set; }
+        public Func<string, Type, object> Deserializer { get; private set; }
 
         public string ParseTableName(string tableName)
         {
@@ -60,7 +60,7 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         public void SetSerializeFunc(Func<object, string> serializer, Func<string, Type, object> deserializer)
         {
-            if(serializer != null && deserializer != null)
+            if (serializer != null && deserializer != null)
             {
                 this.Serializer = serializer;
                 this.Deserializer = deserializer;

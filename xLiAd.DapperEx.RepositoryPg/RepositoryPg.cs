@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
+using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
 using xLiAd.DapperEx.Repository;
 
 namespace xLiAd.DapperEx.RepositoryPg
@@ -51,6 +52,15 @@ namespace xLiAd.DapperEx.RepositoryPg
                 throw new Exception("已有事务实例的仓储不允许执行此操作。");
             else
                 return new TransactionProviderPg(con, this.RepoXmlProvider, ExceptionHandler, Throws);
+        }
+
+        protected override QuerySet<T> QuerySet
+        {
+            get {
+                var q = base.QuerySet;
+                q.SetSerializeFunc(Newtonsoft.Json.JsonConvert.SerializeObject, Newtonsoft.Json.JsonConvert.DeserializeObject);
+                return q;
+            }
         }
     }
 }

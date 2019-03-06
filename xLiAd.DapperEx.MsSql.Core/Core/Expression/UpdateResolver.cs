@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
@@ -41,21 +43,31 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         protected override System.Linq.Expressions.Expression VisitMember(MemberExpression node)
         {
             var memberInitExpression = node;
-
-            var paramName = node.Member.Name;
-            var value = typeof(T).GetProperty(paramName).GetValue(Model);
+            var paramName = node.Member.Name;//参数名
+            var pi = typeof(T).GetProperty(paramName);//要更新的列（属性）
+            var value = pi.GetValue(Model);
             var c = node.Member.GetColumnAttributeName(Dialect);
-            SetParam(c, paramName, value);
+            //要看一看是不是JSON列
+            bool isJsonColumn = pi.CustomAttributes.Any(b => b.AttributeType == typeof(JsonColumnAttribute));//是否是JSON列
+            if (isJsonColumn && Dialect.SupportJsonColumn && Dialect.HasSerializer)
+            {
+                value = Dialect.Serializer(value);
+                SetParam(c, paramName, value, true);
+            }
+            else
+            {
+                SetParam(c, paramName, value);
+            }
 
             return node;
         }
-        private void SetParam(string sqlParamName, string paramName, object value)
+        private void SetParam(string sqlParamName, string paramName, object value, bool addJsonb = false)
         {
             paramName = GetParamName(paramName);
             var n = $"@{Prefix}{paramName}";
             if (setAnyParam)
                 _sqlCmd.Append(",");
-            _sqlCmd.AppendFormat(" {0}={1} ", sqlParamName, n);
+            _sqlCmd.AppendFormat(" {0} = {1} ", sqlParamName, n + (addJsonb ? "::jsonb" : string.Empty));
             Param.Add(n, value);
             setAnyParam = true;
         }

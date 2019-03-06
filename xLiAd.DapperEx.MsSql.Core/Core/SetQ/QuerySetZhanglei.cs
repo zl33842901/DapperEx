@@ -25,7 +25,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             SetSql();
             try
             {
-                return DbCon.Query<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList().Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
+                var l = Q<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+                return l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             }
             catch (Exception e)
             {

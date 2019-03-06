@@ -36,6 +36,35 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         }
 
         /// <summary>
+        /// 获取JsonColumn 标记的属性
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <returns></returns>
+        internal static PropertyInfo[] GetJsonColumnProperty(PropertyInfo[] properties)
+        {
+            var ps = properties.Where(x => x.CustomAttributes.Any(y => y.AttributeType == typeof(JsonColumnAttribute))).ToArray();
+            return ps;
+        }
+        /// <summary>
+        /// 获取某个类型的字段里，具有 JsonColumn 标记的
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal static PropertyInfo[] GetJsonColumnProperty(this Type type)
+        {
+            return GetJsonColumnProperty(type.GetPropertiesInDb(true));
+        }
+        /// <summary>
+        /// 某个类型是否有 JsonColumn 标记的字段
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal static bool HasJsonColumn(this Type type)
+        {
+            return type.GetJsonColumnProperty().Length > 0;
+        }
+
+        /// <summary>
         /// 获取主键
         /// </summary>
         /// <param name="obj"></param>

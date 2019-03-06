@@ -21,9 +21,21 @@ namespace xLiAd.DapperEx.Repository
         /// 数据库连接
         /// </summary>
         protected readonly IDbConnection con;
+        /// <summary>
+        /// XML方式SQL语句提供器
+        /// </summary>
         protected readonly RepoXmlProvider RepoXmlProvider;
+        /// <summary>
+        /// 错误事件
+        /// </summary>
         protected readonly MsSql.Core.Core.DapperExExceptionHandler ExceptionHandler;
+        /// <summary>
+        /// 是否抛出错误
+        /// </summary>
         protected readonly bool Throws;
+        /// <summary>
+        /// SQL方言
+        /// </summary>
         protected abstract ISqlDialect Dialect { get; }
         /// <summary>
         /// 初始化仓储

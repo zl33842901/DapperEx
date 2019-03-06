@@ -27,6 +27,8 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
         public string Content { get; set; }
         [JsonColumn]
         public Author Author { get; set; }
+        [JsonColumn, NotMapped]
+        public Author Author2 { get; set; }
     }
     [Table("DictInfo", Schema = "public")]
     public class DictInfo
@@ -55,25 +57,25 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             var constring = "Host=127.0.0.1;Port=5432;Database=zhanglei;Username=postgres;Password=zhanglei";
             RepositoryPg<TTTTTTtest> repository = new RepositoryPg<TTTTTTtest>(constring);
             RepositoryPg<DictInfo> repod = new RepositoryPg<DictInfo>(constring);
-            TTTTTTtest ttest = new TTTTTTtest()
-            {
-                Content = "pg大法",
-                Title = "哒滴滴哒滴滴",
-                Author = new Author() { BirthDay = DateTime.Now, Id = 5, Name="张磊"}
-            };
-            var iiid = repository.Add(ttest);
+            //TTTTTTtest ttest = new TTTTTTtest()
+            //{
+            //    Content = "今天天气不错",
+            //    Title = "今天天气不错",
+            //    Author = new Author() { BirthDay = DateTime.Now, Id = 9, Name = "张晓斌" }
+            //};
+            //var iiid = repository.Add(ttest);
 
             //var l = repository.Where(x => true);
-            //var r225 = repository.WhereSelect(x => x.Id >= 3, x => x.Title);
+            //var r225 = repository.WhereSelect(x => x.Id >= 3, x => x.Author);
             //var id = 1;
             //var r3 = repository.Find(id);
 
-            //var r = repository.Delete(2);
+            //var r = repository.Delete(5);
 
-            //var ddxx = new TTTTTTtest() { Id = 6, Title = "更新后的标题2", Content="更新后的内容" };
-            //var r443 = repository.Update(ddxx, x=>x.Content);
+            //var ddxx = new TTTTTTtest() { Id = 4, Author = new Author() { BirthDay = DateTime.Now, Id = 99, Name = "王治胜" } };
+            //var r443 = repository.Update(ddxx, x=>x.Author);
 
-            //var l = repository.PageList(x => x.Id > 1, x=>x.Id , 2, 3, true);
+            var l = repository.PageList(x => x.Id > 1, x=>x.Id , 1, 3, true);
             //var trans = repository.GetTransaction();
             //var trepo = trans.GetRepository<DictInfo>();
             //var trepo2 = trans.GetRepository<TTTTTTtest>();

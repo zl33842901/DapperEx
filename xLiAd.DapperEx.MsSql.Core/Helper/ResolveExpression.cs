@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
     /// </summary>
     internal class ResolveExpression
     {
+        public const string JsonColumnNameSuffix = "_DapperEx_JsonColumn";
         readonly ISqlDialect Dialect;
         public ResolveExpression(ISqlDialect dialect)
         {
@@ -116,8 +118,24 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
             /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(x.Name)}")), $" TOP {topNum} ");
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x))}")), $" TOP {topNum} ");
             return selectSql;
+        }
+
+        /// <summary>
+        /// 获取一个属性在查询时要不要加后辍 加啥返回啥，不加返回空
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        private string GetJsonColumnNameSuffixIf(MemberInfo propertyInfo)
+        {
+            bool jsonColumn = propertyInfo.CustomAttributes.Any(b => b.AttributeType == typeof(JsonColumnAttribute));
+            string jsonColumnNameSuffix;
+            if (jsonColumn && Dialect.HasSerializer && Dialect.SupportJsonColumn)
+                jsonColumnNameSuffix = JsonColumnNameSuffix;
+            else
+                jsonColumnNameSuffix = string.Empty;
+            return jsonColumnNameSuffix;
         }
 
         /// <summary>
@@ -139,7 +157,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 {
                     if (propertyBuilder.Length > 0)
                         propertyBuilder.Append(",");
-                    propertyBuilder.AppendFormat($"{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name)}");
+
+                    string jsonColumnNameSuffix = GetJsonColumnNameSuffixIf(propertyInfo);
+                    propertyBuilder.AppendFormat($"{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name + jsonColumnNameSuffix)}");
                 }
                 selectSql = string.Format(selectFormat, propertyBuilder, $" TOP {topNum} ");
             }
@@ -189,7 +209,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                         continue;
                     if (propertyBuilder.Length > 0)
                         propertyBuilder.Append(",");
-                    propertyBuilder.AppendFormat($"INSERTED.{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name)}");
+                    propertyBuilder.AppendFormat($"INSERTED.{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name + GetJsonColumnNameSuffixIf(propertyInfo))}");
                 }
                 selectSql = propertyBuilder.ToString();
             }

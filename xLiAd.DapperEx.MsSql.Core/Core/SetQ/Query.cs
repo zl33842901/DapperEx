@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
+using xLiAd.DapperEx.MsSql.Core.Helper;
 using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
@@ -86,13 +87,43 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             SqlProvider.FormatToPageList(pageIndex, pageSize);
             SetSql();
             try {
-                using (var queryResult = DbCon.QueryMultiple(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+                var ps = typeof(T).GetJsonColumnProperty();
+                if (ps.Length > 0 && HasSerializer)
                 {
-                    var pageTotal = queryResult.ReadFirst<int>();
+                    var Reader = DbCon.ExecuteReader(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+                    var pageTotal = 0;
+                    if (Reader.Read())
+                    {
+                        pageTotal = Reader.GetInt32(0);
+                    }
+                    Reader.NextResult();
+                    var Parser = Reader.GetRowParser(typeof(T));
+                    List<T> lrst = new List<T>();
+                    while (Reader.Read())
+                    {
+                        object rst = Parser(Reader);
+                        foreach (var p in ps)
+                        {
+                            var col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
+                            var s = Reader.GetString(col);
+                            var pv = Deserializer(s, p.PropertyType);
+                            p.SetValue(rst, pv);
+                        }
+                        lrst.Add((T)rst);
+                    }
+                    Reader.Close();
+                    return new PageList<T>(pageIndex, pageSize, pageTotal, lrst);
+                }
+                else
+                {
+                    using (var queryResult = DbCon.QueryMultiple(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+                    {
+                        var pageTotal = queryResult.ReadFirst<int>();
 
-                    var itemList = queryResult.Read<T>().ToList();
+                        var itemList = queryResult.Read<T>().ToList();
 
-                    return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
+                        return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
+                    }
                 }
             }
             catch (Exception e)
@@ -111,11 +142,40 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             SetSql();
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
+        protected IEnumerable<TRst> Q<TRst>(string sqlString, DynamicParameters param, IDbTransaction dbTransaction, int count = 0)
+        {
+            var ps = typeof(TRst).GetJsonColumnProperty();
+            if (ps.Length > 0 && HasSerializer)
+            {
+                var Reader = DbCon.ExecuteReader(sqlString, param, dbTransaction);
+                var Parser = Reader.GetRowParser(typeof(TRst));
+                List<TRst> lrst = new List<TRst>();
+                int i = 0;
+                while (Reader.Read())
+                {
+                    object rst = Parser(Reader);
+                    foreach (var p in ps)
+                    {
+                        var col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
+                        var s = Reader.GetString(col);
+                        var pv = Deserializer(s, p.PropertyType);
+                        p.SetValue(rst, pv);
+                    }
+                    lrst.Add((TRst)rst);
+                    if (++i >= count && count > 0)
+                        break;
+                }
+                Reader.Close();
+                return lrst;
+            }
+            else
+                return DbCon.Query<TRst>(sqlString, param, dbTransaction);
+        }
         private IEnumerable<T> Qr(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
-                return DbCon.Query<T>(sqlString, param, dbTransaction);
+                return Q<T>(sqlString, param, dbTransaction);
             }
             catch (Exception e)
             {
@@ -130,7 +190,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             try
             {
-                return DbCon.QueryFirstOrDefault<T>(sqlString, param, dbTransaction);
+                return Q<T>(sqlString, param, dbTransaction, 1).FirstOrDefault();
             }
             catch (Exception e)
             {
@@ -153,6 +213,32 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         internal void ResetErrorHandler<Told>(Query<Told> old)
         {
             this.ErrorHappened = old.ErrorHappened;
+        }
+        /// <summary>
+        /// 是否有JSON序列化器
+        /// </summary>
+        public bool HasSerializer { get; private set; } = false;
+        /// <summary>
+        /// 序列化器
+        /// </summary>
+        public Func<object, string> Serializer { get; private set; }
+        /// <summary>
+        /// 反序列化器
+        /// </summary>
+        public Func<string, Type, object> Deserializer { get; private set; }
+        /// <summary>
+        /// 设置序列化和反序列化器
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="deserializer"></param>
+        public void SetSerializeFunc(Func<object, string> serializer, Func<string, Type, object> deserializer)
+        {
+            if (serializer != null && deserializer != null)
+            {
+                this.Serializer = serializer;
+                this.Deserializer = deserializer;
+                HasSerializer = true;
+            }
         }
     }
 }
