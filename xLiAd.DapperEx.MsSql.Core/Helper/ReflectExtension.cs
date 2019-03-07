@@ -22,11 +22,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <returns></returns>
         internal static PropertyInfo[] GetPropertiesInDb(this Type type, bool forSelect)
         {
-            var plist = type.GetProperties().Where(x => x.CanRead && x.CanWrite &&
-                !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) && !Attribute.IsDefined(x, typeof(NotMappedAttribute))
-                && (!typeof(IList).IsAssignableFrom(x.PropertyType) || Attribute.IsDefined(x, typeof(JsonColumnAttribute)))
+            var plist = type.GetProperties().Where(x => x.CanRead && x.CanWrite //可读可写
+                && x.SetMethod.IsPublic && x.GetMethod.IsPublic //且读写方法对外
+                && !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) //没有标记为计算值、标识位
+                && !Attribute.IsDefined(x, typeof(NotMappedAttribute)) //没有标记为不对应字段
+                && (!typeof(IList).IsAssignableFrom(x.PropertyType) || Attribute.IsDefined(x, typeof(JsonColumnAttribute))) //不是数组（但标记了Jsonb字段的除外）
+                && (!x.PropertyType.IsClass || Attribute.IsDefined(x, typeof(JsonColumnAttribute))) //不是类（但标记了Jsonb字段的除外）
                 ).ToArray();
-            plist = plist.Where(x => x.SetMethod.IsPublic && x.GetMethod.IsPublic).ToArray();
             if (!forSelect)
             {
                 ////insert\update 语句不取 timestamp 类型的字段
