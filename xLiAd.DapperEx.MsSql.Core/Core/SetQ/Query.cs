@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 using xLiAd.DapperEx.MsSql.Core.Model;
@@ -71,7 +72,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
         public virtual List<T> ToList()
         {
-            SqlProvider.FormatToList();
+            SqlProvider.FormatToList(this.FieldAnyExpression);
             SetSql();
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
@@ -243,5 +244,6 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                 HasSerializer = true;
             }
         }
+        public IFieldAnyExpression FieldAnyExpression { get; set; }
     }
 }

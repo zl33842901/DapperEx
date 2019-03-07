@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq.Expressions;
 using System.Text;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
+using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
 using xLiAd.DapperEx.Repository;
 
 namespace xLiAd.DapperEx.RepositoryPg
 {
-    public class RepositoryPg<T> : RepositoryBase<T>, IRepository<T>
+    public class RepositoryPg<T> : RepositoryBase<T>, IRepositoryPg<T>
     {
         /// <summary>
         /// 初始化仓储
@@ -59,8 +61,20 @@ namespace xLiAd.DapperEx.RepositoryPg
             get {
                 var q = base.QuerySet;
                 q.SetSerializeFunc(Newtonsoft.Json.JsonConvert.SerializeObject, Newtonsoft.Json.JsonConvert.DeserializeObject);
+                if(this.FieldAnyExpression != null)
+                {
+                    q.FieldAnyExpression = this.FieldAnyExpression;
+                    this.FieldAnyExpression = null;
+                }
                 return q;
             }
+        }
+        private IFieldAnyExpression FieldAnyExpression { get; set; }
+
+        public IRepositoryPg<T> FieldAny<TField>(Expression<Func<T,IList<TField>>> Field, Expression<Func<TField,bool>> Any)
+        {
+            this.FieldAnyExpression = new FieldAnyExpression<T, TField>(Field, Any, Dialect);
+            return this;
         }
     }
 }

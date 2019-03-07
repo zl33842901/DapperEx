@@ -27,7 +27,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 && !Attribute.IsDefined(x, typeof(DatabaseGeneratedAttribute)) //没有标记为计算值、标识位
                 && !Attribute.IsDefined(x, typeof(NotMappedAttribute)) //没有标记为不对应字段
                 && (!typeof(IList).IsAssignableFrom(x.PropertyType) || Attribute.IsDefined(x, typeof(JsonColumnAttribute))) //不是数组（但标记了Jsonb字段的除外）
-                && (!x.PropertyType.IsClass || Attribute.IsDefined(x, typeof(JsonColumnAttribute))) //不是类（但标记了Jsonb字段的除外）
+                && (!x.PropertyType.IsClass || Attribute.IsDefined(x, typeof(JsonColumnAttribute)) || x.PropertyType == typeof(string)) //不是类（但标记了Jsonb字段的除外）
                 ).ToArray();
             if (!forSelect)
             {

@@ -39,6 +39,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             rst.ResetErrorHandler(thisObject);
             if (HasSerializer)
                 rst.SetSerializeFunc(this.Serializer, this.Deserializer);
+            rst.FieldAnyExpression = this.FieldAnyExpression;
             return rst;
         }
 

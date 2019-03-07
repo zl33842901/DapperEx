@@ -76,9 +76,9 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
                 Title = "今天天气也不错",
                 Author = new Author[] { new Author() { BirthDay = DateTime.Now, Id = 6, Name = "王治胜" }, new Author() { BirthDay = DateTime.Today, Id = 7, Name = "李明浩" } }
             };
-            var rtid = reponews2.Add(news2);
+            //var rtid = reponews2.Add(news2);
             //var l270 = reponews2.Where(x => x.Author.Contains("c"));
-
+            var ltsd = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).Where(x => true);
 
             //TTTTTTtest ttest = new TTTTTTtest()
             //{

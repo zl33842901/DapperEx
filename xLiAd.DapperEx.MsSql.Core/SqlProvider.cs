@@ -34,7 +34,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public SqlProvider<T> FormatGet()
         {
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, false);
 
             var fromTableSql = FormatTableName();
 
@@ -54,7 +54,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         }
         public SqlProvider<T> FormatGet<TKey>(TKey id)
         {
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, false);
 
             var fromTableSql = FormatTableName();
 
@@ -73,10 +73,10 @@ namespace xLiAd.DapperEx.MsSql.Core
             return this;
         }
 
-        public SqlProvider<T> FormatToList()
+        public SqlProvider<T> FormatToList(IFieldAnyExpression fieldAnyExpression = null)
         {
             //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
@@ -89,15 +89,25 @@ namespace xLiAd.DapperEx.MsSql.Core
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
-
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
+            if(fieldAnyExpression != null)
+            {
+                var selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, true, Context.QuerySet.SelectExpression);
+                var di = fieldAnyExpression.WhereParam.ToDictionary();
+                foreach(var i in di)
+                {
+                    Params.Add(i.Key, i.Value);
+                }
+                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql}) as {ResolveExpression.FieldAnyTableName} {(string.IsNullOrWhiteSpace(whereSql) ? (" where ") : $"{whereSql} and ")} \"{ResolveExpression.FieldAnyColumnName}\" ->> {fieldAnyExpression.WhereClause}";
+            }
+            else
+                SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
         public SqlProvider<T> FormatToList(LambdaExpression[] selector)
         {
             //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, selector);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, selector);
 
             var fromTableSql = FormatTableName();
 
@@ -117,7 +127,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         }
         public SqlProvider<T> FormatToListZhanglei(Type type)
         {
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
@@ -142,7 +152,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             if (string.IsNullOrEmpty(orderbySql))
                 throw new Exception("分页查询需要排序条件");
 
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), pageSize, Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), pageSize, false, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 

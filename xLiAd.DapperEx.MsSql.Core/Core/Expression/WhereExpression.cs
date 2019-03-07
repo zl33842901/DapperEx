@@ -22,7 +22,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <summary>
         /// sql指令
         /// </summary>
-        public string SqlCmd => _sqlCmd.Length > 0 ? $" WHERE {_sqlCmd} " : "";
+        public string SqlCmd => _sqlCmd.Length > 0 ? $" {(appendWhere ? "WHERE" : string.Empty)} {_sqlCmd} " : "";
 
         public DynamicParameters Param { get; }
 
@@ -35,7 +35,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         }
 
         private readonly string _prefix;
-
+        private readonly bool appendWhere;
         private int ParamIndex = 1;//无名称参数序号
 
         #endregion
@@ -52,13 +52,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <param name="expression"></param>
         /// <param name="prefix">字段前缀</param>
         /// <returns></returns>
-        public WhereExpression(LambdaExpression expression, string prefix, ISqlDialect dialect)
+        public WhereExpression(LambdaExpression expression, string prefix, ISqlDialect dialect, bool appendWhere)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
             _prefix = prefix;
             Dialect = dialect;
-
+            this.appendWhere = appendWhere;
             var exp = TrimExpression.Trim(expression);
             Visit(exp);
         }

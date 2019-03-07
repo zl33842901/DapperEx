@@ -17,7 +17,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
     /// </summary>
     internal class ResolveExpression
     {
+        /// <summary>
+        /// JsonColumn 字段查询时用的后辍
+        /// </summary>
         public const string JsonColumnNameSuffix = "_DapperEx_JsonColumn";
+        /// <summary>
+        /// FieldAny 查询时的临时字段名称
+        /// </summary>
+        public const string FieldAnyColumnName = "DapperEx_FieldAny_Column";
+        /// <summary>
+        /// FieldAny 查询时的临时表名称
+        /// </summary>
+        public const string FieldAnyTableName = "DapperEx_FieldAny_Table";
         readonly ISqlDialect Dialect;
         public ResolveExpression(ISqlDialect dialect)
         {
@@ -67,7 +78,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <returns></returns>
         public WhereExpression ResolveWhere(LambdaExpression whereExpression, string prefix = null)
         {
-            var where = new WhereExpression(whereExpression, prefix, Dialect);
+            var where = new WhereExpression(whereExpression, prefix, Dialect, true);
 
             return where;
         }
@@ -102,14 +113,16 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// 根据给定的 SELECT表达式，生成SELECT子句
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="selector"></param>
         /// <param name="topNum"></param>
+        /// <param name="distinctAndChgName">按PostgreSql 的FieldAny格式返回</param>
+        /// <param name="selector"></param>
         /// <returns></returns>
-        public string ResolveSelect(Type type, int? topNum, params LambdaExpression[] selector)
+        public string ResolveSelect(Type type, int? topNum, bool distinctAndChgName, params LambdaExpression[] selector)
         {
             if (selector == null || selector.Count() < 1 || selector.Count(x => x != null) < 1)
-                return ResolveSelect(type.GetPropertiesInDb(true), null, topNum);
-            var selectFormat = topNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? " SELECT {1} {0} " : " SELECT {0} ";
+                return ResolveSelect(type.GetPropertiesInDb(true), null, topNum, distinctAndChgName);
+            string dstct = distinctAndChgName ? " distinct " : string.Empty;
+            var selectFormat = topNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? $" SELECT {dstct} {{1}} {{0}} " : $" SELECT {dstct} {{0}} ";
             var selectSql = "";
             List<MemberInfo> lfields = new List<MemberInfo>();
             foreach(var slct in selector)
@@ -118,7 +131,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
             /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{x.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x))}")), $" TOP {topNum} ");
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{(distinctAndChgName ? Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x)) : x.GetColumnAttributeName(Dialect))} {Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x))}")), $" TOP {topNum} ");
             return selectSql;
         }
 
@@ -144,10 +157,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <param name="propertyInfos"></param>
         /// <param name="selector"></param>
         /// <param name="topNum"></param>
+        /// <param name="distinctAndChgName">根据给定的 SELECT表达式，生成SELECT子句</param>
         /// <returns></returns>
-        public string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum)
+        public string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum, bool distinctAndChgName)
         {
-            var selectFormat = topNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? " SELECT {1} {0} " : " SELECT {0} ";
+            string dstct = distinctAndChgName ? " distinct " : string.Empty;
+            var selectFormat = topNum.HasValue && !Dialect.IsUseLimitInsteadOfTop ? $" SELECT {dstct} {{1}} {{0}} " : $" SELECT {dstct} {{0}}";
             var selectSql = "";
 
             if (selector == null)
@@ -159,7 +174,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                         propertyBuilder.Append(",");
 
                     string jsonColumnNameSuffix = GetJsonColumnNameSuffixIf(propertyInfo);
-                    propertyBuilder.AppendFormat($"{propertyInfo.GetColumnAttributeName(Dialect)} {Dialect.ParseColumnName(propertyInfo.Name + jsonColumnNameSuffix)}");
+                    propertyBuilder.AppendFormat($"{(distinctAndChgName ? Dialect.ParseColumnName(propertyInfo.Name + GetJsonColumnNameSuffixIf(propertyInfo)) : propertyInfo.GetColumnAttributeName(Dialect))} {Dialect.ParseColumnName(propertyInfo.Name + jsonColumnNameSuffix)}");
                 }
                 selectSql = string.Format(selectFormat, propertyBuilder, $" TOP {topNum} ");
             }
