@@ -157,7 +157,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     object rst = Parser(Reader);
                     foreach (var p in ps)
                     {
-                        var col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
+                        int col;
+                        try
+                        {
+                            col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
+                        }
+                        catch
+                        {
+                            continue;
+                        }
                         object o = Reader.GetValue(col);
                         if (o == DBNull.Value)
                             continue;

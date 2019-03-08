@@ -21,7 +21,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             : base(conn, sqlProvider, tableType, whereExpression,selectExpression,topNum,orderbyExpressionList, dbTransaction, throws) { }
         public override List<TResult> ToList()
         {
-            SqlProvider.FormatToListZhanglei(typeof(TSource));
+            SqlProvider.FormatToListZhanglei(typeof(TSource), this.FieldAnyExpression);
             SetSql();
             try
             {

@@ -125,7 +125,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             return this;
         }
-        public SqlProvider<T> FormatToListZhanglei(Type type)
+        public SqlProvider<T> FormatToListZhanglei(Type type, IFieldAnyExpression fieldAnyExpression = null)
         {
             var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
 
@@ -140,8 +140,18 @@ namespace xLiAd.DapperEx.MsSql.Core
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
             var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
-
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
+            if (fieldAnyExpression != null)
+            {
+                var selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, true, Context.QuerySet.SelectExpression);
+                var di = fieldAnyExpression.WhereParam.ToDictionary();
+                foreach (var i in di)
+                {
+                    Params.Add(i.Key, i.Value);
+                }
+                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql}) as {ResolveExpression.FieldAnyTableName} {(string.IsNullOrWhiteSpace(whereSql) ? (" where ") : $"{whereSql} and ")} \"{ResolveExpression.FieldAnyColumnName}\" ->> {fieldAnyExpression.WhereClause}";
+            }
+            else
+                SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }

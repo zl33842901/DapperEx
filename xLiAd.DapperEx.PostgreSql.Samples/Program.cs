@@ -78,7 +78,9 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             };
             //var rtid = reponews2.Add(news2);
             //var l270 = reponews2.Where(x => x.Author.Contains("c"));
-            var ltsd = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).Where(x => true);
+            //var ltsd1 = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).Where(x => true);
+            //var ltsd2 = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).WhereSelect(x => true, x=>x.Title);
+            var ltsd3 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).WhereSelect(x => true, x => x.Title);
 
             //TTTTTTtest ttest = new TTTTTTtest()
             //{
