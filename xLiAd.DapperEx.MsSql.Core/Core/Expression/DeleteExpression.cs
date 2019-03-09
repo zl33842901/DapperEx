@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
+using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
@@ -12,7 +13,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
     /// </summary>
     /// <typeparam name="T">类型</typeparam>
     /// <typeparam name="TKey">主键类型</typeparam>
-    public class DeleteExpression<T, TKey> : SetParam
+    public class DeleteExpression<T, TKey> : SetParam, IWhereExpression
     {
         #region sql指令
 

@@ -59,33 +59,33 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 
         public T Get()
         {
-            SqlProvider.FormatGet();
+            SqlProvider.FormatGet(this.FieldAnyExpression);
             SetSql();
             return QrFd(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
         }
         public T Get<TKey>(TKey id)
         {
-            SqlProvider.FormatGet(id);
+            SqlProvider.FormatGet(id, this.FieldAnyExpression);
             SetSql();
             return QrFd(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
         }
 
         public virtual List<T> ToList()
         {
-            SqlProvider.FormatToList(this.FieldAnyExpression);
+            SqlProvider.FormatToList(null, this.FieldAnyExpression);
             SetSql();
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
         public virtual List<T> ToList(LambdaExpression[] selector)
         {
-            SqlProvider.FormatToList(selector);
+            SqlProvider.FormatToList(selector, this.FieldAnyExpression);
             SetSql();
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
 
         public PageList<T> PageList(int pageIndex, int pageSize)
         {
-            SqlProvider.FormatToPageList(pageIndex, pageSize);
+            SqlProvider.FormatToPageList(pageIndex, pageSize, this.FieldAnyExpression);
             SetSql();
             try {
                 var ps = typeof(T).GetJsonColumnProperty();

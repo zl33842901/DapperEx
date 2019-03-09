@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
@@ -70,11 +71,25 @@ namespace xLiAd.DapperEx.RepositoryPg
             }
         }
         private IFieldAnyExpression FieldAnyExpression { get; set; }
-
+        /// <summary>
+        /// 此方式支持除分页投影之外的所有查询方法。
+        /// </summary>
+        /// <typeparam name="TField"></typeparam>
+        /// <param name="Field"></param>
+        /// <param name="Any"></param>
+        /// <returns></returns>
         public IRepositoryPg<T> FieldAny<TField>(Expression<Func<T,IList<TField>>> Field, Expression<Func<TField,bool>> Any)
         {
             this.FieldAnyExpression = new FieldAnyExpression<T, TField>(Field, Any, Dialect);
             return this;
+        }
+
+        public override TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
+        {
+            if (this.FieldAnyExpression != null && typeof(TResult).IsClass && typeof(TResult) != typeof(string))
+                return WhereSelect(predicate, keySelector).FirstOrDefault();
+            else
+                return base.FindField(predicate, keySelector);
         }
     }
 }

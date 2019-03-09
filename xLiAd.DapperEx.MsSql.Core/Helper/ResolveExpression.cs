@@ -78,7 +78,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         /// <returns></returns>
         public WhereExpression ResolveWhere(LambdaExpression whereExpression, string prefix = null)
         {
-            var where = new WhereExpression(whereExpression, prefix, Dialect, true);
+            var where = new WhereExpression(whereExpression, prefix, Dialect, true, false);
 
             return where;
         }
@@ -131,7 +131,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var nameList = type.GetPropertiesInDb(true).Select(x => x.Name).ToArray();
             lfields = lfields.Where(x => nameList.Contains(x.Name)).ToList();
             /////////////////////////
-            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{(distinctAndChgName ? Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x)) : x.GetColumnAttributeName(Dialect))} {Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x))}")), $" TOP {topNum} ");
+            selectSql = string.Format(selectFormat, string.Join(",", lfields.Select(x => $"{PropertyIfnoToSqlString(x, distinctAndChgName)}")), $" TOP {topNum} ");
             return selectSql;
         }
 
@@ -150,14 +150,34 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 jsonColumnNameSuffix = string.Empty;
             return jsonColumnNameSuffix;
         }
-
+        /// <summary>
+        /// 属性 转换为SQL语句中的格式
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="distinctAndChgName"></param>
+        /// <returns></returns>
+        private string PropertyIfnoToSqlString(MemberInfo x, bool distinctAndChgName)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (distinctAndChgName)
+            {
+                sb.Append(Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x)));
+            }
+            else
+            {
+                sb.Append(x.GetColumnAttributeName(Dialect));
+            }
+            sb.Append(" ");
+            sb.Append(Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x)));
+            return sb.ToString();
+        }
         /// <summary>
         /// 根据给定的字段，生成SELECT子句
         /// </summary>
         /// <param name="propertyInfos"></param>
         /// <param name="selector"></param>
         /// <param name="topNum"></param>
-        /// <param name="distinctAndChgName">根据给定的 SELECT表达式，生成SELECT子句</param>
+        /// <param name="distinctAndChgName">按PostgreSql 的FieldAny格式返回</param>
         /// <returns></returns>
         public string ResolveSelect(PropertyInfo[] propertyInfos, LambdaExpression selector, int? topNum, bool distinctAndChgName)
         {
@@ -174,7 +194,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                         propertyBuilder.Append(",");
 
                     string jsonColumnNameSuffix = GetJsonColumnNameSuffixIf(propertyInfo);
-                    propertyBuilder.AppendFormat($"{(distinctAndChgName ? Dialect.ParseColumnName(propertyInfo.Name + GetJsonColumnNameSuffixIf(propertyInfo)) : propertyInfo.GetColumnAttributeName(Dialect))} {Dialect.ParseColumnName(propertyInfo.Name + jsonColumnNameSuffix)}");
+                    propertyBuilder.AppendFormat($"{PropertyIfnoToSqlString(propertyInfo, distinctAndChgName)}");
                 }
                 selectSql = string.Format(selectFormat, propertyBuilder, $" TOP {topNum} ");
             }
@@ -184,7 +204,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 if (nodeType == ExpressionType.MemberAccess)
                 {
                     var memberExpression = (MemberExpression)selector.Body;
-                    selectSql = string.Format(selectFormat, memberExpression.Member.GetColumnAttributeName(Dialect), $" TOP {topNum} ");
+                    selectSql = string.Format(selectFormat, PropertyIfnoToSqlString(memberExpression.Member, distinctAndChgName), $" TOP {topNum} ");
                 }
                 else if (nodeType == ExpressionType.MemberInit)
                 {

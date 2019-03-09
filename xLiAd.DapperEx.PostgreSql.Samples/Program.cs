@@ -79,8 +79,16 @@ namespace xLiAd.DapperEx.PostgreSql.Samples
             //var rtid = reponews2.Add(news2);
             //var l270 = reponews2.Where(x => x.Author.Contains("c"));
             //var ltsd1 = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).Where(x => true);
-            //var ltsd2 = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).WhereSelect(x => true, x=>x.Title);
-            var ltsd3 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).WhereSelect(x => true, x => x.Title);
+            //var ltsd2 = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张") && x.Id > 4).Where(x => true, x=>x.Title);
+            //var ltsd3 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).WhereSelect(x => true, x => x.Title);
+            //var ltsd4 = reponews2.FieldAny<Author>(x => x.Author, x => x.BirthDay < DateTime.Today).Count(x => true);
+            //var ltsd5 = reponews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张") && x.Id > 4).All();
+            //var ltsd6 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).WhereSelect(x => true, x => x.Author);
+            //var ltsd7 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).WhereOrderSelect(x => x.Id > 1, x => x.Id, x=>x.Author, 1);
+            //var ltsd8 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).Find(x => x.Id == 1);
+            //var ltsd9 = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).Find(1);
+            //var ltsda = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).FindField(x=>true, x=>x.Title);
+            var ltsdb = reponews2.FieldAny<Author>(x => x.Author, x => x.Id > 3).PageList(x => x.Id > 0, x => x.Id, 1, 10);
 
             //TTTTTTtest ttest = new TTTTTTtest()
             //{

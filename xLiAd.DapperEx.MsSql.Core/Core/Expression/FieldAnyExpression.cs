@@ -17,7 +17,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             this.Field = field;
             this.Any = any;
             this.Dialect = dialect;
-            var w = new WhereExpression(any, null, new PostgreSqlJsonColumnDialect(), false);
+            var w = new WhereExpression(any, "FieldAny_Param_", new PostgreSqlJsonColumnDialect(), false, true);
             this.WhereClause = w.SqlCmd;
             this.WhereParam = w.Param;
             Visit(field);

@@ -65,6 +65,14 @@ namespace xLiAd.DapperEx.Repository
             ExceptionHandler = exceptionHandler;
             Throws = throws;
         }
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="_con"></param>
+        /// <param name="repoXmlProvider"></param>
+        /// <param name="exceptionHandler"></param>
+        /// <param name="throws"></param>
+        /// <param name="_tran"></param>
         protected RepositoryBase(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true, IDbTransaction _tran = null)
             : this(_con, repoXmlProvider, exceptionHandler, throws)
         {
@@ -206,9 +214,15 @@ namespace xLiAd.DapperEx.Repository
                 o = q.OrderByDescing(order);
             else
                 o = q.OrderBy(order);
+            List<T> rst;
             if (top > 0)
-                return o.Top(top).ToList();
-            var rst = o.ToList();
+            {
+                rst = o.Top(top).ToList();
+            }
+            else
+            {
+                rst = o.ToList();
+            }
             DoSetSql();
             return rst;
         }
@@ -225,10 +239,13 @@ namespace xLiAd.DapperEx.Repository
         public List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0)
         {
             var q = QuerySet.Where(predicate).OrderBy(order);
+            Query<TResult> qst;
             if (top > 0)
-                return q.Top(top).Select(selector).ToList();
-            var rst = q.Select(selector).ToList();
-            DoSetSql();
+                qst = q.Top(top).Select(selector);
+            else
+                qst = q.Select(selector);
+            var rst = qst.ToList();
+            DoSetSql(qst);
             return rst;
         }
         /// <summary>
@@ -397,7 +414,7 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="predicate">条件表达式</param>
         /// <param name="keySelector">投影表达式</param>
         /// <returns></returns>
-        public TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
+        public virtual TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
         {
             var rst = QuerySet.Where(predicate).Select(keySelector).Get();
             DoSetSql();
@@ -433,7 +450,7 @@ namespace xLiAd.DapperEx.Repository
             get
             {
                 if (countAll == null)
-                    countAll = Count();
+                    countAll = Count(false);
                 return countAll.Value;
             }
         }
@@ -441,10 +458,11 @@ namespace xLiAd.DapperEx.Repository
         /// 取得数据总数量
         /// </summary>
         /// <returns></returns>
-        public int Count()
+        public int Count(bool setSql = true)
         {
             var rst = QuerySet.Count();
-            DoSetSql();
+            if (setSql)
+                DoSetSql();
             return rst;
         }
         /// <summary>

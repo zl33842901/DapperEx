@@ -43,6 +43,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         private ExpressionTypeEnum lastSecondExpression = ExpressionTypeEnum.None;
         private ExpressionType? lastBinaryType = null;
         readonly ISqlDialect Dialect;
+        /// <summary>
+        /// 是否像postgresql的FieldAny 那样处理
+        /// </summary>
+        readonly bool asFieldAny = false;
         #region 执行解析
 
         /// <inheritdoc />
@@ -52,13 +56,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// <param name="expression"></param>
         /// <param name="prefix">字段前缀</param>
         /// <returns></returns>
-        public WhereExpression(LambdaExpression expression, string prefix, ISqlDialect dialect, bool appendWhere)
+        public WhereExpression(LambdaExpression expression, string prefix, ISqlDialect dialect, bool appendWhere, bool asFieldAny)
         {
             _sqlCmd = new StringBuilder(100);
             Param = new DynamicParameters();
             _prefix = prefix;
             Dialect = dialect;
             this.appendWhere = appendWhere;
+            this.asFieldAny = asFieldAny;
             var exp = TrimExpression.Trim(expression);
             Visit(exp);
         }
@@ -99,7 +104,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             }
             else
             {
-                if(node.Expression is MemberExpression)
+                if(node.Expression is MemberExpression) //这里是 字段是某个类时，的查询 x.Author.Name = ""
                 {
                     var pi = ((MemberExpression)node.Expression).Member;
                     bool isJsonColumn = pi.CustomAttributes.Any(x => x.AttributeType == typeof(JsonColumnAttribute));
@@ -135,7 +140,28 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                 }
                 else
                 {
-                    _sqlCmd.Append(node.Member.GetColumnAttributeName(Dialect));
+                    string fn = node.Member.GetColumnAttributeName(Dialect);
+                    if (asFieldAny && node.Member is PropertyInfo && ((PropertyInfo)node.Member).PropertyType == typeof(int))
+                    {
+                        _sqlCmd.Append("cast(");
+                        _sqlCmd.Append($"\"{ResolveExpression.FieldAnyColumnName}\" ->>");
+                        _sqlCmd.Append(fn);
+                        _sqlCmd.Append(" as int)");
+                    }
+                    else if (asFieldAny && node.Member is PropertyInfo && ((PropertyInfo)node.Member).PropertyType == typeof(DateTime))
+                    {
+                        _sqlCmd.Append("cast(");
+                        _sqlCmd.Append($"\"{ResolveExpression.FieldAnyColumnName}\" ->>");
+                        _sqlCmd.Append(fn);
+                        _sqlCmd.Append(" as timestamp)");
+                    }
+                    else if (asFieldAny)
+                    {
+                        _sqlCmd.Append($"\"{ResolveExpression.FieldAnyColumnName}\" ->>");
+                        _sqlCmd.Append(fn);
+                    }
+                    else
+                        _sqlCmd.Append(fn);
                     TempFileName = node.Member.Name;
                 }
             }

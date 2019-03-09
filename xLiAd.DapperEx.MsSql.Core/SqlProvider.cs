@@ -32,51 +32,52 @@ namespace xLiAd.DapperEx.MsSql.Core
 
         public DynamicParameters Params { get; private set; }
 
-        public SqlProvider<T> FormatGet()
+        private SqlProvider<T> FormatGetDo(IWhereExpression whereParams, IFieldAnyExpression fieldAnyExpression)
         {
             var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, false);
 
             var fromTableSql = FormatTableName();
 
+            var whereSql = whereParams.SqlCmd;
+
+            Params = whereParams.Param;
+
+            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+
+            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(1);
+            if (fieldAnyExpression != null)
+            {
+                string selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, true);
+                var di = fieldAnyExpression.WhereParam.ToDictionary();
+                foreach (var i in di)
+                {
+                    Params.Add(i.Key, i.Value);
+                }
+                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql} {whereSql} {orderbySql}) as {ResolveExpression.FieldAnyTableName} where {fieldAnyExpression.WhereClause} {limitSql}";
+            }
+            else
+                SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
+
+            return this;
+        }
+        public SqlProvider<T> FormatGet(IFieldAnyExpression fieldAnyExpression)
+        {
             var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
-
-            var whereSql = whereParams.SqlCmd;
-
-            Params = whereParams.Param;
-
-            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
-
-            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(1);
-
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
-
-            return this;
+            return FormatGetDo(whereParams, fieldAnyExpression);
         }
-        public SqlProvider<T> FormatGet<TKey>(TKey id)
+        public SqlProvider<T> FormatGet<TKey>(TKey id, IFieldAnyExpression fieldAnyExpression)
         {
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, false);
-
-            var fromTableSql = FormatTableName();
-
-            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere<T,TKey>(id);
-
-            var whereSql = whereParams.SqlCmd;
-
-            Params = whereParams.Param;
-
-            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
-
-            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(1);
-
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
-
-            return this;
+            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere<T, TKey>(id);
+            return FormatGetDo(whereParams, fieldAnyExpression);
         }
 
-        public SqlProvider<T> FormatToList(IFieldAnyExpression fieldAnyExpression = null)
+        public SqlProvider<T> FormatToList(LambdaExpression[] selector, IFieldAnyExpression fieldAnyExpression)
         {
-            //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
+            string selectSql;
+            if (selector == null)
+                selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
+            else
+                selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, selector);
 
             var fromTableSql = FormatTableName();
 
@@ -91,40 +92,43 @@ namespace xLiAd.DapperEx.MsSql.Core
             var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
             if(fieldAnyExpression != null)
             {
-                var selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, true, Context.QuerySet.SelectExpression);
+                string selectDistinctSql;
+                if (selector == null)
+                    selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, true, Context.QuerySet.SelectExpression);
+                else
+                    selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, true, selector);
                 var di = fieldAnyExpression.WhereParam.ToDictionary();
                 foreach(var i in di)
                 {
                     Params.Add(i.Key, i.Value);
                 }
-                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql}) as {ResolveExpression.FieldAnyTableName} {(string.IsNullOrWhiteSpace(whereSql) ? (" where ") : $"{whereSql} and ")} \"{ResolveExpression.FieldAnyColumnName}\" ->> {fieldAnyExpression.WhereClause}";
+                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql} {whereSql} {orderbySql}) as {ResolveExpression.FieldAnyTableName} where {fieldAnyExpression.WhereClause} {limitSql}";
             }
             else
                 SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
             return this;
         }
-        public SqlProvider<T> FormatToList(LambdaExpression[] selector)
-        {
-            //var selectSql = ResolveExpression.ResolveSelect(typeof(T).GetPropertiesInDb(), Context.QuerySet.SelectExpression, Context.QuerySet.TopNum);
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, selector);
+        //public SqlProvider<T> FormatToList(LambdaExpression[] selector)
+        //{
+        //    var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, selector);
 
-            var fromTableSql = FormatTableName();
+        //    var fromTableSql = FormatTableName();
 
-            var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
+        //    var whereParams = ResolveExpression.Instance(Dialect).ResolveWhere(Context.QuerySet.WhereExpression);
 
-            var whereSql = whereParams.SqlCmd;
+        //    var whereSql = whereParams.SqlCmd;
 
-            Params = whereParams.Param;
+        //    Params = whereParams.Param;
 
-            var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
+        //    var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
 
-            var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
+        //    var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(Context.QuerySet.TopNum);
 
-            SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
+        //    SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
 
-            return this;
-        }
+        //    return this;
+        //}
         public SqlProvider<T> FormatToListZhanglei(Type type, IFieldAnyExpression fieldAnyExpression = null)
         {
             var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
@@ -148,7 +152,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                 {
                     Params.Add(i.Key, i.Value);
                 }
-                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql}) as {ResolveExpression.FieldAnyTableName} {(string.IsNullOrWhiteSpace(whereSql) ? (" where ") : $"{whereSql} and ")} \"{ResolveExpression.FieldAnyColumnName}\" ->> {fieldAnyExpression.WhereClause}";
+                SqlString = $"{selectDistinctSql} from ({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql} {whereSql} {orderbySql}) as {ResolveExpression.FieldAnyTableName} where {fieldAnyExpression.WhereClause} {limitSql}";
             }
             else
                 SqlString = $"{selectSql} {fromTableSql} {whereSql} {orderbySql} {limitSql}";
@@ -156,7 +160,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             return this;
         }
 
-        public SqlProvider<T> FormatToPageList(int pageIndex, int pageSize)
+        public SqlProvider<T> FormatToPageList(int pageIndex, int pageSize, IFieldAnyExpression fieldAnyExpression)
         {
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
             if (string.IsNullOrEmpty(orderbySql))
@@ -174,8 +178,30 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             var limitSql = ResolveExpression.Instance(Dialect).ResolveLimit(pageSize);
 
-            SqlString = $"SELECT COUNT(1) {fromTableSql} {whereSql};";
-            SqlString += $@"{selectSql}
+            if (fieldAnyExpression != null)
+            {
+                var selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), pageSize, true, Context.QuerySet.SelectExpression);
+                var di = fieldAnyExpression.WhereParam.ToDictionary();
+                foreach (var i in di)
+                {
+                    Params.Add(i.Key, i.Value);
+                }
+                string newTable = $"({selectSql} ,jsonb_array_elements({fieldAnyExpression.ListFieldName})  as \"{ResolveExpression.FieldAnyColumnName}\" {fromTableSql} {whereSql} {orderbySql}) as {ResolveExpression.FieldAnyTableName}";
+                string newNewTable = $"{selectDistinctSql} from {newTable} where {fieldAnyExpression.WhereClause} {limitSql}";
+
+                SqlString = $"SELECT COUNT(1) from ({newNewTable}) as {ResolveExpression.FieldAnyTableName};";
+                SqlString += $@"{selectDistinctSql}
+            FROM    ( SELECT *
+                      ,ROW_NUMBER() OVER ( {orderbySql} ) AS ROWNUMBER
+                      from {newTable} where {fieldAnyExpression.WhereClause}
+                    ) T
+            WHERE   ROWNUMBER > {(pageIndex - 1) * pageSize}
+                    AND ROWNUMBER <= {pageIndex * pageSize} {orderbySql} {limitSql};";
+            }
+            else
+            {
+                SqlString = $"SELECT COUNT(1) {fromTableSql} {whereSql};";
+                SqlString += $@"{selectSql}
             FROM    ( SELECT *
                       ,ROW_NUMBER() OVER ( {orderbySql} ) AS ROWNUMBER
                       {fromTableSql}
@@ -183,6 +209,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                     ) T
             WHERE   ROWNUMBER > {(pageIndex - 1) * pageSize}
                     AND ROWNUMBER <= {pageIndex * pageSize} {orderbySql} {limitSql};";
+            }
 
             return this;
         }

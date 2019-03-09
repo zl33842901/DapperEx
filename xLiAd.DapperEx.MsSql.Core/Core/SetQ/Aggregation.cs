@@ -20,21 +20,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public int Count()
         {
             SqlProvider.FormatCount();
-
+            SetSql();
             return DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params);
         }
 
         public TResult Sum<TResult>(Expression<Func<T, TResult>> sumExpression)
         {
             SqlProvider.FormatSum(sumExpression);
-
+            SetSql();
             return DbCon.QuerySingle<TResult>(SqlProvider.SqlString, SqlProvider.Params);
         }
 
         public bool Exists()
         {
             SqlProvider.FormatExists();
-
+            SetSql();
             return DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
         }
     }
