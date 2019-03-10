@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiAd.DapperEx.QueryHelper.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiAd.DapperEx.RepositoryPg", "xLiAd.DapperEx.RepositoryPg\xLiAd.DapperEx.RepositoryPg.csproj", "{4AB3BD61-DB43-4E83-AF1A-54194077CB0F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiAd.DapperEx.PostgreSql.Samples", "xLiAd.DapperEx.PostgreSql.Samples\xLiAd.DapperEx.PostgreSql.Samples.csproj", "{A8B5E145-8B0A-4BCB-8A9C-B268AD71B11B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{41C314FA-0B0F-44B1-8193-512D52D0CB28}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Repository.Test", "xLiad.DapperEx.Repository.Test\xLiad.DapperEx.Repository.Test.csproj", "{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.PostgreSql.Test", "xLiad.DapperEx.PostgreSql.Test\xLiad.DapperEx.PostgreSql.Test.csproj", "{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,22 +47,22 @@ Global
 		{4AB3BD61-DB43-4E83-AF1A-54194077CB0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AB3BD61-DB43-4E83-AF1A-54194077CB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AB3BD61-DB43-4E83-AF1A-54194077CB0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8B5E145-8B0A-4BCB-8A9C-B268AD71B11B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8B5E145-8B0A-4BCB-8A9C-B268AD71B11B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8B5E145-8B0A-4BCB-8A9C-B268AD71B11B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8B5E145-8B0A-4BCB-8A9C-B268AD71B11B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{64E5818A-859B-44ED-B1AC-ADEEEBF53249} = {D4EB24AD-027C-4488-B759-F6DDCC1B6B37}
-		{A8B5E145-8B0A-4BCB-8A9C-B268AD71B11B} = {D4EB24AD-027C-4488-B759-F6DDCC1B6B37}
 		{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
+		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {227769BC-3B0D-496D-9C39-FA16BD236A02}

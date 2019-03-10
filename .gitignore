@@ -73,3 +73,5 @@
 /xLiAd.DapperEx.RepositoryPg/发布到NUGET.bat
 /xLiad.DapperEx.Repository.Test/bin/Debug/netcoreapp2.1
 /xLiad.DapperEx.Repository.Test/obj
+/xLiad.DapperEx.PostgreSql.Test/bin/Debug/netcoreapp2.1
+/xLiad.DapperEx.PostgreSql.Test/obj
