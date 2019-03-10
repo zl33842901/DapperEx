@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<DapperEx>
-  <select id="DictSelect">
-    Select * from DictInfo
-  </select>
-  <delete id="deleteUser">
-    delete from DictInfo where dictid=#{id}
-  </delete>
-</DapperEx>
