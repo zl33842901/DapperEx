@@ -330,7 +330,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         private void InDo(string tempFileName, IList o)
         {
-            if (o.Count > 2199)
+            if (o.Count > 2199 || !Dialect.SupportArrayParam)
             {
                 _sqlCmd.Append('(');
                 int i = 0;

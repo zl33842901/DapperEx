@@ -10,13 +10,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
 
         public bool IsUseLimitInsteadOfTop => throw new NotImplementedException();
 
-        public bool SupportJsonColumn => throw new NotImplementedException();
+        public bool SupportJsonColumn => false;
 
         public bool HasSerializer => throw new NotImplementedException();
 
         public Func<object, string> Serializer => throw new NotImplementedException();
 
         public Func<string, Type, object> Deserializer => throw new NotImplementedException();
+
+        public bool SupportArrayParam => throw new NotImplementedException();
 
         public object ConvertParameterValue(object value)
         {

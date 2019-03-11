@@ -49,6 +49,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
 
         public Func<string, Type, object> Deserializer => throw new NotImplementedException();
 
+        public bool SupportArrayParam => true;
+
         public string FormatInsertValues(string identityPropertyName, string paramString, string valueString)
         {
             string outputString;

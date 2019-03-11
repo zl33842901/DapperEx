@@ -27,9 +27,9 @@ namespace xLiad.DapperEx.PostgreSql.Test
         [Fact]
         public void TestWhere()
         {
-            //var ida = new List<int>() { 1, 2 };
-            //var rst = RepoDict.Where(x => ida.Contains(x.DictID));
-            //Assert.Equal(2, rst.Count);
+            var ida = new List<int>() { 1, 2 };
+            var rst = RepoDict.Where(x => ida.Contains(x.DictID));
+            Assert.Equal(2, rst.Count);
         }
         [Fact]
         public void TestWhereAndFind()

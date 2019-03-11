@@ -28,6 +28,8 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         public Func<string, Type, object> Deserializer { get; private set; }
 
+        public bool SupportArrayParam => false;
+
         public string ParseTableName(string tableName)
         {
             if (!tableName.StartsWith("\""))

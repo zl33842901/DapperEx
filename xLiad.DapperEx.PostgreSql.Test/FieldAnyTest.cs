@@ -12,7 +12,7 @@ namespace xLiad.DapperEx.PostgreSql.Test
 
         public void TestFieldAnyWhere()
         {
-            //还需要做的：把这里补充完整、把QueryTest 里的第一个弄好、把最后一个 samples 里的项目改到 Test 里来。
+            //还需要做的：把这里补充完整、把最后一个 samples 里的项目改到 Test 里来。
             //var l270 = RepoNews2.Where(x => x.Author.Contains("c"));
             //var ltsd1 = RepoNews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张")).Where(x => true);
             //var ltsd2 = RepoNews2.FieldAny<Author>(x => x.Author, x => x.Name.Contains("张") && x.Id > 4).Where(x => true, x=>x.Title);

@@ -30,6 +30,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
         /// </summary>
         bool SupportJsonColumn { get; }
         bool HasSerializer { get; }
+        bool SupportArrayParam { get; }
         Func<object, string> Serializer { get; }
         Func<string, Type, object> Deserializer { get; }
         void SetSerializeFunc(Func<object, string> serializer, Func<string, Type, object> deserializer);
