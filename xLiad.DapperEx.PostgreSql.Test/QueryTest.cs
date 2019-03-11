@@ -32,6 +32,13 @@ namespace xLiad.DapperEx.PostgreSql.Test
             Assert.Equal(2, rst.Count);
         }
         [Fact]
+        public void TestWhereNews()
+        {
+            var rst = RepoNews.Where(x => x.Author.Name.Contains("张"));
+            Assert.False(rst.Count == 0);
+            Assert.Contains("张", rst.First().Author.Name);
+        }
+        [Fact]
         public void TestWhereAndFind()
         {
             var rst = RepoDict.Where(x => x.DictID > 8);

@@ -11,7 +11,7 @@ namespace xLiad.DapperEx.Repository.Test
     {
         [Identity]
         [Key]
-        public int? DictID { get; set; }
+        public int DictID { get; set; }
         public string DictName { get; set; }
         public string Remark { get; set; }
         /// <summary>
@@ -59,5 +59,24 @@ namespace xLiad.DapperEx.Repository.Test
         /// </summary>
         [Timestamp]
         public string ROWVERSION { get; set; }
+    }
+
+    public class Articles
+    {
+        [Identity]
+        [Key]
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public int DictID { get; set; }
+        [NotMapped]
+        public string DictName { get; set; }
+    }
+    public class Author
+    {
+        [Identity]
+        [Key]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int AId { get; set; }
     }
 }

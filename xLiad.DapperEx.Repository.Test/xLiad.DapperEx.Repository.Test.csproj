@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\xLiAd.DapperEx.MsSql.Core\xLiAd.DapperEx.MsSql.Core.csproj" />
+    <ProjectReference Include="..\xLiAd.DapperEx.QueryHelper\xLiAd.DapperEx.QueryHelper.csproj" />
     <ProjectReference Include="..\xLiAd.DapperEx.Repository\xLiAd.DapperEx.Repository.csproj" />
   </ItemGroup>
 
