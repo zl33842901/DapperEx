@@ -27,12 +27,19 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="connectionString">数据库连接串</param>
         /// <param name="repoXmlProvider"></param>
         /// <param name="exceptionHandler">抛错时的委托</param>
-        /// <param name="throws">是否抛出错误，强烈建议保持默认值 true 不然报错时会返回正常数据。</param>
+        /// <param name="throws">是否抛出错误，强烈建议保持默认值 true 不然报错时会返回不正常数据。</param>
         public Repository(string connectionString, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
             : base(new SqlConnection(connectionString), repoXmlProvider, exceptionHandler, throws)
         {
 
         }
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="_con">数据库连接</param>
+        /// <param name="repoXmlProvider"></param>
+        /// <param name="exceptionHandler">抛错时的委托</param>
+        /// <param name="throws">是否抛出错误，强烈建议保持默认值 true 不然报错时会返回不正常数据。</param>
         public Repository(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
             : base(_con, repoXmlProvider, exceptionHandler, throws)
         {
@@ -43,6 +50,9 @@ namespace xLiAd.DapperEx.Repository
         {
 
         }
+        /// <summary>
+        /// 数据库语法器
+        /// </summary>
         protected override ISqlDialect Dialect => new SqlServerDialect();
 
         /// <summary>

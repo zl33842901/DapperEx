@@ -10,8 +10,15 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.Repository
 {
+    /// <summary>
+    /// 仓储接口
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IRepository<T>
     {
+        /// <summary>
+        /// 释放资源
+        /// </summary>
         void Dispose();
         /// <summary>
         /// 获取所有数据
@@ -46,6 +53,7 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="predicate">条件表达式</param>
         /// <param name="order">排序字段</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
         /// <returns></returns>
         List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0, bool desc = false);
         /// <summary>

@@ -14,9 +14,12 @@ namespace xLiAd.DapperEx.Repository
     public class TransactionProvider : TransactionProviderBase
     {
         /// <summary>
-        /// 不让随便 new
+        /// 暂时不让随便 new
         /// </summary>
-        /// <param name="_con"></param>
+        /// <param name="_con">数据库连接</param>
+        /// <param name="repoXmlProvider">xml查询语句提供器</param>
+        /// <param name="exceptionHandler">错误事件</param>
+        /// <param name="throws">是否抛出错误</param>
         internal TransactionProvider(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
             : base(_con, repoXmlProvider, exceptionHandler, throws)
         {

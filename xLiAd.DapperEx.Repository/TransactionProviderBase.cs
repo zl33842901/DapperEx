@@ -13,9 +13,12 @@ namespace xLiAd.DapperEx.Repository
     public abstract class TransactionProviderBase
     {
         /// <summary>
-        /// 不让随便 new
+        /// 暂时不让随便 new
         /// </summary>
-        /// <param name="_con"></param>
+        /// <param name="_con">数据库连接</param>
+        /// <param name="repoXmlProvider">xml查询语句提供器</param>
+        /// <param name="exceptionHandler">错误事件</param>
+        /// <param name="throws">是否抛出错误</param>
         protected TransactionProviderBase(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
         {
             Connection = _con;
@@ -26,11 +29,25 @@ namespace xLiAd.DapperEx.Repository
             ExExceptionHandler = exceptionHandler;
             Throws = throws;
         }
-
+        /// <summary>
+        /// 事务对象
+        /// </summary>
         protected readonly IDbTransaction Transaction;
+        /// <summary>
+        /// 数据库连接
+        /// </summary>
         protected readonly IDbConnection Connection;
+        /// <summary>
+        /// xml查询语句提供器
+        /// </summary>
         protected RepoXmlProvider RepoXmlProvider;
+        /// <summary>
+        /// 错误事件
+        /// </summary>
         protected MsSql.Core.Core.DapperExExceptionHandler ExExceptionHandler;
+        /// <summary>
+        /// 是否抛出错误
+        /// </summary>
         protected bool Throws;
 
         bool beenProcess = false;

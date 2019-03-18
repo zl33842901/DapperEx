@@ -21,12 +21,12 @@ namespace xLiad.DapperEx.Repository.Test
     /// </summary>
     public class QueryTest
     {
-        private SqlConnection Conn => new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=zhanglei");
+        private SqlConnection Conn => new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=feih#rj87");
         [Fact]
         public void TestWhere()
         {
             var repository = new Repository<DictInfo>(Conn);
-            var ida = new List<int?>() { 106071, 106072 };
+            var ida = new List<int>() { 106071, 106072 };
             var rst = repository.Where(x => ida.Contains(x.DictID));
             Assert.Equal(2, rst.Count);
         }

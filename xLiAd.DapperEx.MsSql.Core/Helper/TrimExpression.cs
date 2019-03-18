@@ -133,7 +133,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             {
                 return base.Visit(exp);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return exp;
             }

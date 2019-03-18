@@ -15,6 +15,10 @@ using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 
 namespace xLiAd.DapperEx.Repository
 {
+    /// <summary>
+    /// 仓储基类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class RepositoryBase<T>
     {
         /// <summary>
@@ -205,6 +209,7 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="predicate">条件表达式</param>
         /// <param name="order">排序字段</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
         /// <returns></returns>
         public List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0, bool desc = false)
         {
