@@ -100,7 +100,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                 string fn = node.Member.GetColumnAttributeName(Dialect);
                 _sqlCmd.Append(fn);
                 _sqlCmd.Append("=");
-                SetParam(fn, true);
+                SetParam(node.Member.Name, true);
             }
             else
             {
