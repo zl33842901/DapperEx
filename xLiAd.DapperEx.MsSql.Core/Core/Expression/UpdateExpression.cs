@@ -53,6 +53,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             {
                 if (item.CustomAttributes.Any(b => b.AttributeType == typeof(KeyAttribute)))
                     continue;
+                if (item.CustomAttributes.Any(b => b.AttributeType == typeof(NoUpdateAttribute)))
+                    continue;
 
                 if (_sqlCmd.Length > 0)
                     _sqlCmd.Append(",");

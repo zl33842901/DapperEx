@@ -11,7 +11,7 @@ namespace System.ComponentModel.DataAnnotations
     {
 
     }
-     public enum IdentityTypeEnum : byte
+    public enum IdentityTypeEnum : byte
     {
         /// <summary>
         /// 无标识
