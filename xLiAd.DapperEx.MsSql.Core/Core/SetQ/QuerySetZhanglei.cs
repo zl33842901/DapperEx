@@ -37,5 +37,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return new List<TResult>();
             }
         }
+        protected override Type GetSourceType()
+        {
+            return typeof(TSource);
+        }
+        protected override List<TResult> PageListItems(SqlMapper.GridReader gridReader)
+        {
+            var l = gridReader.Read<TSource>().ToList();
+            var lresult = l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
+            return lresult;
+        }
     }
 }

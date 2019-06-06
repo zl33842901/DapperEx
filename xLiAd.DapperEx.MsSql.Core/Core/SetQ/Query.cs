@@ -83,9 +83,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
         }
 
+        protected virtual Type GetSourceType() { return typeof(T); }
+
+        protected virtual List<T> PageListItems(SqlMapper.GridReader gridReader)
+        {
+            return gridReader.Read<T>().ToList();
+        }
         public PageList<T> PageList(int pageIndex, int pageSize)
         {
-            SqlProvider.FormatToPageList(pageIndex, pageSize, this.FieldAnyExpression);
+            SqlProvider.FormatToPageList(GetSourceType(), pageIndex, pageSize, this.FieldAnyExpression);
             SetSql();
             try {
                 var ps = typeof(T).GetJsonColumnProperty();
@@ -121,7 +127,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     {
                         var pageTotal = queryResult.ReadFirst<int>();
 
-                        var itemList = queryResult.Read<T>().ToList();
+                        var itemList = PageListItems(queryResult);
 
                         return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
                     }

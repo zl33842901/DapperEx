@@ -160,13 +160,13 @@ namespace xLiAd.DapperEx.MsSql.Core
             return this;
         }
 
-        public SqlProvider<T> FormatToPageList(int pageIndex, int pageSize, IFieldAnyExpression fieldAnyExpression)
+        public SqlProvider<T> FormatToPageList(Type type, int pageIndex, int pageSize, IFieldAnyExpression fieldAnyExpression)
         {
             var orderbySql = ResolveExpression.Instance(Dialect).ResolveOrderBy(Context.QuerySet.OrderbyExpressionList);
             if (string.IsNullOrEmpty(orderbySql))
                 throw new Exception("分页查询需要排序条件");
 
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), pageSize, false, Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, pageSize, false, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
@@ -180,7 +180,7 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             if (fieldAnyExpression != null)
             {
-                var selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), pageSize, true, Context.QuerySet.SelectExpression);
+                var selectDistinctSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, pageSize, true, Context.QuerySet.SelectExpression);
                 var di = fieldAnyExpression.WhereParam.ToDictionary();
                 foreach (var i in di)
                 {
