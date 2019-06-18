@@ -20,6 +20,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
 
         public bool SupportArrayParam => throw new NotImplementedException();
 
+        public PageListDialectEnum pageListDialectEnum => PageListDialectEnum.SqlServerAndPg;
+
         public object ConvertParameterValue(object value)
         {
             throw new NotImplementedException();

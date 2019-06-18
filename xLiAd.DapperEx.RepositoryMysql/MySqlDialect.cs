@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 
-namespace xLiAd.DapperEx.RepositoryPg
+namespace xLiAd.DapperEx.RepositoryMysql
 {
-    public class PostgreSqlDialect : ISqlDialect
+    public class MySqlDialect : ISqlDialect
     {
         const string _Space = " ";
 
@@ -30,13 +32,13 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         public bool SupportArrayParam => false;
 
-        public PageListDialectEnum pageListDialectEnum => PageListDialectEnum.SqlServerAndPg;
+        public PageListDialectEnum pageListDialectEnum => PageListDialectEnum.Mysql;
 
         public string ParseTableName(string tableName)
         {
-            if (!tableName.StartsWith("\""))
+            if (!tableName.StartsWith("`"))
             {
-                return string.Format("\"{0}\"", tableName);
+                return string.Format("`{0}`", tableName);
             }
 
             return tableName;
@@ -44,9 +46,9 @@ namespace xLiAd.DapperEx.RepositoryPg
 
         public string ParseColumnName(string columnName)
         {
-            if (!columnName.StartsWith("\"") && !columnName.Contains("."))
+            if (!columnName.StartsWith("`") && !columnName.Contains("."))
             {
-                return string.Format("\"{0}\"", columnName);
+                return string.Format("`{0}`", columnName);
             }
 
             return columnName;
@@ -56,7 +58,7 @@ namespace xLiAd.DapperEx.RepositoryPg
         {
             string outputString;
             if (!string.IsNullOrEmpty(identityPropertyName))
-                outputString = $" RETURNING {identityPropertyName}";
+                outputString = $" ;SELECT @@IDENTITY";
             else
                 outputString = string.Empty;
             return $"({paramString}) VALUES  ({valueString}) {outputString}";

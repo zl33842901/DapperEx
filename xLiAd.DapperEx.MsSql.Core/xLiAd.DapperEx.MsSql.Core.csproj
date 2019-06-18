@@ -4,10 +4,10 @@
     <Authors>张磊</Authors>
     <Company>张磊 xLiAd</Company>
     <Description>a weightlight orm base on dapper 一个轻量级的基于dapper的orm</Description>
-    <Copyright>Copyright © zhanglei 2018</Copyright>
+    <Copyright>Copyright © zhanglei 2019</Copyright>
     <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
-    <Version>1.9.7.0</Version>
+    <Version>1.9.8.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Publish.bat" />

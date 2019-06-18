@@ -51,6 +51,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
 
         public bool SupportArrayParam => true;
 
+        public PageListDialectEnum pageListDialectEnum => PageListDialectEnum.SqlServerAndPg;
+
         public string FormatInsertValues(string identityPropertyName, string paramString, string valueString)
         {
             string outputString;

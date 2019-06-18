@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>张磊</Authors>
+    <Company>张磊 xLiAd</Company>
+    <Description>一个轻量级的基于dapper的Mysql仓储类</Description>
+    <Copyright>Copyright © zhanglei 2019</Copyright>
+    <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xLiAd.DapperEx.Repository\xLiAd.DapperEx.Repository.csproj" />
+  </ItemGroup>
+
+</Project>

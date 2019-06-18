@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
-    <Version>1.5.1.1</Version>
+    <Version>1.5.2.0</Version>
     <Authors>张磊</Authors>
     <Company>张磊 xLiAd</Company>
-    <Copyright>Copyright © zhanglei 2018</Copyright>
+    <Copyright>Copyright © zhanglei 2019</Copyright>
     <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
     <Description>一个轻量级的基于dapper的PostgreSql仓储类</Description>
   </PropertyGroup>

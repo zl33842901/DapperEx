@@ -34,5 +34,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Dialect
         Func<object, string> Serializer { get; }
         Func<string, Type, object> Deserializer { get; }
         void SetSerializeFunc(Func<object, string> serializer, Func<string, Type, object> deserializer);
+        PageListDialectEnum pageListDialectEnum { get; }
+    }
+    /// <summary>
+    /// 分页语句风格
+    /// </summary>
+    public enum PageListDialectEnum
+    {
+        SqlServerAndPg = 0,
+        Mysql = 1
     }
 }

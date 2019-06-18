@@ -201,7 +201,13 @@ namespace xLiAd.DapperEx.MsSql.Core
             else
             {
                 SqlString = $"SELECT COUNT(1) {fromTableSql} {whereSql};";
-                SqlString += $@"{selectSql}
+                if(Dialect.pageListDialectEnum == PageListDialectEnum.Mysql)
+                {
+                    SqlString += $@"select p.* from (select o.* from ({selectSql} {fromTableSql} {whereSql} {orderbySql}) o limit {pageIndex},{pageSize}) p {orderbySql}";
+                }
+                else
+                {
+                    SqlString += $@"{selectSql}
             FROM    ( SELECT *
                       ,ROW_NUMBER() OVER ( {orderbySql} ) AS ROWNUMBER
                       {fromTableSql}
@@ -209,6 +215,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                     ) T
             WHERE   ROWNUMBER > {(pageIndex - 1) * pageSize}
                     AND ROWNUMBER <= {pageIndex * pageSize} {orderbySql} {limitSql};";
+                }
             }
 
             return this;

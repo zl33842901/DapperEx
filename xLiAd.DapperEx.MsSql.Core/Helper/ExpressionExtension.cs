@@ -145,7 +145,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 rst = dialect.ParseColumnName(rst);
             if (Attribute.IsDefined(memberInfo, typeof(System.ComponentModel.DataAnnotations.TimestampAttribute)))
             {
-                return $"CONVERT(BIGINT, {rst})";
+                if (dialect != null && dialect.pageListDialectEnum == PageListDialectEnum.Mysql)
+                    return $"unix_timestamp({rst})";
+                else
+                    return $"CONVERT(BIGINT, {rst})";
             }
             else
             {
