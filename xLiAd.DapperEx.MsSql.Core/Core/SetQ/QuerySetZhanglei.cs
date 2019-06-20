@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
@@ -19,13 +20,14 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         protected readonly SqlProvider<TSource> SqlProviderSource;
         internal QuerySet(IDbConnection conn, SqlProvider<TResult> sqlProvider, Type tableType, LambdaExpression whereExpression, LambdaExpression selectExpression, int? topNum, List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionList, IDbTransaction dbTransaction, bool throws = true)
             : base(conn, sqlProvider, tableType, whereExpression,selectExpression,topNum,orderbyExpressionList, dbTransaction, throws) { }
-        public override List<TResult> ToList()
+        public override async Task<List<TResult>> ToListAsync()
         {
             SqlProvider.FormatToListZhanglei(typeof(TSource), this.FieldAnyExpression);
             SetSql();
             try
             {
-                var l = Q<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+                var results = await QueryDatabaseAsync<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+                var l = results.ToList();
                 return l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             }
             catch (Exception e)
@@ -37,13 +39,19 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return new List<TResult>();
             }
         }
+        public override List<TResult> ToList()
+        {
+            var task = ToListAsync();
+            return task.Result;
+        }
         protected override Type GetSourceType()
         {
             return typeof(TSource);
         }
-        protected override List<TResult> PageListItems(SqlMapper.GridReader gridReader)
+        protected override async Task<List<TResult>> PageListItems(SqlMapper.GridReader gridReader)
         {
-            var l = gridReader.Read<TSource>().ToList();
+            var results = await gridReader.ReadAsync<TSource>();
+            var l = results.ToList();
             var lresult = l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             return lresult;
         }

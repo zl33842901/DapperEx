@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
@@ -57,39 +58,65 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             Throws = throws;
         }
 
-        public T Get()
+        public async Task<T> GetAsync()
         {
             SqlProvider.FormatGet(this.FieldAnyExpression);
             SetSql();
-            return QrFd(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            var result = await QueryFirstAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return result;
         }
-        public T Get<TKey>(TKey id)
+        public T Get()
+        {
+            var task = GetAsync();
+            return task.Result;
+        }
+        public async Task<T> GetAsync<TKey>(TKey id)
         {
             SqlProvider.FormatGet(id, this.FieldAnyExpression);
             SetSql();
-            return QrFd(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            var result = await QueryFirstAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return result;
         }
 
-        public virtual List<T> ToList()
+        public T Get<TKey>(TKey id)
+        {
+            var task = GetAsync(id);
+            return task.Result;
+        }
+
+        public virtual async Task<List<T>> ToListAsync()
         {
             SqlProvider.FormatToList(null, this.FieldAnyExpression);
             SetSql();
-            return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+            var results = await QueryWithExceptionAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return results.ToList();
         }
-        public virtual List<T> ToList(LambdaExpression[] selector)
+        public virtual List<T> ToList()
+        {
+            var task = ToListAsync();
+            return task.Result;
+        }
+        public virtual async Task<List<T>> ToListAsync(LambdaExpression[] selector)
         {
             SqlProvider.FormatToList(selector, this.FieldAnyExpression);
             SetSql();
-            return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+            var results = await QueryWithExceptionAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return results.ToList();
+        }
+        public virtual List<T> ToList(LambdaExpression[] selector)
+        {
+            var task = ToListAsync(selector);
+            return task.Result;
         }
 
         protected virtual Type GetSourceType() { return typeof(T); }
 
-        protected virtual List<T> PageListItems(SqlMapper.GridReader gridReader)
+        protected virtual async Task<List<T>> PageListItems(SqlMapper.GridReader gridReader)
         {
-            return gridReader.Read<T>().ToList();
+            var result = await gridReader.ReadAsync<T>();
+            return result.ToList();
         }
-        public PageList<T> PageList(int pageIndex, int pageSize)
+        public async Task<PageList<T>> PageListAsync(int pageIndex, int pageSize)
         {
             SqlProvider.FormatToPageList(GetSourceType(), pageIndex, pageSize, this.FieldAnyExpression);
             SetSql();
@@ -97,7 +124,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                 var ps = typeof(T).GetJsonColumnProperty();
                 if (ps.Length > 0 && HasSerializer)
                 {
-                    var Reader = DbCon.ExecuteReader(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+                    var Reader = await DbCon.ExecuteReaderAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
                     var pageTotal = 0;
                     if (Reader.Read())
                     {
@@ -123,11 +150,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                 }
                 else
                 {
-                    using (var queryResult = DbCon.QueryMultiple(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+                    using (var queryResult = await DbCon.QueryMultipleAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
                     {
                         var pageTotal = queryResult.ReadFirst<int>();
 
-                        var itemList = PageListItems(queryResult);
+                        var itemList = await PageListItems(queryResult);
 
                         return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
                     }
@@ -142,19 +169,29 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return new PageList<T>(0, 0, 0, new List<T>());
             }
         }
-
+        public PageList<T> PageList(int pageIndex, int pageSize)
+        {
+            var task = PageListAsync(pageIndex, pageSize);
+            return task.Result;
+        }
         public List<T> UpdateSelect(Expression<Func<T, T>> updator)
+        {
+            var task = UpdateSelectAsync(updator);
+            return task.Result;
+        }
+        public async Task<List<T>> UpdateSelectAsync(Expression<Func<T, T>> updator)
         {
             SqlProvider.FormatUpdateSelect(updator);
             SetSql();
-            return Qr(SqlProvider.SqlString, SqlProvider.Params, DbTransaction).ToList();
+            var lresult = await QueryWithExceptionAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            return lresult.ToList();
         }
-        protected IEnumerable<TRst> Q<TRst>(string sqlString, DynamicParameters param, IDbTransaction dbTransaction, int count = 0)
+        protected async Task<IEnumerable<TRst>> QueryDatabaseAsync<TRst>(string sqlString, DynamicParameters param, IDbTransaction dbTransaction, int count = 0)
         {
             var ps = typeof(TRst).GetJsonColumnProperty();
             if (ps.Length > 0 && HasSerializer)
             {
-                var Reader = DbCon.ExecuteReader(sqlString, param, dbTransaction);
+                var Reader = await DbCon.ExecuteReaderAsync(sqlString, param, dbTransaction);
                 var Parser = Reader.GetRowParser(typeof(TRst));
                 List<TRst> lrst = new List<TRst>();
                 int i = 0;
@@ -187,13 +224,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                 return lrst;
             }
             else
-                return DbCon.Query<TRst>(sqlString, param, dbTransaction);
+                return await DbCon.QueryAsync<TRst>(sqlString, param, dbTransaction);
         }
-        private IEnumerable<T> Qr(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        private async Task<IEnumerable<T>> QueryWithExceptionAsync(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
-                return Q<T>(sqlString, param, dbTransaction);
+                return await QueryDatabaseAsync<T>(sqlString, param, dbTransaction);
             }
             catch (Exception e)
             {
@@ -204,11 +241,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return new List<T>();
             }
         }
-        private T QrFd(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        private async Task<T> QueryFirstAsync(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
-                return Q<T>(sqlString, param, dbTransaction, 1).FirstOrDefault();
+                return (await QueryDatabaseAsync<T>(sqlString, param, dbTransaction, 1)).FirstOrDefault();
             }
             catch (Exception e)
             {
