@@ -12,6 +12,7 @@ using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
 using xLiAd.DapperEx.MsSql.Core.Model;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
+using System.Threading.Tasks;
 
 namespace xLiAd.DapperEx.Repository
 {
@@ -159,9 +160,29 @@ namespace xLiAd.DapperEx.Repository
         /// 获取所有数据
         /// </summary>
         /// <returns></returns>
+        public virtual async Task<List<T>> AllAsync()
+        {
+            var rst = await QuerySet.ToListAsync();
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 获取所有数据
+        /// </summary>
+        /// <returns></returns>
         public virtual List<T> All()
         {
-            var rst = QuerySet.ToList();
+            var task = AllAsync();
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件获取数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        public async Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate)
+        {
+            var rst = await QuerySet.Where(predicate).ToListAsync();
             DoSetSql();
             return rst;
         }
@@ -172,7 +193,18 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<T> Where(Expression<Func<T, bool>> predicate)
         {
-            var rst = QuerySet.Where(predicate).ToList();
+            var task = WhereAsync(predicate);
+            return task.Result;
+        }
+        /// <summary>
+        /// 只获取指定字段
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="efdbd"></param>
+        /// <returns></returns>
+        public async Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd)
+        {
+            var rst = await QuerySet.Where(predicate).ToListAsync(efdbd);
             DoSetSql();
             return rst;
         }
@@ -184,8 +216,21 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd)
         {
-            var rst = QuerySet.Where(predicate).ToList(efdbd);
-            DoSetSql();
+            var task = WhereAsync(predicate, efdbd);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件获取数据并投影。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="selector">投影表达式</param>
+        /// <returns></returns>
+        public async Task<List<TResult>> WhereSelectAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
+        {
+            var qs = QuerySet.Where(predicate).Select(selector);
+            var rst = await qs.ToListAsync();
+            DoSetSql(qs);
             return rst;
         }
         /// <summary>
@@ -197,9 +242,36 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<TResult> WhereSelect<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
         {
-            var qs = QuerySet.Where(predicate).Select(selector);
-            var rst = qs.ToList();
-            DoSetSql(qs);
+            var task = WhereSelectAsync(predicate, selector);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件排序查询
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="order">排序字段</param>
+        /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
+        /// <returns></returns>
+        public async Task<List<T>> WhereOrderAsync<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0, bool desc = false)
+        {
+            var q = QuerySet.Where(predicate);
+            Order<T> o;
+            if (desc)
+                o = q.OrderByDescing(order);
+            else
+                o = q.OrderBy(order);
+            List<T> rst;
+            if (top > 0)
+            {
+                rst = await o.Top(top).ToListAsync();
+            }
+            else
+            {
+                rst = await o.ToListAsync();
+            }
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -213,22 +285,29 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0, bool desc = false)
         {
-            var q = QuerySet.Where(predicate);
-            Order<T> o;
-            if (desc)
-                o = q.OrderByDescing(order);
-            else
-                o = q.OrderBy(order);
-            List<T> rst;
+            var task = WhereOrderAsync(predicate, order, top, desc);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件排序查询 并投影
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="order">排序字段</param>
+        /// <param name="selector">投影表达式</param>
+        /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <returns></returns>
+        public async Task<List<TResult>> WhereOrderSelectAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0)
+        {
+            var q = QuerySet.Where(predicate).OrderBy(order);
+            Query<TResult> qst;
             if (top > 0)
-            {
-                rst = o.Top(top).ToList();
-            }
+                qst = q.Top(top).Select(selector);
             else
-            {
-                rst = o.ToList();
-            }
-            DoSetSql();
+                qst = q.Select(selector);
+            var rst = await qst.ToListAsync();
+            DoSetSql(qst);
             return rst;
         }
         /// <summary>
@@ -243,14 +322,18 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0)
         {
-            var q = QuerySet.Where(predicate).OrderBy(order);
-            Query<TResult> qst;
-            if (top > 0)
-                qst = q.Top(top).Select(selector);
-            else
-                qst = q.Select(selector);
-            var rst = qst.ToList();
-            DoSetSql(qst);
+            var task = WhereOrderSelectAsync(predicate, order, selector, top);
+            return task.Result;
+        }
+        /// <summary>
+        /// 单条数据插入  请在标识属性上加 Identity 特性
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public virtual async Task<int> AddAsync(T obj)
+        {
+            var rst = await CommandSet.InsertAsync(obj);
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -260,7 +343,17 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Add(T obj)
         {
-            var rst = CommandSet.Insert(obj);
+            var task = AddAsync(obj);
+            return task.Result;
+        }
+        /// <summary>
+        /// 多条数据插入  请在标识属性上加 Identity 特性
+        /// </summary>
+        /// <param name="objs"></param>
+        /// <returns></returns>
+        public virtual async Task<int> AddAsync(IEnumerable<T> objs)
+        {
+            var rst = await CommandSet.InsertAsync(objs);
             DoSetSql();
             return rst;
         }
@@ -271,9 +364,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Add(IEnumerable<T> objs)
         {
-            var rst = CommandSet.Insert(objs);
-            DoSetSql();
-            return rst;
+            var task = AddAsync(objs);
+            return task.Result;
         }
         /// <summary>
         /// 多条数据插入(事务操作)  请在标识属性上加 Identity 特性
@@ -300,7 +392,7 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="pagesize">页条数</param>
         /// <param name="desc">是否倒序，默认否</param>
         /// <returns></returns>
-        public PageList<T> PageList<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> orderBy, int pageindex = 1, int pagesize = 50, bool desc = false)
+        public async Task<PageList<T>> PageListAsync<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> orderBy, int pageindex = 1, int pagesize = 50, bool desc = false)
         {
             var q = QuerySet.Where(filter);
             Order<T> qq;
@@ -308,7 +400,45 @@ namespace xLiAd.DapperEx.Repository
                 qq = q.OrderByDescing(orderBy);
             else
                 qq = q.OrderBy(orderBy);
-            var rst = qq.PageList(pageindex, pagesize);
+            var rst = await qq.PageListAsync(pageindex, pagesize);
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 根据条件排序分页
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="filter">条件表达式</param>
+        /// <param name="orderBy">排序字段</param>
+        /// <param name="pageindex">页码</param>
+        /// <param name="pagesize">页条数</param>
+        /// <param name="desc">是否倒序，默认否</param>
+        /// <returns></returns>
+        public PageList<T> PageList<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> orderBy, int pageindex = 1, int pagesize = 50, bool desc = false)
+        {
+            var task = PageListAsync(filter, orderBy, pageindex, pagesize, desc);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件分页（多排序条件）
+        /// </summary>
+        /// <param name="filter">条件表达式</param>
+        /// <param name="pageindex">页码</param>
+        /// <param name="pagesize">页条数</param>
+        /// <param name="orders">排序字段</param>
+        /// <returns></returns>
+        public async Task<PageList<T>> PageListAsync(Expression<Func<T, bool>> filter, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
+        {
+            var q = QuerySet.Where(filter);
+            Order<T> qq = q;
+            foreach (var order in orders)
+            {
+                if (order.Item2 == SortOrder.Descending)
+                    qq = qq.OrderByDescing(order.Item1);
+                else
+                    qq = qq.OrderBy(order.Item1);
+            }
+            var rst = await qq.PageListAsync(pageindex, pagesize);
             DoSetSql();
             return rst;
         }
@@ -322,16 +452,35 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<T> PageList(Expression<Func<T, bool>> filter, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
         {
+            var task = PageListAsync(filter, pageindex, pagesize, orders);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件分页（两个排序条件）
+        /// </summary>
+        /// <typeparam name="TKey1"></typeparam>
+        /// <typeparam name="TKey2"></typeparam>
+        /// <param name="filter">条件表达式</param>
+        /// <param name="order1">排序1</param>
+        /// <param name="order1Desc">是否倒序1</param>
+        /// <param name="order2">排序2</param>
+        /// <param name="order2Desc">是否倒序2</param>
+        /// <param name="pageindex">页码</param>
+        /// <param name="pagesize">页条数</param>
+        /// <returns></returns>
+        public async Task<PageList<T>> PageListAsync<TKey1, TKey2>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey1>> order1, bool order1Desc, Expression<Func<T, TKey2>> order2, bool order2Desc, int pageindex = 1, int pagesize = 50)
+        {
             var q = QuerySet.Where(filter);
             Order<T> qq = q;
-            foreach (var order in orders)
-            {
-                if (order.Item2 == SortOrder.Descending)
-                    qq = qq.OrderByDescing(order.Item1);
-                else
-                    qq = qq.OrderBy(order.Item1);
-            }
-            var rst = qq.PageList(pageindex, pagesize);
+            if (order1Desc)
+                qq = qq.OrderByDescing(order1);
+            else
+                qq = qq.OrderBy(order1);
+            if (order2Desc)
+                qq = qq.OrderByDescing(order2);
+            else
+                qq = qq.OrderBy(order2);
+            var rst = await qq.PageListAsync(pageindex, pagesize);
             DoSetSql();
             return rst;
         }
@@ -350,17 +499,31 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<T> PageList<TKey1, TKey2>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey1>> order1, bool order1Desc, Expression<Func<T, TKey2>> order2, bool order2Desc, int pageindex = 1, int pagesize = 50)
         {
+            var task = PageListAsync(filter, order1, order1Desc, order2, order2Desc, pageindex, pagesize);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件排序分页 并投影
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="filter">条件表达式</param>
+        /// <param name="selector">投影表达式</param>
+        /// <param name="pageindex">页码</param>
+        /// <param name="pagesize">页条数</param>
+        /// <param name="orders">排序字段</param>
+        /// <returns></returns>
+        public async Task<PageList<TResult>> PageListSelectAsync<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
+        {
             var q = QuerySet.Where(filter);
             Order<T> qq = q;
-            if (order1Desc)
-                qq = qq.OrderByDescing(order1);
-            else
-                qq = qq.OrderBy(order1);
-            if (order2Desc)
-                qq = qq.OrderByDescing(order2);
-            else
-                qq = qq.OrderBy(order2);
-            var rst = qq.PageList(pageindex, pagesize);
+            foreach (var order in orders)
+            {
+                if (order.Item2 == SortOrder.Descending)
+                    qq = qq.OrderByDescing(order.Item1);
+                else
+                    qq = qq.OrderBy(order.Item1);
+            }
+            var rst = await qq.Select(selector).PageListAsync(pageindex, pagesize);
             DoSetSql();
             return rst;
         }
@@ -376,16 +539,17 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public PageList<TResult> PageListSelect<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
         {
-            var q = QuerySet.Where(filter);
-            Order<T> qq = q;
-            foreach (var order in orders)
-            {
-                if (order.Item2 == SortOrder.Descending)
-                    qq = qq.OrderByDescing(order.Item1);
-                else
-                    qq = qq.OrderBy(order.Item1);
-            }
-            var rst = qq.Select(selector).PageList(pageindex, pagesize);
+            var task = PageListSelectAsync(filter, selector, pageindex, pagesize, orders);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件获取一条数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        public async Task<T> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            var rst = await QuerySet.Where(predicate).GetAsync();
             DoSetSql();
             return rst;
         }
@@ -396,7 +560,18 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public T Find(Expression<Func<T, bool>> predicate)
         {
-            var rst = QuerySet.Where(predicate).Get();
+            var task = FindAsync(predicate);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据主键获取一条数据（实体类需要设置主键 在主键属性上加 Key特性）
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<T> FindAsync<TKey>(TKey id)
+        {
+            var rst = await QuerySet.GetAsync(id);
             DoSetSql();
             return rst;
         }
@@ -408,7 +583,19 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public T Find<TKey>(TKey id)
         {
-            var rst = QuerySet.Get(id);
+            var task = FindAsync(id);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件获取一条数据并投影
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="keySelector">投影表达式</param>
+        /// <returns></returns>
+        public virtual async Task<TResult> FindFieldAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
+        {
+            var rst = await QuerySet.Where(predicate).Select(keySelector).GetAsync();
             DoSetSql();
             return rst;
         }
@@ -421,7 +608,17 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
         {
-            var rst = QuerySet.Where(predicate).Select(keySelector).Get();
+            var task = FindFieldAsync(predicate, keySelector);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件取得数据数量
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            var rst = await QuerySet.Where(predicate).CountAsync();
             DoSetSql();
             return rst;
         }
@@ -432,9 +629,17 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int Count(Expression<Func<T, bool>> predicate)
         {
-            var rst = QuerySet.Where(predicate).Count();
-            DoSetSql();
-            return rst;
+            var task = CountAsync(predicate);
+            return task.Result;
+        }
+        /// <summary>
+        /// 是否存在符合条件的记录
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public async Task<bool> ExistAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await CountAsync(predicate) > 0;
         }
         /// <summary>
         /// 是否存在符合条件的记录
@@ -443,7 +648,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public bool Exist(Expression<Func<T, bool>> predicate)
         {
-            return Count(predicate) > 0;
+            var task = ExistAsync(predicate);
+            return task.Result;
         }
 
         private int? countAll = null;
@@ -463,11 +669,31 @@ namespace xLiAd.DapperEx.Repository
         /// 取得数据总数量
         /// </summary>
         /// <returns></returns>
-        public int Count(bool setSql = true)
+        public async Task<int> CountAsync(bool setSql = true)
         {
-            var rst = QuerySet.Count();
+            var rst = await QuerySet.CountAsync();
             if (setSql)
                 DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 取得数据总数量
+        /// </summary>
+        /// <returns></returns>
+        public int Count(bool setSql = true)
+        {
+            var task = CountAsync(setSql);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件删除数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        public virtual async Task<int> DeleteAsync(Expression<Func<T, bool>> predicate)
+        {
+            var rst = await CommandSet.Where(predicate).DeleteAsync();
+            DoSetSql();
             return rst;
         }
         /// <summary>
@@ -477,7 +703,17 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual int Delete(Expression<Func<T, bool>> predicate)
         {
-            var rst = CommandSet.Where(predicate).Delete();
+            var task = DeleteAsync(predicate);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据主键删除数据（实体类需要设置主键 在主键属性上加 Key特性）
+        /// </summary>
+        /// <param name="id">主键值</param>
+        /// <returns></returns>
+        public async Task<int> DeleteAsync<TKey>(TKey id)
+        {
+            var rst = await CommandSet.DeleteAsync(id);
             DoSetSql();
             return rst;
         }
@@ -488,9 +724,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int Delete<TKey>(TKey id)
         {
-            var rst = CommandSet.Delete(id);
-            DoSetSql();
-            return rst;
+            var task = DeleteAsync(id);
+            return task.Result;
         }
         /// <summary>
         /// 根据主键删除数据(事务操作)（实体类需要设置主键 在主键属性上加 Key特性）
@@ -514,11 +749,21 @@ namespace xLiAd.DapperEx.Repository
         /// </summary>
         /// <param name="TObject">实体</param>
         /// <returns></returns>
-        public virtual int Update(T TObject)
+        public virtual async Task<int> UpdateAsync(T TObject)
         {
-            var rst = CommandSet.Update(TObject);
+            var rst = await CommandSet.UpdateAsync(TObject);
             DoSetSql();
             return rst;
+        }
+        /// <summary>
+        /// 根据主键更新一条数据的 除主键外的全部属性字段
+        /// </summary>
+        /// <param name="TObject">实体</param>
+        /// <returns></returns>
+        public virtual int Update(T TObject)
+        {
+            var task = UpdateAsync(TObject);
+            return task.Result;
         }
         /// <summary>
         /// 根据主键更新一些数据的 除主键外的全部属性字段（事务操作）
@@ -542,9 +787,34 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="d">实体</param>
         /// <param name="efdbd">指定字段</param>
         /// <returns></returns>
+        public virtual async Task<int> UpdateAsync(T d, params Expression<Func<T, object>>[] efdbd)
+        {
+            var rst = await CommandSet.UpdateAsync(d, efdbd);
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 根据主键更新一条数据的指定字段
+        /// </summary>
+        /// <param name="d">实体</param>
+        /// <param name="efdbd">指定字段</param>
+        /// <returns></returns>
         public virtual int Update(T d, params Expression<Func<T, object>>[] efdbd)
         {
-            var rst = CommandSet.Update(d, efdbd);
+            var task = UpdateAsync(d, efdbd);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件更新某个字段
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="key">要更新的字段</param>
+        /// <param name="value">字段要更新的值</param>
+        /// <returns></returns>
+        public async Task<int> UpdateWhereAsync<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> key, TKey value)
+        {
+            var rst = await CommandSet.Where(predicate).UpdateAsync(key, value);
             DoSetSql();
             return rst;
         }
@@ -558,7 +828,19 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int UpdateWhere<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> key, TKey value)
         {
-            var rst = CommandSet.Where(predicate).Update(key, value);
+            var task = UpdateWhereAsync(predicate, key, value);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据条件更新若干字段
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="d">存储字段值的实体（主键不作为更新条件）</param>
+        /// <param name="efdbd">要更新的字段</param>
+        /// <returns></returns>
+        public async Task<int> UpdateWhereAsync(Expression<Func<T, bool>> predicate, T d, params Expression<Func<T, object>>[] efdbd)
+        {
+            var rst = await CommandSet.Where(predicate).UpdateAsync(d, efdbd);
             DoSetSql();
             return rst;
         }
@@ -571,9 +853,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public int UpdateWhere(Expression<Func<T, bool>> predicate, T d, params Expression<Func<T, object>>[] efdbd)
         {
-            var rst = CommandSet.Where(predicate).Update(d, efdbd);
-            DoSetSql();
-            return rst;
+            var task = UpdateWhereAsync(predicate, d, efdbd);
+            return task.Result;
         }
         /// <summary>
         /// 把参数字典转换为动态参数， 并替换语句中的转义参数名（如果有的话）
@@ -605,10 +886,32 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="dic">参数</param>
         /// <param name="cmdType">命令类别</param>
         /// <returns></returns>
-        public virtual bool ExecuteSql(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        public virtual async Task<bool> ExecuteSqlAsync(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
         {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.Execute(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
+            return await con.ExecuteAsync(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
+        }
+        /// <summary>
+        /// 执行SQL语句
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="dic">参数</param>
+        /// <param name="cmdType">命令类别</param>
+        /// <returns></returns>
+        public virtual bool ExecuteSql(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        {
+            var task = ExecuteSqlAsync(sql, dic, cmdType);
+            return task.Result;
+        }
+        /// <summary>
+        /// 执行存储过程
+        /// </summary>
+        /// <param name="procedureName">存储过程</param>
+        /// <param name="dic">参数</param>
+        /// <returns></returns>
+        public virtual async Task<bool> ExecuteProcedureAsync(string procedureName, Dictionary<string, string> dic = null)
+        {
+            return await ExecuteSqlAsync(procedureName, dic, CommandType.StoredProcedure);
         }
         /// <summary>
         /// 执行存储过程
@@ -618,7 +921,20 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual bool ExecuteProcedure(string procedureName, Dictionary<string, string> dic = null)
         {
-            return ExecuteSql(procedureName, dic, CommandType.StoredProcedure);
+            var task = ExecuteProcedureAsync(procedureName, dic);
+            return task.Result;
+        }
+        /// <summary>
+        /// 执行查询 返回第一条结果
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public virtual async Task<TResult> GetScalarAsync<TResult>(string sql, Dictionary<string, string> dic = null)
+        {
+            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            return await con.ExecuteScalarAsync<TResult>(sql, param, transaction: DbTransaction);
         }
         /// <summary>
         /// 执行查询 返回第一条结果
@@ -629,8 +945,21 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
         {
+            var task = GetScalarAsync<TResult>(sql, dic);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据SQL语句，或存储过程 查询实体
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="dic"></param>
+        /// <param name="cmdType"></param>
+        /// <returns></returns>
+        public virtual async Task<IEnumerable<TResult>> QueryBySqlAsync<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.ExecuteScalar<TResult>(sql, param, transaction: DbTransaction);
+            return await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
         }
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
@@ -642,8 +971,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
         {
-            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.Query<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
+            var task = QueryBySqlAsync<TResult>(sql, dic, cmdType);
+            return task.Result;
         }
         /// <summary>
         /// 判断XML文件载入的状态
@@ -678,13 +1007,39 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="id"></param>
         /// <param name="dic"></param>
         /// <returns></returns>
-        public bool ExecuteXml(string id, Dictionary<string, string> dic = null)
+        public async Task<bool> ExecuteXmlAsync(string id, Dictionary<string, string> dic = null)
         {
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
             DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
-            return ExecuteSql(sql, dic);
+            return await ExecuteSqlAsync(sql, dic);
+        }
+        /// <summary>
+        /// 从XML中获取SQL执行
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public bool ExecuteXml(string id, Dictionary<string, string> dic = null)
+        {
+            var task = ExecuteXmlAsync(id, dic);
+            return task.Result;
+        }
+        /// <summary>
+        /// 从XML中获取SQL查询
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<TResult>> QueryXmlAsync<TResult>(string id, Dictionary<string, string> dic = null)
+        {
+            XmlSqlModel xsm = CheckXml(id, out string msg);
+            if (xsm == null)
+                throw new Exception(msg);
+            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            return await QueryBySqlAsync<TResult>(sql, dic);
         }
         /// <summary>
         /// 从XML中获取SQL查询
@@ -695,11 +1050,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public IEnumerable<TResult> QueryXml<TResult>(string id, Dictionary<string, string> dic = null)
         {
-            XmlSqlModel xsm = CheckXml(id, out string msg);
-            if (xsm == null)
-                throw new Exception(msg);
-            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
-            return QueryBySql<TResult>(sql, dic);
+            var task = QueryXmlAsync<TResult>(id, dic);
+            return task.Result;
         }
         /// <summary>
         /// 获取事务提供

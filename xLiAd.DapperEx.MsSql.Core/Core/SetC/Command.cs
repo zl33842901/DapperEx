@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Model;
@@ -54,88 +55,120 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             Throws = throws;
         }
 
-        public int Update(T entity)
+        public async Task<int> UpdateAsync(T entity)
         {
             SqlProvider.FormatUpdate(entity);
             SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
-        public int Delete<TKey>(TKey id)
+        public int Update(T entity)
+        {
+            var task = UpdateAsync(entity);
+            return task.Result;
+        }
+        public async Task<int> DeleteAsync<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
             SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+        }
+        public int Delete<TKey>(TKey id)
+        {
+            var task = DeleteAsync(id);
+            return task.Result;
         }
 
-        public int Update(Expression<Func<T, T>> updateExpression)
+        public async Task<int> UpdateAsync(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
             SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
-        public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
+        public int Update(Expression<Func<T, T>> updateExpression)
+        {
+            var task = UpdateAsync(updateExpression);
+            return task.Result;
+        }
+        public async Task<int> UpdateAsync(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             SqlProvider.FormatUpdateZhanglei(model, updateExpression);
             SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
-        public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
+        public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
+        {
+            var task = UpdateAsync(model, updateExpression);
+            return task.Result;
+        }
+        public async Task<int> UpdateAsync<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             SqlProvider.FormatUpdateZhanglei(expression, value);
             SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+        }
+        public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
+        {
+            var task = UpdateAsync(expression, value);
+            return task.Result;
         }
 
-        public int Delete()
+        public async Task<int> DeleteAsync()
         {
             SqlProvider.FormatDelete();
             SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
-
-        //public int Insert(T entity)
-        //{
-        //    SqlProvider.FormatInsert(entity);
-
-        //    return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-        //}
-
-        public int Insert(T entity)
+        public int Delete()
+        {
+            var task = DeleteAsync();
+            return task.Result;
+        }
+        public async Task<int> InsertAsync(T entity)
         {
             SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
             SetSql();
             if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Int)
             {
-                var id = DbCon.ExecuteScalar<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                var id = await DbCon.ExecuteScalarAsync<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
                 return id;
             }
             else if(isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Guid)
             {
-                var gi = DbCon.ExecuteScalar<Guid>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                var gi = await DbCon.ExecuteScalarAsync<Guid>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
                 property.SetValue(entity, gi);
                 return 1;
             }
             else
             {
-                var r = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                var r = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
                 return r;
             }
         }
-        public int Insert(IEnumerable<T> entitys)
+        public int Insert(T entity)
+        {
+            var task = InsertAsync(entity);
+            return task.Result;
+        }
+        public async Task<int> InsertAsync(IEnumerable<T> entitys)
         {
             if (entitys.Count() < 1)
                 return 0;
             SqlProvider.FormatInsert(entitys.First(), out var isHaveIdentity,out var _, true);
             SetSql();
-            var rst = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
+            var rst = await DbCon.ExecuteAsync(SqlProvider.SqlString, entitys, _dbTransaction);
             return rst;
         }
+        public int Insert(IEnumerable<T> entitys)
+        {
+            var task = InsertAsync(entitys);
+            return task.Result;
+        }
 
-        private int Exec(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        private async Task<int> ExecAsync(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
-                return DbCon.Execute(sqlString, param, dbTransaction);
+                return await DbCon.ExecuteAsync(sqlString, param, dbTransaction);
             }
             catch(Exception e)
             {
