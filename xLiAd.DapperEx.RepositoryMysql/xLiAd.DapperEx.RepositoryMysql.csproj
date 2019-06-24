@@ -7,6 +7,7 @@
     <Description>一个轻量级的基于dapper的Mysql仓储类</Description>
     <Copyright>Copyright © zhanglei 2019</Copyright>
     <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

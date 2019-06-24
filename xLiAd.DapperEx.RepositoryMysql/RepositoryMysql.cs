@@ -1,13 +1,16 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
+using xLiAd.DapperEx.MsSql.Core.Model;
 using xLiAd.DapperEx.Repository;
 
 namespace xLiAd.DapperEx.RepositoryMysql
 {
-    public class RepositoryMysql<T> : RepositoryBase<T>, IRepository<T>
+    public class RepositoryMysql<T> : RepositoryBase<T>, IRepositoryMysql<T>
     {
         /// <summary>
         /// 初始化仓储
@@ -50,6 +53,18 @@ namespace xLiAd.DapperEx.RepositoryMysql
                 throw new Exception("已有事务实例的仓储不允许执行此操作。");
             else
                 return new TransactionProviderMysql(con, this.RepoXmlProvider, ExceptionHandler, Throws);
+        }
+
+        public async Task<PageList<T>> PageListBySqlAsync(string sql, Dictionary<string, string> dic = null)
+        {
+            var result = new PageList<T>(1, 1, 1, new List<T>());
+            return result;
+        }
+
+        public PageList<T> PageListBySql(string sql, Dictionary<string, string> dic = null)
+        {
+            var task = PageListBySqlAsync(sql, dic);
+            return task.Result;
         }
     }
 }
