@@ -47,5 +47,9 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             return new CommandSet<T>(SqlConnection, new SqlProvider<T>(), IDbTransaction);
         }
+        public CommandSet<T> CommandSet<T>(SqlProvider<T> sqlProvider, bool throws)
+        {
+            return new CommandSet<T>(SqlConnection, sqlProvider, IDbTransaction, throws);
+        }
     }
 }

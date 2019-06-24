@@ -41,7 +41,7 @@ namespace xLiad.DapperEx.Mysql.Test
                 OrderNum = OrderEnum.optionA,
                 Deleted = false
             };
-            repository.AddTrans(new DictInfo[] { rst });
+            var count = repository.AddTrans(new DictInfo[] { rst });
         }
         [Fact]
         public void TestTimeStamp()

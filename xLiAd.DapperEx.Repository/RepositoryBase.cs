@@ -148,7 +148,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         private CommandSet<T> GetCommandSet(TransContext tc)
         {
-            var cs = tc.CommandSet<T>();
+            var cs = tc.CommandSet<T>(new SqlProvider<T>(Dialect), Throws);
             this.Sql = cs;
             return cs;
         }
