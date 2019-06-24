@@ -55,15 +55,15 @@ namespace xLiAd.DapperEx.RepositoryMysql
                 return new TransactionProviderMysql(con, this.RepoXmlProvider, ExceptionHandler, Throws);
         }
 
-        public async Task<PageList<T>> PageListBySqlAsync(string sql, Dictionary<string, string> dic = null)
+        public async Task<PageList<T>> PageListBySqlAsync(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
             var result = new PageList<T>(1, 1, 1, new List<T>());
             return result;
         }
 
-        public PageList<T> PageListBySql(string sql, Dictionary<string, string> dic = null)
+        public PageList<T> PageListBySql(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
-            var task = PageListBySqlAsync(sql, dic);
+            var task = PageListBySqlAsync(sql, pageIndex, pageSize, dic);
             return task.Result;
         }
     }

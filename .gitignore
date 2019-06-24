@@ -81,3 +81,4 @@
 /xLiAd.DapperEx.RepositoryMysql/bin/Release/netstandard2.0
 /xLiAd.DapperEx.RepositoryMysql/nupkgs
 /xLiAd.DapperEx.RepositoryMysql/nupkgsSymb
+/xLiAd.DapperEx.RepositoryMysql/只发布到公司NUGET.bat

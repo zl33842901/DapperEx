@@ -9,7 +9,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
 {
     public interface IRepositoryMysql<T> : IRepository<T>
     {
-        Task<PageList<T>> PageListBySqlAsync(string sql, Dictionary<string, string> dic = null);
-        PageList<T> PageListBySql(string sql, Dictionary<string, string> dic = null);
+        Task<PageList<T>> PageListBySqlAsync(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null);
+        PageList<T> PageListBySql(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null);
     }
 }
