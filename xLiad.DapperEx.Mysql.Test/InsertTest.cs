@@ -29,6 +29,21 @@ namespace xLiad.DapperEx.Mysql.Test
             Assert.True(rst > 0);
         }
         [Fact]
+        public void Testtt()
+        {
+            var repository = RepoDict;
+            var rst = new DictInfo()
+            {
+                DictName = "哈哈哈",
+                DictType = 99,
+                Remark = "啪啪",
+                CreateTime = DateTime.Now,
+                OrderNum = OrderEnum.optionA,
+                Deleted = false
+            };
+            repository.AddTrans(new DictInfo[] { rst });
+        }
+        [Fact]
         public void TestTimeStamp()
         {
             var repoStamp = this.repoStamp;

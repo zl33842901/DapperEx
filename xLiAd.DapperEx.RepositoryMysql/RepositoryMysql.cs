@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.SetQ;
@@ -57,7 +58,10 @@ namespace xLiAd.DapperEx.RepositoryMysql
 
         public async Task<PageList<T>> PageListBySqlAsync(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
-            var result = new PageList<T>(1, 1, 1, new List<T>());
+            int count = await GetScalarAsync<int>("select count(1) from (" + sql + ") o");
+            var listsql = sql + " limit " + ((pageIndex - 1) * pageSize).ToString() + "," + pageSize;
+            var list = await QueryBySqlAsync<T>(listsql);
+            var result = new PageList<T>(pageIndex, pageSize, count, list.ToList());
             return result;
         }
 

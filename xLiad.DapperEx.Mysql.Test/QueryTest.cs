@@ -142,5 +142,11 @@ namespace xLiad.DapperEx.Mysql.Test
                     Assert.True(false);
             }
         }
+        [Fact]
+        public void TestPageListSql()
+        {
+            var repository = RepoDict;
+            var l = repository.PageListBySql("select * from DictInfo", 2, 10);
+        }
     }
 }
