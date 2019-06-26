@@ -203,7 +203,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                 SqlString = $"SELECT COUNT(1) {fromTableSql} {whereSql};";
                 if(Dialect.pageListDialectEnum == PageListDialectEnum.Mysql)
                 {
-                    SqlString += $@"select p.* from (select o.* from ({selectSql} {fromTableSql} {whereSql} {orderbySql}) o limit {pageIndex},{pageSize}) p {orderbySql}";
+                    SqlString += $@"{selectSql} {fromTableSql} {whereSql} {orderbySql} limit {(pageIndex - 1) * pageSize},{pageSize}";
                 }
                 else
                 {
