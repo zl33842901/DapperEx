@@ -72,5 +72,24 @@ namespace xLiad.DapperEx.Repository.Test
                 Assert.Equal(OrderEnum.optionB, i.OrderNum);
             }
         }
+        [Fact]
+        public void TestUpdateNotDefault()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var ddxx = new DictInfo()
+            {
+                DictID = 106092,
+                CreateTime = DateTime.Now,
+                DictType = null,
+                DictName = "某层某层会议室",
+                Remark = null,
+                Deleted = false,
+                OrderNum = OrderEnum.optionB
+            };
+            var rst = repository.UpdateNotDefault(ddxx);
+            Assert.Equal(1, rst);
+            var ddyy = repository.Find(106092);
+            Assert.Equal("今天交流的内容是DapperEx使用", ddyy.Remark);
+        }
     }
 }

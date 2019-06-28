@@ -291,6 +291,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             return new UpdateExpression(updateExpression, Dialect);
         }
 
+        public UpdateExpression ResolveUpdateNotDefault<T>(Expression<Func<T, T>> updateExpression)
+        {
+            return new UpdateNotDefaultExpression(updateExpression, Dialect);
+        }
+
         /// <summary>
         /// 更新某对象的多个字段的Update子句
         /// </summary>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,7 +10,7 @@ using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 {
-    internal sealed class UpdateExpression : SetParamVisitor
+    internal class UpdateExpression : SetParamVisitor
     {
         #region sql指令
 
@@ -42,6 +43,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         }
         #endregion
 
+        protected virtual bool SkipByOtherCondition(object o, PropertyInfo propertyInfo)
+        {
+            return false;
+        }
+
         protected override System.Linq.Expressions.Expression VisitMember(MemberExpression node)
         {
             var memberInitExpression = node;
@@ -54,6 +60,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                 if (item.CustomAttributes.Any(b => b.AttributeType == typeof(KeyAttribute)))
                     continue;
                 if (item.CustomAttributes.Any(b => b.AttributeType == typeof(NoUpdateAttribute)))
+                    continue;
+                if (SkipByOtherCondition(entity, item))
                     continue;
 
                 if (_sqlCmd.Length > 0)
@@ -95,6 +103,24 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             var n = $"@{Prefix}{paramName}";
             _sqlCmd.AppendFormat(" {0}={1} ", sqlParamName, n);
             Param.Add(n, value);
+        }
+    }
+
+    /// <summary>
+    /// 只更新值不为 default 的字段
+    /// </summary>
+    internal class UpdateNotDefaultExpression : UpdateExpression
+    {
+        public UpdateNotDefaultExpression(LambdaExpression expression, ISqlDialect dialect) : base(expression, dialect) { }
+
+        protected override bool SkipByOtherCondition(object o, PropertyInfo propertyInfo)
+        {
+            var ptype = propertyInfo.PropertyType;
+            var pvalue = propertyInfo.GetValue(o);
+            if (pvalue == null)
+                return true;
+            var defaultvalue = ptype.IsValueType ? Activator.CreateInstance(ptype) : null;
+            return pvalue.Equals(defaultvalue);
         }
     }
 }

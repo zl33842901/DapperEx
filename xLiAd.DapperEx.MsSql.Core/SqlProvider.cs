@@ -373,6 +373,21 @@ namespace xLiAd.DapperEx.MsSql.Core
 
             return this;
         }
+        public SqlProvider<T> FormatUpdateNotDefault(T entity)
+        {
+            var update = ResolveExpression.Instance(Dialect).ResolveUpdateNotDefault<T>(a => entity);
+
+            var where = ResolveExpression.Instance(Dialect).ResolveWhere(entity);
+
+            var whereSql = where.SqlCmd;
+
+            Params = where.Param;
+            Params.AddDynamicParams(update.Param);
+
+            SqlString = $"UPDATE {FormatTableName(false)} {update.SqlCmd} {whereSql}";
+
+            return this;
+        }
         public SqlProvider<T> FormatUpdateZhanglei(T entity, IEnumerable<LambdaExpression> expressionList)
         {
             var update = ResolveExpression.Instance(Dialect).ResolveUpdateZhanglei<T>(expressionList, entity);

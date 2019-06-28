@@ -766,6 +766,27 @@ namespace xLiAd.DapperEx.Repository
             return task.Result;
         }
         /// <summary>
+        /// 根据主键更新一条数据的 除主键外的值不为默认的字段
+        /// </summary>
+        /// <param name="TObject"></param>
+        /// <returns></returns>
+        public virtual async Task<int> UpdateNotDefaultAsync(T TObject)
+        {
+            var rst = await CommandSet.UpdateNotDefaultAsync(TObject);
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 根据主键更新一条数据的 除主键外的值不为默认的字段
+        /// </summary>
+        /// <param name="TObject"></param>
+        /// <returns></returns>
+        public virtual int UpdateNotDefault(T TObject)
+        {
+            var task = UpdateNotDefaultAsync(TObject);
+            return task.Result;
+        }
+        /// <summary>
         /// 根据主键更新一些数据的 除主键外的全部属性字段（事务操作）
         /// </summary>
         /// <param name="entityList"></param>

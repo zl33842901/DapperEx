@@ -66,6 +66,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             var task = UpdateAsync(entity);
             return task.Result;
         }
+        public async Task<int> UpdateNotDefaultAsync(T entity)
+        {
+            SqlProvider.FormatUpdateNotDefault(entity);
+            SetSql();
+            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+        }
+        public int UpdateNotDefault(T entity)
+        {
+            var task = UpdateNotDefaultAsync(entity);
+            return task.Result;
+        }
         public async Task<int> DeleteAsync<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
