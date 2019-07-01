@@ -412,6 +412,18 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         Task<int> UpdateWhereAsync(Expression<Func<T, bool>> predicate, T d, params Expression<Func<T, object>>[] efdbd);
         /// <summary>
+        /// 根据主键更新一条数据的 除主键外的值不为默认的字段
+        /// </summary>
+        /// <param name="TObject"></param>
+        /// <returns></returns>
+        Task<int> UpdateNotDefaultAsync(T TObject);
+        /// <summary>
+        /// 根据主键更新一条数据的 除主键外的值不为默认的字段
+        /// </summary>
+        /// <param name="TObject"></param>
+        /// <returns></returns>
+        int UpdateNotDefault(T TObject);
+        /// <summary>
         /// 执行SQL语句
         /// </summary>
         /// <param name="sql">SQL语句</param>
