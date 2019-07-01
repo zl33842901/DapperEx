@@ -64,7 +64,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                                 }
                             }
                             else
-                                return expression;
+                                return u;
                         }
                         else if(expression.NodeType == ExpressionType.Constant)
                         {
@@ -131,9 +131,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             exp = Sub(exp);
             try
             {
-                return base.Visit(exp);
+                var result = base.Visit(exp);
+                return result;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return exp;
             }

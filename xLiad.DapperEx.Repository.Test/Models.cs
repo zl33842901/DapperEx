@@ -47,7 +47,16 @@ namespace xLiad.DapperEx.Repository.Test
         optionA = 1,
         optionB = 2
     }
-
+    [Table("DictInfo")]
+    public class DictInfo2
+    {
+        [Identity]
+        [Key]
+        public int? DictID { get; set; }
+        public string DictName { get; set; }
+        public OrderEnum OrderNum { get; set; }
+        public int DictType { get; set; }
+    }
     public class TestStamp
     {
         [Key]

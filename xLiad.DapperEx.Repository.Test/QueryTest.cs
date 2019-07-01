@@ -31,6 +31,106 @@ namespace xLiad.DapperEx.Repository.Test
             Assert.Equal(2, rst.Count);
         }
         [Fact]
+        public void TestWhere2()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            int? id = 106071;
+            var rst = repository.Where(x => x.DictID == id);
+            Assert.Single(rst);
+        }
+        [Fact]
+        public void TestWhere3()
+        {
+            var repository = new Repository<DictInfo2>(Conn);
+            int? id = 106071;
+            var rst = repository.Where(x => x.DictID == id);
+            Assert.Single(rst);
+        }
+        [Fact]
+        public void TestWhere4()
+        {
+            var repository = new Repository<DictInfo2>(Conn);
+            int id = 106071;
+            var rst = repository.Where(x => x.DictID == id);
+            Assert.Single(rst);
+        }
+        [Fact]
+        public void TestWhere5()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            OrderEnum orderEnum = OrderEnum.optionA;
+            var rst = repository.Where(x => x.OrderNum == orderEnum);
+            Assert.NotEmpty(rst);
+            foreach(var item in rst)
+            {
+                Assert.Equal(OrderEnum.optionA, item.OrderNum);
+            }
+        }
+        [Fact]
+        public void TestWhere6()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            OrderEnum? orderEnum = OrderEnum.optionA;
+            var rst = repository.Where(x => x.OrderNum == orderEnum);
+            Assert.NotEmpty(rst);
+            foreach (var item in rst)
+            {
+                Assert.Equal(OrderEnum.optionA, item.OrderNum);
+            }
+        }
+        [Fact]
+        public void TestWhere7()
+        {
+            var repository = new Repository<DictInfo2>(Conn);
+            OrderEnum orderEnum = OrderEnum.optionA;
+            var rst = repository.Where(x => x.OrderNum == orderEnum);
+            Assert.NotEmpty(rst);
+            foreach (var item in rst)
+            {
+                Assert.Equal(OrderEnum.optionA, item.OrderNum);
+            }
+        }
+        [Fact]
+        public void TestWhere8()
+        {
+            var repository = new Repository<DictInfo2>(Conn);
+            OrderEnum? orderEnum = OrderEnum.optionA;
+            var rst = repository.Where(x => x.OrderNum == orderEnum);
+            Assert.NotEmpty(rst);
+            foreach (var item in rst)
+            {
+                Assert.Equal(OrderEnum.optionA, item.OrderNum);
+            }
+        }
+        [Fact]
+        public void TestWhere9()
+        {
+            var repository = new Repository<DictInfo2>(Conn);
+            var rst = repository.Where(x => x.OrderNum == null);
+            Assert.Empty(rst);
+        }
+        [Fact]
+        public void TestWhere10()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var rst = repository.Where(x => x.OrderNum == null);
+            Assert.Empty(rst);
+        }
+        [Fact]
+        public void TestWhere11()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var rst = repository.Where(x => x.DictID == null);
+            Assert.Empty(rst);
+        }
+        [Fact]
+        public void TestWhere12()
+        {
+            var repository = new Repository<DictInfo2>(Conn);
+            var rst = repository.Where(x => x.DictID == null);
+            Assert.Empty(rst);
+        }
+        [Fact]
         public void TestWhereAndFind()
         {
             var repository = new Repository<DictInfo>(Conn);
