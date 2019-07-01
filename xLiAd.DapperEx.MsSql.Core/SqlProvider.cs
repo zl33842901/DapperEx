@@ -520,7 +520,7 @@ namespace xLiAd.DapperEx.MsSql.Core
                 }
 
                 var name = property.GetColumnAttributeName(Dialect);//带方言符号的名称  如 [Title]
-                var namenw = property.GetColumnAttributeName();//不带方言符号的纯名称  如  Title
+                var namenw = property.Name;//不带方言符号的纯名称  如  Title
 
                 paramSqlBuilder.Append(name);
 
