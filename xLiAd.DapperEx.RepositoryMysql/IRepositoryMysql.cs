@@ -11,5 +11,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
     {
         Task<PageList<T>> PageListBySqlAsync(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null);
         PageList<T> PageListBySql(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null);
+        Task<PageList<TResult>> PageListBySqlAsync<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null);
+        PageList<TResult> PageListBySql<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null);
     }
 }
