@@ -53,7 +53,7 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="exceptionHandler"></param>
         /// <param name="throws"></param>
         /// <param name="_tran">事务</param>
-        public Repository(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true, IDbTransaction _tran = null)
+        public Repository(IDbConnection _con, RepoXmlProvider repoXmlProvider, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler, bool throws, IDbTransaction _tran)
             : base(_con, repoXmlProvider, exceptionHandler, throws, _tran)
         {
 
