@@ -70,5 +70,19 @@ namespace xLiAd.DapperEx.RepositoryMysql
             var task = PageListBySqlAsync(sql, pageIndex, pageSize, dic);
             return task.Result;
         }
+        public async Task<PageList<TResult>> PageListBySqlAsync<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
+        {
+            int count = await GetScalarAsync<int>("select count(1) from (" + sql + ") o");
+            var listsql = sql + " limit " + ((pageIndex - 1) * pageSize).ToString() + "," + pageSize;
+            var list = await QueryBySqlAsync<TResult>(listsql);
+            var result = new PageList<TResult>(pageIndex, pageSize, count, list.ToList());
+            return result;
+        }
+
+        public PageList<TResult> PageListBySql<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
+        {
+            var task = PageListBySqlAsync<TResult>(sql, pageIndex, pageSize, dic);
+            return task.Result;
+        }
     }
 }
