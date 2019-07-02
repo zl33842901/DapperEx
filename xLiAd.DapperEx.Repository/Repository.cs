@@ -45,7 +45,7 @@ namespace xLiAd.DapperEx.Repository
         {
 
         }
-        internal Repository(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true, IDbTransaction _tran = null)
+        public Repository(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true, IDbTransaction _tran = null)
             : base(_con, repoXmlProvider, exceptionHandler, throws, _tran)
         {
 
