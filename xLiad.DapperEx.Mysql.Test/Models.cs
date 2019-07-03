@@ -62,4 +62,22 @@ namespace xLiad.DapperEx.Mysql.Test
         [Timestamp]
         public string ROWVERSION { get; set; }
     }
+
+    public class TestTimeStamp
+    {
+        [Key]
+        [Identity]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime CreateTime { get; set; }
+    }
+    [Table("TestTimeStamp")]
+    public class TestTimeStamp2
+    {
+        [Key]
+        [Identity]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime? CreateTime { get; set; }
+    }
 }
