@@ -24,7 +24,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
         /// <returns></returns>
         public override IRepository<T> GetRepository<T>()
         {
-            return new RepositoryMysql<T>(Connection, this.RepoXmlProvider, ExExceptionHandler, Throws, Transaction);
+            return new RepositoryMysql<T>(Transaction, this.RepoXmlProvider, ExExceptionHandler, Throws);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace xLiAd.DapperEx.RepositoryPg
         /// <returns></returns>
         public override IRepository<T> GetRepository<T>()
         {
-            return new RepositoryPg<T>(Connection, this.RepoXmlProvider, ExExceptionHandler, Throws, Transaction);
+            return new RepositoryPg<T>(Transaction, this.RepoXmlProvider, ExExceptionHandler, Throws);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public override IRepository<T> GetRepository<T>()
         {
-            return new Repository<T>(Connection, this.RepoXmlProvider, ExExceptionHandler, Throws, Transaction);
+            return new Repository<T>(Transaction, this.RepoXmlProvider, ExExceptionHandler, Throws);
         }
     }
 }

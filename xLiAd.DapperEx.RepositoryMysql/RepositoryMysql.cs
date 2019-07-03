@@ -30,8 +30,8 @@ namespace xLiAd.DapperEx.RepositoryMysql
         {
 
         }
-        public RepositoryMysql(IDbConnection _con, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true, IDbTransaction _tran = null)
-            : base(_con, repoXmlProvider, exceptionHandler, throws, _tran)
+        public RepositoryMysql(IDbTransaction _tran, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+            : base(_tran.Connection, repoXmlProvider, exceptionHandler, throws, _tran)
         {
 
         }
