@@ -297,6 +297,30 @@ namespace xLiAd.DapperEx.MsSql.Core
         //    SqlString = Context.CommandSet.IfNotExistsExpression != null ? $"IF NOT EXISTS ( SELECT  1 FROM {FormatTableName(false)} {ifnotexistsWhere.SqlCmd} ) INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}" : $"INSERT INTO {FormatTableName(false)} {paramsAndValuesSql}";
         //    return this;
         //}
+
+        internal void SetAutoDateTime(T entity)
+        {
+            var autoDateTimeProperties = typeof(T).GetPropertiesInDb(false).Where(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(AutoDateTimeWhenInsertAttribute))).ToArray();
+
+            foreach (var pro in autoDateTimeProperties)
+            {
+                var att = pro.CustomAttributes.Where(b => b.AttributeType == typeof(AutoDateTimeWhenInsertAttribute)).FirstOrDefault();
+                var attValue = att.NamedArguments.FirstOrDefault();
+                int attIntValue = (attValue.TypedValue.Value as int?) ?? 0;
+                if (pro.PropertyType == typeof(DateTime) || pro.PropertyType == typeof(DateTime?))
+                {
+                    var proV = pro.GetValue(entity) as Nullable<DateTime>;
+                    if (proV == null || proV == DateTime.MinValue)
+                        pro.SetValue(entity, AutoDateTimeValue.Values[attIntValue]);
+                }
+                else if (pro.PropertyType == typeof(DateTimeOffset) || pro.PropertyType == typeof(DateTimeOffset?))
+                {
+                    var proV = pro.GetValue(entity) as Nullable<DateTimeOffset>;
+                    if (proV == null || proV == DateTimeOffset.MinValue)
+                        pro.SetValue(entity, AutoDateTimeOffsetValue.Values[attIntValue]);
+                }
+            }
+        }
         /// <summary>
         /// 添加记录
         /// </summary>
@@ -307,6 +331,8 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             //标识属性
             identityProperty = typeof(T).GetPropertiesInDb(false).FirstOrDefault(x => x.CustomAttributes.Any(b => b.AttributeType == typeof(IdentityAttribute)));
+
+            SetAutoDateTime(entity);
             var paramsAndValuesSql = multiInsert ? FormatInsertParamsAndValues(entity,null) : FormatInsertParamsAndValues(entity, identityProperty);
 
             var ifnotexistsWhere = ResolveExpression.Instance(Dialect).ResolveWhere(Context.CommandSet.IfNotExistsExpression, "INE_");

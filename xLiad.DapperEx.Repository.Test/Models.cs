@@ -23,8 +23,8 @@ namespace xLiad.DapperEx.Repository.Test
         /// 只读属性自动 NotMapped
         /// </summary>
         public string DictName2 => DictName;
-        [NoUpdate]
-        public DateTime CreateTime { get; set; }
+        [NoUpdate, AutoDateTimeWhenInsert]
+        public DateTime? CreateTime { get; set; }
         public bool Deleted { get; set; }
         /// <summary>
         /// 支持枚举属性

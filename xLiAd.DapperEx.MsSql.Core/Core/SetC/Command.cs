@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -164,8 +165,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         {
             if (entitys.Count() < 1)
                 return 0;
-            SqlProvider.FormatInsert(entitys.First(), out var isHaveIdentity,out var _, true);
+            SqlProvider.FormatInsert(entitys.First(), out var _,out var _, true);
             SetSql();
+            foreach(var item in entitys)
+            {
+                SqlProvider.SetAutoDateTime(item);
+            }
             var rst = await DbCon.ExecuteAsync(SqlProvider.SqlString, entitys, _dbTransaction);
             return rst;
         }
