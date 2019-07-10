@@ -483,10 +483,28 @@ namespace xLiAd.DapperEx.Repository
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="cmdType"></param>
+        /// <returns></returns>
+        IEnumerable<TResult> QueryBySql<TResult>(string sql, object param = null, CommandType cmdType = CommandType.Text);
+        /// <summary>
+        /// 根据SQL语句，或存储过程 查询实体
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
         /// <param name="dic"></param>
         /// <param name="cmdType"></param>
         /// <returns></returns>
         Task<IEnumerable<TResult>> QueryBySqlAsync<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text);
+        /// <summary>
+        /// 根据SQL语句，或存储过程 查询实体
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param">参数</param>
+        /// <param name="cmdType"></param>
+        /// <returns></returns>
+        Task<IEnumerable<TResult>> QueryBySqlAsync<TResult>(string sql, object param = null, CommandType cmdType = CommandType.Text);
         /// <summary>
         /// 从XML中获取SQL执行
         /// </summary>

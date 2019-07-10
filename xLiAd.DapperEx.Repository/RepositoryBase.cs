@@ -987,12 +987,37 @@ namespace xLiAd.DapperEx.Repository
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
+        /// <param name="param">参数</param>
+        /// <param name="cmdType"></param>
+        /// <returns></returns>
+        public virtual async Task<IEnumerable<TResult>> QueryBySqlAsync<TResult>(string sql, object param = null, CommandType cmdType = CommandType.Text)
+        {
+            return await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
+        }
+        /// <summary>
+        /// 根据SQL语句，或存储过程 查询实体
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
         /// <param name="dic"></param>
         /// <param name="cmdType"></param>
         /// <returns></returns>
         public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
         {
             var task = QueryBySqlAsync<TResult>(sql, dic, cmdType);
+            return task.Result;
+        }
+        /// <summary>
+        /// 根据SQL语句，或存储过程 查询实体
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="cmdType"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, object param = null, CommandType cmdType = CommandType.Text)
+        {
+            var task = QueryBySqlAsync<TResult>(sql, param, cmdType);
             return task.Result;
         }
         /// <summary>
