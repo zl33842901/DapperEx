@@ -82,3 +82,7 @@
 /xLiAd.DapperEx.RepositoryMysql/nupkgs
 /xLiAd.DapperEx.RepositoryMysql/nupkgsSymb
 /xLiAd.DapperEx.RepositoryMysql/只发布到公司NUGET.bat
+/xLiad.DapperEx.Oracle.Test/bin
+/xLiad.DapperEx.Oracle.Test/obj
+/xLiAd.DapperEx.RepositoryOracle/bin
+/xLiAd.DapperEx.RepositoryOracle/obj

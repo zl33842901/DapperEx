@@ -17,9 +17,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.Repository.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.PostgreSql.Test", "xLiad.DapperEx.PostgreSql.Test\xLiad.DapperEx.PostgreSql.Test.csproj", "{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiAd.DapperEx.RepositoryMysql", "xLiAd.DapperEx.RepositoryMysql\xLiAd.DapperEx.RepositoryMysql.csproj", "{D7B1603A-67B2-4356-9521-364C24B0740C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiAd.DapperEx.RepositoryMysql", "xLiAd.DapperEx.RepositoryMysql\xLiAd.DapperEx.RepositoryMysql.csproj", "{D7B1603A-67B2-4356-9521-364C24B0740C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Mysql.Test", "xLiad.DapperEx.Mysql.Test\xLiad.DapperEx.Mysql.Test.csproj", "{4867C7F6-1101-4D89-95F4-11670B2BF65A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.Mysql.Test", "xLiad.DapperEx.Mysql.Test\xLiad.DapperEx.Mysql.Test.csproj", "{4867C7F6-1101-4D89-95F4-11670B2BF65A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiAd.DapperEx.RepositoryOracle", "xLiAd.DapperEx.RepositoryOracle\xLiAd.DapperEx.RepositoryOracle.csproj", "{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Oracle.Test", "xLiad.DapperEx.Oracle.Test\xLiad.DapperEx.Oracle.Test.csproj", "{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +63,14 @@ Global
 		{4867C7F6-1101-4D89-95F4-11670B2BF65A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4867C7F6-1101-4D89-95F4-11670B2BF65A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4867C7F6-1101-4D89-95F4-11670B2BF65A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +79,7 @@ Global
 		{D8F996AB-A63A-4ABC-BBC0-1E196014BBF2} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 		{4867C7F6-1101-4D89-95F4-11670B2BF65A} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
+		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {227769BC-3B0D-496D-9C39-FA16BD236A02}

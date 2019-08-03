@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>张磊</Authors>
+    <Company>张磊 xLiAd</Company>
+    <Description>一个轻量级的基于dapper的Oracle仓储类</Description>
+    <Copyright>Copyright © zhanglei 2019</Copyright>
+    <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xLiAd.DapperEx.Repository\xLiAd.DapperEx.Repository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Oracle.ManagedDataAccess.Core">
+      <Version>2.19.31</Version>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

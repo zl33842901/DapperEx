@@ -60,7 +60,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
         {
             int count = await GetScalarAsync<int>("select count(1) from (" + sql + ") o");
             var listsql = sql + " limit " + ((pageIndex - 1) * pageSize).ToString() + "," + pageSize;
-            var list = await QueryBySqlAsync<T>(listsql);
+            var list = await QueryBySqlAsync<T>(listsql, param: null);
             var result = new PageList<T>(pageIndex, pageSize, count, list.ToList());
             return result;
         }
@@ -74,7 +74,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
         {
             int count = await GetScalarAsync<int>("select count(1) from (" + sql + ") o");
             var listsql = sql + " limit " + ((pageIndex - 1) * pageSize).ToString() + "," + pageSize;
-            var list = await QueryBySqlAsync<TResult>(listsql);
+            var list = await QueryBySqlAsync<TResult>(listsql, param: null);
             var result = new PageList<TResult>(pageIndex, pageSize, count, list.ToList());
             return result;
         }
