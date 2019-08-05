@@ -904,45 +904,46 @@ namespace xLiAd.DapperEx.Repository
         /// 执行SQL语句
         /// </summary>
         /// <param name="sql">SQL语句</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <param name="cmdType">命令类别</param>
         /// <returns></returns>
-        public virtual async Task<bool> ExecuteSqlAsync(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        public virtual async Task<bool> ExecuteSqlAsync(string sql, object param = null, CommandType cmdType = CommandType.Text)
         {
-            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            if(param is Dictionary<string, string> dic)
+                param = ConvertDicToParam(dic, null, out string _);
             return await con.ExecuteAsync(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
         }
         /// <summary>
         /// 执行SQL语句
         /// </summary>
         /// <param name="sql">SQL语句</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <param name="cmdType">命令类别</param>
         /// <returns></returns>
-        public virtual bool ExecuteSql(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
+        public virtual bool ExecuteSql(string sql, object param = null, CommandType cmdType = CommandType.Text)
         {
-            var task = ExecuteSqlAsync(sql, dic, cmdType);
+            var task = ExecuteSqlAsync(sql, param, cmdType);
             return task.Result;
         }
         /// <summary>
         /// 执行存储过程
         /// </summary>
         /// <param name="procedureName">存储过程</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <returns></returns>
-        public virtual async Task<bool> ExecuteProcedureAsync(string procedureName, Dictionary<string, string> dic = null)
+        public virtual async Task<bool> ExecuteProcedureAsync(string procedureName, object param = null)
         {
-            return await ExecuteSqlAsync(procedureName, dic, CommandType.StoredProcedure);
+            return await ExecuteSqlAsync(procedureName, param, CommandType.StoredProcedure);
         }
         /// <summary>
         /// 执行存储过程
         /// </summary>
         /// <param name="procedureName">存储过程</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <returns></returns>
-        public virtual bool ExecuteProcedure(string procedureName, Dictionary<string, string> dic = null)
+        public virtual bool ExecuteProcedure(string procedureName, object param = null)
         {
-            var task = ExecuteProcedureAsync(procedureName, dic);
+            var task = ExecuteProcedureAsync(procedureName, param);
             return task.Result;
         }
         /// <summary>
@@ -969,19 +970,6 @@ namespace xLiAd.DapperEx.Repository
             var task = GetScalarAsync<TResult>(sql, dic);
             return task.Result;
         }
-        ///// <summary>
-        ///// 根据SQL语句，或存储过程 查询实体
-        ///// </summary>
-        ///// <typeparam name="TResult"></typeparam>
-        ///// <param name="sql"></param>
-        ///// <param name="dic"></param>
-        ///// <param name="cmdType"></param>
-        ///// <returns></returns>
-        //public virtual async Task<IEnumerable<TResult>> QueryBySqlAsync<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
-        //{
-        //    DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-        //    return await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
-        //}
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
         /// </summary>
@@ -998,19 +986,6 @@ namespace xLiAd.DapperEx.Repository
             }
             return await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
         }
-        ///// <summary>
-        ///// 根据SQL语句，或存储过程 查询实体
-        ///// </summary>
-        ///// <typeparam name="TResult"></typeparam>
-        ///// <param name="sql"></param>
-        ///// <param name="dic"></param>
-        ///// <param name="cmdType"></param>
-        ///// <returns></returns>
-        //public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text)
-        //{
-        //    var task = QueryBySqlAsync<TResult>(sql, dic, cmdType);
-        //    return task.Result;
-        //}
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
         /// </summary>

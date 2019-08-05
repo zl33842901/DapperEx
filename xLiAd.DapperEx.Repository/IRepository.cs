@@ -427,32 +427,32 @@ namespace xLiAd.DapperEx.Repository
         /// 执行SQL语句
         /// </summary>
         /// <param name="sql">SQL语句</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <param name="cmdType">命令类别</param>
         /// <returns></returns>
-        bool ExecuteSql(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text);
+        bool ExecuteSql(string sql, object param = null, CommandType cmdType = CommandType.Text);
         /// <summary>
         /// 执行SQL语句
         /// </summary>
         /// <param name="sql">SQL语句</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <param name="cmdType">命令类别</param>
         /// <returns></returns>
-        Task<bool> ExecuteSqlAsync(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text);
+        Task<bool> ExecuteSqlAsync(string sql, object param = null, CommandType cmdType = CommandType.Text);
         /// <summary>
         /// 执行存储过程
         /// </summary>
         /// <param name="procedureName">存储过程</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <returns></returns>
-        bool ExecuteProcedure(string procedureName, Dictionary<string, string> dic = null);
+        bool ExecuteProcedure(string procedureName, object param = null);
         /// <summary>
         /// 执行存储过程
         /// </summary>
         /// <param name="procedureName">存储过程</param>
-        /// <param name="dic">参数</param>
+        /// <param name="param">参数</param>
         /// <returns></returns>
-        Task<bool> ExecuteProcedureAsync(string procedureName, Dictionary<string, string> dic = null);
+        Task<bool> ExecuteProcedureAsync(string procedureName, object param = null);
         /// <summary>
         /// 执行查询 返回第一条结果
         /// </summary>
@@ -469,15 +469,6 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="dic"></param>
         /// <returns></returns>
         Task<TResult> GetScalarAsync<TResult>(string sql, Dictionary<string, string> dic = null);
-        ///// <summary>
-        ///// 根据SQL语句，或存储过程 查询实体
-        ///// </summary>
-        ///// <typeparam name="TResult"></typeparam>
-        ///// <param name="sql"></param>
-        ///// <param name="dic"></param>
-        ///// <param name="cmdType"></param>
-        ///// <returns></returns>
-        //IEnumerable<TResult> QueryBySql<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text);
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
         /// </summary>
@@ -487,15 +478,6 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="cmdType"></param>
         /// <returns></returns>
         IEnumerable<TResult> QueryBySql<TResult>(string sql, object param = null, CommandType cmdType = CommandType.Text);
-        ///// <summary>
-        ///// 根据SQL语句，或存储过程 查询实体
-        ///// </summary>
-        ///// <typeparam name="TResult"></typeparam>
-        ///// <param name="sql"></param>
-        ///// <param name="dic"></param>
-        ///// <param name="cmdType"></param>
-        ///// <returns></returns>
-        //Task<IEnumerable<TResult>> QueryBySqlAsync<TResult>(string sql, Dictionary<string, string> dic = null, CommandType cmdType = CommandType.Text);
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
         /// </summary>
