@@ -173,7 +173,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual List<T> All()
         {
             var task = AllAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件获取数据
@@ -194,7 +194,7 @@ namespace xLiAd.DapperEx.Repository
         public List<T> Where(Expression<Func<T, bool>> predicate)
         {
             var task = WhereAsync(predicate);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 只获取指定字段
@@ -217,7 +217,7 @@ namespace xLiAd.DapperEx.Repository
         public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd)
         {
             var task = WhereAsync(predicate, efdbd);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件获取数据并投影。
@@ -243,7 +243,7 @@ namespace xLiAd.DapperEx.Repository
         public List<TResult> WhereSelect<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
         {
             var task = WhereSelectAsync(predicate, selector);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件排序查询
@@ -286,7 +286,7 @@ namespace xLiAd.DapperEx.Repository
         public List<T> WhereOrder<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, int top = 0, bool desc = false)
         {
             var task = WhereOrderAsync(predicate, order, top, desc);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件排序查询 并投影
@@ -323,7 +323,7 @@ namespace xLiAd.DapperEx.Repository
         public List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0)
         {
             var task = WhereOrderSelectAsync(predicate, order, selector, top);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 单条数据插入  请在标识属性上加 Identity 特性
@@ -344,7 +344,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual int Add(T obj)
         {
             var task = AddAsync(obj);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 多条数据插入  请在标识属性上加 Identity 特性
@@ -365,7 +365,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual int Add(IEnumerable<T> objs)
         {
             var task = AddAsync(objs);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 多条数据插入(事务操作)  请在标识属性上加 Identity 特性
@@ -417,7 +417,7 @@ namespace xLiAd.DapperEx.Repository
         public PageList<T> PageList<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> orderBy, int pageindex = 1, int pagesize = 50, bool desc = false)
         {
             var task = PageListAsync(filter, orderBy, pageindex, pagesize, desc);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件分页（多排序条件）
@@ -453,7 +453,7 @@ namespace xLiAd.DapperEx.Repository
         public PageList<T> PageList(Expression<Func<T, bool>> filter, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
         {
             var task = PageListAsync(filter, pageindex, pagesize, orders);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件分页（两个排序条件）
@@ -500,7 +500,7 @@ namespace xLiAd.DapperEx.Repository
         public PageList<T> PageList<TKey1, TKey2>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey1>> order1, bool order1Desc, Expression<Func<T, TKey2>> order2, bool order2Desc, int pageindex = 1, int pagesize = 50)
         {
             var task = PageListAsync(filter, order1, order1Desc, order2, order2Desc, pageindex, pagesize);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件排序分页 并投影
@@ -540,7 +540,7 @@ namespace xLiAd.DapperEx.Repository
         public PageList<TResult> PageListSelect<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector, int pageindex = 1, int pagesize = 50, params Tuple<Expression<Func<T, object>>, SortOrder>[] orders)
         {
             var task = PageListSelectAsync(filter, selector, pageindex, pagesize, orders);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件获取一条数据
@@ -561,7 +561,7 @@ namespace xLiAd.DapperEx.Repository
         public T Find(Expression<Func<T, bool>> predicate)
         {
             var task = FindAsync(predicate);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据主键获取一条数据（实体类需要设置主键 在主键属性上加 Key特性）
@@ -584,7 +584,7 @@ namespace xLiAd.DapperEx.Repository
         public T Find<TKey>(TKey id)
         {
             var task = FindAsync(id);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件获取一条数据并投影
@@ -609,7 +609,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual TResult FindField<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> keySelector)
         {
             var task = FindFieldAsync(predicate, keySelector);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件取得数据数量
@@ -630,7 +630,7 @@ namespace xLiAd.DapperEx.Repository
         public int Count(Expression<Func<T, bool>> predicate)
         {
             var task = CountAsync(predicate);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 是否存在符合条件的记录
@@ -649,7 +649,7 @@ namespace xLiAd.DapperEx.Repository
         public bool Exist(Expression<Func<T, bool>> predicate)
         {
             var task = ExistAsync(predicate);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private int? countAll = null;
@@ -683,7 +683,7 @@ namespace xLiAd.DapperEx.Repository
         public int Count(bool setSql = true)
         {
             var task = CountAsync(setSql);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件删除数据
@@ -704,7 +704,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual int Delete(Expression<Func<T, bool>> predicate)
         {
             var task = DeleteAsync(predicate);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据主键删除数据（实体类需要设置主键 在主键属性上加 Key特性）
@@ -725,7 +725,7 @@ namespace xLiAd.DapperEx.Repository
         public int Delete<TKey>(TKey id)
         {
             var task = DeleteAsync(id);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据主键删除数据(事务操作)（实体类需要设置主键 在主键属性上加 Key特性）
@@ -763,7 +763,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual int Update(T TObject)
         {
             var task = UpdateAsync(TObject);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据主键更新一条数据的 除主键外的值不为默认的字段
@@ -784,7 +784,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual int UpdateNotDefault(T TObject)
         {
             var task = UpdateNotDefaultAsync(TObject);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据主键更新一些数据的 除主键外的全部属性字段（事务操作）
@@ -823,7 +823,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual int Update(T d, params Expression<Func<T, object>>[] efdbd)
         {
             var task = UpdateAsync(d, efdbd);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件更新某个字段
@@ -850,7 +850,7 @@ namespace xLiAd.DapperEx.Repository
         public int UpdateWhere<TKey>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> key, TKey value)
         {
             var task = UpdateWhereAsync(predicate, key, value);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据条件更新若干字段
@@ -875,7 +875,7 @@ namespace xLiAd.DapperEx.Repository
         public int UpdateWhere(Expression<Func<T, bool>> predicate, T d, params Expression<Func<T, object>>[] efdbd)
         {
             var task = UpdateWhereAsync(predicate, d, efdbd);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 把参数字典转换为动态参数， 并替换语句中的转义参数名（如果有的话）
@@ -923,7 +923,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual bool ExecuteSql(string sql, object param = null, CommandType cmdType = CommandType.Text)
         {
             var task = ExecuteSqlAsync(sql, param, cmdType);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 执行存储过程
@@ -944,7 +944,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual bool ExecuteProcedure(string procedureName, object param = null)
         {
             var task = ExecuteProcedureAsync(procedureName, param);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 执行查询 返回第一条结果
@@ -968,7 +968,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
         {
             var task = GetScalarAsync<TResult>(sql, dic);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
@@ -997,7 +997,7 @@ namespace xLiAd.DapperEx.Repository
         public virtual IEnumerable<TResult> QueryBySql<TResult>(string sql, object param = null, CommandType cmdType = CommandType.Text)
         {
             var task = QueryBySqlAsync<TResult>(sql, param, cmdType);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 判断XML文件载入的状态
@@ -1049,7 +1049,7 @@ namespace xLiAd.DapperEx.Repository
         public bool ExecuteXml(string id, Dictionary<string, string> dic = null)
         {
             var task = ExecuteXmlAsync(id, dic);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 从XML中获取SQL查询
@@ -1076,7 +1076,7 @@ namespace xLiAd.DapperEx.Repository
         public IEnumerable<TResult> QueryXml<TResult>(string id, Dictionary<string, string> dic = null)
         {
             var task = QueryXmlAsync<TResult>(id, dic);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         /// <summary>
         /// 获取事务提供

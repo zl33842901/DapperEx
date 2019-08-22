@@ -68,7 +68,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public T Get()
         {
             var task = GetAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<T> GetAsync<TKey>(TKey id)
         {
@@ -81,7 +81,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public T Get<TKey>(TKey id)
         {
             var task = GetAsync(id);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> ToListAsync()
@@ -94,7 +94,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public virtual List<T> ToList()
         {
             var task = ToListAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public virtual async Task<List<T>> ToListAsync(LambdaExpression[] selector)
         {
@@ -106,7 +106,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public virtual List<T> ToList(LambdaExpression[] selector)
         {
             var task = ToListAsync(selector);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         protected virtual Type GetSourceType() { return typeof(T); }
@@ -172,12 +172,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public PageList<T> PageList(int pageIndex, int pageSize)
         {
             var task = PageListAsync(pageIndex, pageSize);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public List<T> UpdateSelect(Expression<Func<T, T>> updator)
         {
             var task = UpdateSelectAsync(updator);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<List<T>> UpdateSelectAsync(Expression<Func<T, T>> updator)
         {

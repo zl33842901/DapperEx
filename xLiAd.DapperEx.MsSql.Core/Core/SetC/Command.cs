@@ -65,7 +65,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Update(T entity)
         {
             var task = UpdateAsync(entity);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<int> UpdateNotDefaultAsync(T entity)
         {
@@ -76,7 +76,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int UpdateNotDefault(T entity)
         {
             var task = UpdateNotDefaultAsync(entity);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<int> DeleteAsync<TKey>(TKey id)
         {
@@ -87,7 +87,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Delete<TKey>(TKey id)
         {
             var task = DeleteAsync(id);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<int> UpdateAsync(Expression<Func<T, T>> updateExpression)
@@ -99,7 +99,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Update(Expression<Func<T, T>> updateExpression)
         {
             var task = UpdateAsync(updateExpression);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<int> UpdateAsync(T model, params Expression<Func<T, object>>[] updateExpression)
         {
@@ -110,7 +110,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             var task = UpdateAsync(model, updateExpression);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<int> UpdateAsync<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
@@ -121,7 +121,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             var task = UpdateAsync(expression, value);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<int> DeleteAsync()
@@ -133,7 +133,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Delete()
         {
             var task = DeleteAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<int> InsertAsync(T entity)
         {
@@ -159,7 +159,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Insert(T entity)
         {
             var task = InsertAsync(entity);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<int> InsertAsync(IEnumerable<T> entitys)
         {
@@ -177,7 +177,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public int Insert(IEnumerable<T> entitys)
         {
             var task = InsertAsync(entitys);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private async Task<int> ExecAsync(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)

@@ -27,7 +27,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public int Count()
         {
             var task = CountAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<TResult> SumAsync<TResult>(Expression<Func<T, TResult>> sumExpression)
@@ -39,7 +39,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public TResult Sum<TResult>(Expression<Func<T, TResult>> sumExpression)
         {
             var task = SumAsync(sumExpression);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<bool> ExistsAsync()
@@ -51,7 +51,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public bool Exists()
         {
             var task = ExistsAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

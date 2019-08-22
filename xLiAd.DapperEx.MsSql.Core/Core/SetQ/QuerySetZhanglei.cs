@@ -42,7 +42,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public override List<TResult> ToList()
         {
             var task = ToListAsync();
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         protected override Type GetSourceType()
         {

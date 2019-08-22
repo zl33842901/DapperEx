@@ -68,7 +68,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
         public PageList<T> PageListBySql(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
             var task = PageListBySqlAsync(sql, pageIndex, pageSize, dic);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
         public async Task<PageList<TResult>> PageListBySqlAsync<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
@@ -82,7 +82,7 @@ namespace xLiAd.DapperEx.RepositoryMysql
         public PageList<TResult> PageListBySql<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
             var task = PageListBySqlAsync<TResult>(sql, pageIndex, pageSize, dic);
-            return task.Result;
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }
