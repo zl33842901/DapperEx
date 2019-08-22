@@ -21,9 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiAd.DapperEx.RepositoryMy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.Mysql.Test", "xLiad.DapperEx.Mysql.Test\xLiad.DapperEx.Mysql.Test.csproj", "{4867C7F6-1101-4D89-95F4-11670B2BF65A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiAd.DapperEx.RepositoryOracle", "xLiAd.DapperEx.RepositoryOracle\xLiAd.DapperEx.RepositoryOracle.csproj", "{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiAd.DapperEx.RepositoryOracle", "xLiAd.DapperEx.RepositoryOracle\xLiAd.DapperEx.RepositoryOracle.csproj", "{1B0B7E8B-D2AF-4D35-AB6C-F2F5C315D4A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Oracle.Test", "xLiad.DapperEx.Oracle.Test\xLiad.DapperEx.Oracle.Test.csproj", "{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.Oracle.Test", "xLiad.DapperEx.Oracle.Test\xLiad.DapperEx.Oracle.Test.csproj", "{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Repository.TestFramework", "xLiad.DapperEx.Repository.TestFramework\xLiad.DapperEx.Repository.TestFramework.csproj", "{BE523992-26AD-4095-8201-8A868691CC37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,10 @@ Global
 		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE523992-26AD-4095-8201-8A868691CC37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE523992-26AD-4095-8201-8A868691CC37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE523992-26AD-4095-8201-8A868691CC37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE523992-26AD-4095-8201-8A868691CC37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{7BACA0A3-D1F6-47CE-9F36-F51DDA69715D} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 		{4867C7F6-1101-4D89-95F4-11670B2BF65A} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 		{D5E7FB5B-A68F-4B4B-849D-CE0E9AD3EE93} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
+		{BE523992-26AD-4095-8201-8A868691CC37} = {41C314FA-0B0F-44B1-8193-512D52D0CB28}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {227769BC-3B0D-496D-9C39-FA16BD236A02}

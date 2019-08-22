@@ -55,7 +55,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             _dbTransaction = dbTransaction;
             Throws = throws;
         }
-
+        #region Update
         public async Task<int> UpdateAsync(T entity)
         {
             SqlProvider.FormatUpdate(entity);
@@ -64,9 +64,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Update(T entity)
         {
-            var task = UpdateAsync(entity);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatUpdate(entity);
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
+        #endregion
+        #region UpdateNotDefault
         public async Task<int> UpdateNotDefaultAsync(T entity)
         {
             SqlProvider.FormatUpdateNotDefault(entity);
@@ -75,9 +78,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int UpdateNotDefault(T entity)
         {
-            var task = UpdateNotDefaultAsync(entity);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatUpdateNotDefault(entity);
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
+        #endregion
+        #region Delete
         public async Task<int> DeleteAsync<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
@@ -86,10 +92,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Delete<TKey>(TKey id)
         {
-            var task = DeleteAsync(id);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatDelete(id);
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
-
+        #endregion
+        #region Update
         public async Task<int> UpdateAsync(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
@@ -98,9 +106,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Update(Expression<Func<T, T>> updateExpression)
         {
-            var task = UpdateAsync(updateExpression);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatUpdate(updateExpression);
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
+        #endregion
+        #region Update
         public async Task<int> UpdateAsync(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             SqlProvider.FormatUpdateZhanglei(model, updateExpression);
@@ -109,9 +120,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
         {
-            var task = UpdateAsync(model, updateExpression);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatUpdateZhanglei(model, updateExpression);
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
+        #endregion
+        #region Update
         public async Task<int> UpdateAsync<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             SqlProvider.FormatUpdateZhanglei(expression, value);
@@ -120,10 +134,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
-            var task = UpdateAsync(expression, value);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatUpdateZhanglei(expression, value);
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
-
+        #endregion
+        #region Delete
         public async Task<int> DeleteAsync()
         {
             SqlProvider.FormatDelete();
@@ -132,9 +148,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Delete()
         {
-            var task = DeleteAsync();
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatDelete();
+            SetSql();
+            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
         }
+        #endregion
+        #region Insert
         public async Task<int> InsertAsync(T entity)
         {
             SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
@@ -158,9 +177,27 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Insert(T entity)
         {
-            var task = InsertAsync(entity);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
+            SetSql();
+            if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Int)
+            {
+                var id = DbCon.ExecuteScalar<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                return id;
+            }
+            else if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Guid)
+            {
+                var gi = DbCon.ExecuteScalar<Guid>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                property.SetValue(entity, gi);
+                return 1;
+            }
+            else
+            {
+                var r = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+                return r;
+            }
         }
+        #endregion
+        #region Insert
         public async Task<int> InsertAsync(IEnumerable<T> entitys)
         {
             if (entitys.Count() < 1)
@@ -176,10 +213,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         }
         public int Insert(IEnumerable<T> entitys)
         {
-            var task = InsertAsync(entitys);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            if (entitys.Count() < 1)
+                return 0;
+            SqlProvider.FormatInsert(entitys.First(), out var _, out var _, true);
+            SetSql();
+            foreach (var item in entitys)
+            {
+                SqlProvider.SetAutoDateTime(item);
+            }
+            var rst = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
+            return rst;
         }
-
+        #endregion
         private async Task<int> ExecAsync(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
         {
             try
@@ -187,6 +232,21 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
                 return await DbCon.ExecuteAsync(sqlString, param, dbTransaction);
             }
             catch(Exception e)
+            {
+                CallEvent(sqlString, param, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{sqlString} params:{param}", e);
+                else
+                    return 0;
+            }
+        }
+        private int Exec(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)
+        {
+            try
+            {
+                return DbCon.Execute(sqlString, param, dbTransaction);
+            }
+            catch (Exception e)
             {
                 CallEvent(sqlString, param, e.Message);
                 if (Throws)

@@ -67,8 +67,11 @@ namespace xLiAd.DapperEx.RepositoryMysql
 
         public PageList<T> PageListBySql(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
-            var task = PageListBySqlAsync(sql, pageIndex, pageSize, dic);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            int count = GetScalar<int>("select count(1) from (" + sql + ") o");
+            var listsql = sql + " limit " + ((pageIndex - 1) * pageSize).ToString() + "," + pageSize;
+            var list = QueryBySql<T>(listsql, param: null);
+            var result = new PageList<T>(pageIndex, pageSize, count, list.ToList());
+            return result;
         }
         public async Task<PageList<TResult>> PageListBySqlAsync<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
@@ -81,8 +84,11 @@ namespace xLiAd.DapperEx.RepositoryMysql
 
         public PageList<TResult> PageListBySql<TResult>(string sql, int pageIndex, int pageSize, Dictionary<string, string> dic = null)
         {
-            var task = PageListBySqlAsync<TResult>(sql, pageIndex, pageSize, dic);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            int count = GetScalar<int>("select count(1) from (" + sql + ") o");
+            var listsql = sql + " limit " + ((pageIndex - 1) * pageSize).ToString() + "," + pageSize;
+            var list = QueryBySql<TResult>(listsql, param: null);
+            var result = new PageList<TResult>(pageIndex, pageSize, count, list.ToList());
+            return result;
         }
     }
 }

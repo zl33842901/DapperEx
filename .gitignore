@@ -88,3 +88,6 @@
 /xLiAd.DapperEx.RepositoryOracle/obj
 /xLiAd.DapperEx.RepositoryOracle/nupkgs
 /xLiAd.DapperEx.RepositoryOracle/nupkgsSymb
+/packages
+/xLiad.DapperEx.Repository.TestFramework/bin/Debug
+/xLiad.DapperEx.Repository.TestFramework/obj/Debug

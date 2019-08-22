@@ -17,7 +17,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
 
         }
-
+        #region Count
         public async Task<int> CountAsync()
         {
             SqlProvider.FormatCount();
@@ -26,10 +26,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         public int Count()
         {
-            var task = CountAsync();
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatCount();
+            SetSql();
+            return DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params);
         }
-
+        #endregion
+        #region Sum
         public async Task<TResult> SumAsync<TResult>(Expression<Func<T, TResult>> sumExpression)
         {
             SqlProvider.FormatSum(sumExpression);
@@ -38,10 +40,12 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         public TResult Sum<TResult>(Expression<Func<T, TResult>> sumExpression)
         {
-            var task = SumAsync(sumExpression);
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatSum(sumExpression);
+            SetSql();
+            return DbCon.QuerySingle<TResult>(SqlProvider.SqlString, SqlProvider.Params);
         }
-
+        #endregion
+        #region Exists
         public async Task<bool> ExistsAsync()
         {
             SqlProvider.FormatExists();
@@ -50,8 +54,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         public bool Exists()
         {
-            var task = ExistsAsync();
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatExists();
+            SetSql();
+            return DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
         }
+        #endregion
     }
 }

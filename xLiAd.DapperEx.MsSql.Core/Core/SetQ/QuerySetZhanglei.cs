@@ -20,6 +20,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         protected readonly SqlProvider<TSource> SqlProviderSource;
         internal QuerySet(IDbConnection conn, SqlProvider<TResult> sqlProvider, Type tableType, LambdaExpression whereExpression, LambdaExpression selectExpression, int? topNum, List<(EOrderBy Key, LambdaExpression Value)> orderbyExpressionList, IDbTransaction dbTransaction, bool throws = true)
             : base(conn, sqlProvider, tableType, whereExpression,selectExpression,topNum,orderbyExpressionList, dbTransaction, throws) { }
+
+        #region ToList
         public override async Task<List<TResult>> ToListAsync()
         {
             SqlProvider.FormatToListZhanglei(typeof(TSource), this.FieldAnyExpression);
@@ -41,19 +43,43 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         public override List<TResult> ToList()
         {
-            var task = ToListAsync();
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
+            SqlProvider.FormatToListZhanglei(typeof(TSource), this.FieldAnyExpression);
+            SetSql();
+            try
+            {
+                var results = QueryDatabase<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+                var l = results.ToList();
+                return l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
+            }
+            catch (Exception e)
+            {
+                CallEvent(SqlProvider.SqlString, SqlProvider.Params, e.Message);
+                if (Throws)
+                    throw new Exception($"{e.Message} sql:{SqlProvider.SqlString} params:{SqlProvider.Params}", e);
+                else
+                    return new List<TResult>();
+            }
         }
+        #endregion
         protected override Type GetSourceType()
         {
             return typeof(TSource);
         }
-        protected override async Task<List<TResult>> PageListItems(SqlMapper.GridReader gridReader)
+        #region PageListItems
+        protected override async Task<List<TResult>> PageListItemsAsync(SqlMapper.GridReader gridReader)
         {
             var results = await gridReader.ReadAsync<TSource>();
             var l = results.ToList();
             var lresult = l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             return lresult;
         }
+        protected override List<TResult> PageListItems(SqlMapper.GridReader gridReader)
+        {
+            var results = gridReader.Read<TSource>();
+            var l = results.ToList();
+            var lresult = l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
+            return lresult;
+        }
+        #endregion
     }
 }
