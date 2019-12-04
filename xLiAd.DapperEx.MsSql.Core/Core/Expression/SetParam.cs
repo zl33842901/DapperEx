@@ -14,10 +14,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         protected string GetParamName(string oname)
         {
             var nname = oname;
-            var i = 1;
+            var i = 10000;
             while (vs.Contains(nname))
             {
-                nname = $"{oname}{i++}";
+                nname = $"{oname}{i}";
+                i += 10000;
             }
             vs.Add(nname);
             return nname;
@@ -32,10 +33,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         protected string GetParamName(string oname)
         {
             var nname = oname;
-            var i = 1;
+            var i = 10000;
             while (vs.Contains(nname))
             {
-                nname = $"{oname}{i++}";
+                nname = $"{oname}{i}";
+                i += 10000;
             }
             vs.Add(nname);
             return nname;
