@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 
 namespace xLiAd.DapperEx.MsSql.Core.Helper
@@ -46,7 +47,23 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 List<string> ls = new List<string>();
                 foreach (var i in di)
                 {
-                    ls.Add($"  \"{i.Key}\" : \"{i.Value}\"");
+                    if (i.Value is IEnumerable arr)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        foreach(var ob in arr)
+                        {
+                            if (sb.Length > 0)
+                                sb.Append(", ");
+                            sb.Append('"');
+                            sb.Append(ob);
+                            sb.Append('"');
+                        }
+                        ls.Add($"  \"{i.Key}\" : [ { sb } ]");
+                    }
+                    else
+                    {
+                        ls.Add($"  \"{i.Key}\" : \"{i.Value}\"");
+                    }
                 }
                 sbP.Append(string.Join(",\r\n", ls));
                 sbP.Append("\r\n}");
