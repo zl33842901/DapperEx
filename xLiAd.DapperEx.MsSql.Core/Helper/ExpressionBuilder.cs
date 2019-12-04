@@ -42,6 +42,22 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 return first.Compose(second, Expression.OrElse);
         }
 
+        public static Expression<Func<T, bool>> JoinAnd<T>(this IEnumerable<Expression<Func<T, bool>>> expressions){
+            Expression<Func<T, bool>> result = null;
+            foreach(var exp in expressions){
+                result = result.And(exp);
+            }
+            return result;
+        }
+
+        public static Expression<Func<T, bool>> JoinOr<T>(this IEnumerable<Expression<Func<T, bool>>> expressions){
+            Expression<Func<T, bool>> result = null;
+            foreach(var exp in expressions){
+                result = result.Or(exp);
+            }
+            return result;
+        }
+
         private static Expression<T> Compose<T>(this Expression<T> first, Expression<T> second,
             Func<Expression, Expression, Expression> merge)
         {
