@@ -47,7 +47,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 List<string> ls = new List<string>();
                 foreach (var i in di)
                 {
-                    if (i.Value is IEnumerable arr)
+                    if (!(i.Value is string) && i.Value is IEnumerable arr)
                     {
                         StringBuilder sb = new StringBuilder();
                         foreach(var ob in arr)
