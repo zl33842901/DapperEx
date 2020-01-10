@@ -31,6 +31,14 @@ namespace xLiad.DapperEx.Repository.Test
             Assert.Equal(2, rst.Count);
         }
         [Fact]
+        public void TestCount()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var ida = new List<int>() { 106071, 106072 };
+            var rst = repository.Count(x => ida.Contains(x.DictID));
+            Assert.Equal(2, rst);
+        }
+        [Fact]
         public void TestWhere2()
         {
             var repository = new Repository<DictInfo>(Conn);
