@@ -40,6 +40,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                 this.SqlString = SqlProvider.SqlString;
             if (SqlProvider.Params != null)
                 this.Params = SqlProvider.Params;
+            DiagnosticExtension.Write(this.SqlString, this.Params);
         }
 
         protected DataBaseContext<T> SetContext { get; set; }

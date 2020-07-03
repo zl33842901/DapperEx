@@ -40,6 +40,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
                 this.SqlString = SqlProvider.SqlString;
             if (SqlProvider.Params != null)
                 this.Params = SqlProvider.Params;
+            DiagnosticExtension.Write(this.SqlString, this.Params);
         }
         /// <summary>
         /// 新建立命令器
