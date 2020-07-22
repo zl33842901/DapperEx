@@ -21,42 +21,54 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public async Task<int> CountAsync()
         {
             SqlProvider.FormatCount();
-            SetSql();
-            return await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params);
+            var guid = SetSql();
+            var result = await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params);
+            OverSql(guid);
+            return result;
         }
         public int Count()
         {
             SqlProvider.FormatCount();
-            SetSql();
-            return DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params);
+            var guid = SetSql();
+            var result = DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Sum
         public async Task<TResult> SumAsync<TResult>(Expression<Func<T, TResult>> sumExpression)
         {
             SqlProvider.FormatSum(sumExpression);
-            SetSql();
-            return await DbCon.QuerySingleAsync<TResult>(SqlProvider.SqlString, SqlProvider.Params);
+            var guid = SetSql();
+            var result = await DbCon.QuerySingleAsync<TResult>(SqlProvider.SqlString, SqlProvider.Params);
+            OverSql(guid);
+            return result;
         }
         public TResult Sum<TResult>(Expression<Func<T, TResult>> sumExpression)
         {
             SqlProvider.FormatSum(sumExpression);
-            SetSql();
-            return DbCon.QuerySingle<TResult>(SqlProvider.SqlString, SqlProvider.Params);
+            var guid = SetSql();
+            var result = DbCon.QuerySingle<TResult>(SqlProvider.SqlString, SqlProvider.Params);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Exists
         public async Task<bool> ExistsAsync()
         {
             SqlProvider.FormatExists();
-            SetSql();
-            return await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
+            var guid = SetSql();
+            var result = await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
+            OverSql(guid);
+            return result;
         }
         public bool Exists()
         {
             SqlProvider.FormatExists();
-            SetSql();
-            return DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
+            var guid = SetSql();
+            var result = DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
+            OverSql(guid);
+            return result;
         }
         #endregion
     }

@@ -34,13 +34,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
         public DynamicParameters Params { get; private set; }
-        protected void SetSql()
+        protected Guid SetSql()
         {
             if (SqlProvider.SqlString != null)
                 this.SqlString = SqlProvider.SqlString;
             if (SqlProvider.Params != null)
                 this.Params = SqlProvider.Params;
-            DiagnosticExtension.Write(this.SqlString, this.Params);
+            return DiagnosticExtension.Write(this.SqlString, this.Params, this.DbCon);
+        }
+        protected void OverSql(Guid guid)
+        {
+            DiagnosticExtension.WriteAfter(guid);
         }
 
         protected DataBaseContext<T> SetContext { get; set; }
@@ -62,15 +66,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public async Task<T> GetAsync()
         {
             SqlProvider.FormatGet(this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var result = await QueryFirstAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return result;
         }
         public T Get()
         {
             SqlProvider.FormatGet(this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var result = QueryFirst(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return result;
         }
         #endregion
@@ -78,16 +84,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public async Task<T> GetAsync<TKey>(TKey id)
         {
             SqlProvider.FormatGet(id, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var result = await QueryFirstAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return result;
         }
 
         public T Get<TKey>(TKey id)
         {
             SqlProvider.FormatGet(id, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var result = QueryFirst(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return result;
         }
         #endregion
@@ -95,15 +103,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public virtual async Task<List<T>> ToListAsync()
         {
             SqlProvider.FormatToList(null, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var results = await QueryWithExceptionAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return results.ToList();
         }
         public virtual List<T> ToList()
         {
             SqlProvider.FormatToList(null, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var results = QueryWithException(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return results.ToList();
         }
         #endregion
@@ -111,15 +121,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public virtual async Task<List<T>> ToListAsync(LambdaExpression[] selector)
         {
             SqlProvider.FormatToList(selector, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var results = await QueryWithExceptionAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return results.ToList();
         }
         public virtual List<T> ToList(LambdaExpression[] selector)
         {
             SqlProvider.FormatToList(selector, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             var results = QueryWithException(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return results.ToList();
         }
         #endregion
@@ -140,7 +152,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public async Task<PageList<T>> PageListAsync(int pageIndex, int pageSize)
         {
             SqlProvider.FormatToPageList(GetSourceType(), pageIndex, pageSize, this.FieldAnyExpression);
-            SetSql();
+            var guid = SetSql();
             try {
                 var ps = typeof(T).GetJsonColumnProperty();
                 if (ps.Length > 0 && HasSerializer)
@@ -167,6 +179,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                         lrst.Add((T)rst);
                     }
                     Reader.Close();
+                    OverSql(guid);
                     return new PageList<T>(pageIndex, pageSize, pageTotal, lrst);
                 }
                 else
@@ -249,15 +262,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public async Task<List<T>> UpdateSelectAsync(Expression<Func<T, T>> updator)
         {
             SqlProvider.FormatUpdateSelect(updator);
-            SetSql();
+            var guid = SetSql();
             var lresult = await QueryWithExceptionAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return lresult.ToList();
         }
         public List<T> UpdateSelect(Expression<Func<T, T>> updator)
         {
             SqlProvider.FormatUpdateSelect(updator);
-            SetSql();
+            var guid = SetSql();
             var lresult = QueryWithException(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+            OverSql(guid);
             return lresult.ToList();
         }
         #endregion

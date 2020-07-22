@@ -34,13 +34,17 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
         public DynamicParameters Params { get; private set; }
-        private void SetSql()
+        private Guid SetSql()
         {
             if (SqlProvider.SqlString != null)
                 this.SqlString = SqlProvider.SqlString;
             if (SqlProvider.Params != null)
                 this.Params = SqlProvider.Params;
-            DiagnosticExtension.Write(this.SqlString, this.Params);
+            return DiagnosticExtension.Write(this.SqlString, this.Params, this.DbCon);
+        }
+        private void OverSql(Guid guid)
+        {
+            DiagnosticExtension.WriteAfter(guid);
         }
         /// <summary>
         /// 新建立命令器
@@ -60,142 +64,172 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         public async Task<int> UpdateAsync(T entity)
         {
             SqlProvider.FormatUpdate(entity);
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Update(T entity)
         {
             SqlProvider.FormatUpdate(entity);
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region UpdateNotDefault
         public async Task<int> UpdateNotDefaultAsync(T entity)
         {
             SqlProvider.FormatUpdateNotDefault(entity);
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int UpdateNotDefault(T entity)
         {
             SqlProvider.FormatUpdateNotDefault(entity);
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Delete
         public async Task<int> DeleteAsync<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Delete<TKey>(TKey id)
         {
             SqlProvider.FormatDelete(id);
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Update
         public async Task<int> UpdateAsync(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Update(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Update
         public async Task<int> UpdateAsync(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             SqlProvider.FormatUpdateZhanglei(model, updateExpression);
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Update(T model, params Expression<Func<T, object>>[] updateExpression)
         {
             SqlProvider.FormatUpdateZhanglei(model, updateExpression);
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Update
         public async Task<int> UpdateAsync<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             SqlProvider.FormatUpdateZhanglei(expression, value);
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Update<TKey>(Expression<Func<T, TKey>> expression, TKey value)
         {
             SqlProvider.FormatUpdateZhanglei(expression, value);
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Delete
         public async Task<int> DeleteAsync()
         {
             SqlProvider.FormatDelete();
-            SetSql();
-            return await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Delete()
         {
             SqlProvider.FormatDelete();
-            SetSql();
-            return Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            var guid = SetSql();
+            var result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Insert
         public async Task<int> InsertAsync(T entity)
         {
             SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
-            SetSql();
+            var guid = SetSql();
+            int result;
             if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Int)
             {
-                var id = await DbCon.ExecuteScalarAsync<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-                return id;
+                result = await DbCon.ExecuteScalarAsync<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
             }
             else if(isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Guid)
             {
                 var gi = await DbCon.ExecuteScalarAsync<Guid>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
                 property.SetValue(entity, gi);
-                return 1;
+                result = 1;
             }
             else
             {
-                var r = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-                return r;
+                result = await ExecAsync(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
             }
+            OverSql(guid);
+            return result;
         }
         public int Insert(T entity)
         {
             SqlProvider.FormatInsert(entity, out var isHaveIdentity, out var property);
-            SetSql();
+            var guid = SetSql();
+            int result;
             if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Int)
             {
-                var id = DbCon.ExecuteScalar<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-                return id;
+                result = DbCon.ExecuteScalar<int>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
             }
             else if (isHaveIdentity == System.ComponentModel.DataAnnotations.IdentityTypeEnum.Guid)
             {
                 var gi = DbCon.ExecuteScalar<Guid>(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
                 property.SetValue(entity, gi);
-                return 1;
+                result = 1;
             }
             else
             {
-                var r = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
-                return r;
+                result = Exec(SqlProvider.SqlString, SqlProvider.Params, _dbTransaction);
             }
+            OverSql(guid);
+            return result;
         }
         #endregion
         #region Insert
@@ -204,26 +238,28 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             if (entitys.Count() < 1)
                 return 0;
             SqlProvider.FormatInsert(entitys.First(), out var _,out var _, true);
-            SetSql();
+            var guid = SetSql();
             foreach(var item in entitys)
             {
                 SqlProvider.SetAutoDateTime(item);
             }
-            var rst = await DbCon.ExecuteAsync(SqlProvider.SqlString, entitys, _dbTransaction);
-            return rst;
+            var result = await DbCon.ExecuteAsync(SqlProvider.SqlString, entitys, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         public int Insert(IEnumerable<T> entitys)
         {
             if (entitys.Count() < 1)
                 return 0;
             SqlProvider.FormatInsert(entitys.First(), out var _, out var _, true);
-            SetSql();
+            var guid = SetSql();
             foreach (var item in entitys)
             {
                 SqlProvider.SetAutoDateTime(item);
             }
-            var rst = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
-            return rst;
+            var result = DbCon.Execute(SqlProvider.SqlString, entitys, _dbTransaction);
+            OverSql(guid);
+            return result;
         }
         #endregion
         private async Task<int> ExecAsync(string sqlString, DynamicParameters param, IDbTransaction dbTransaction)

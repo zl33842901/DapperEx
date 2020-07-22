@@ -1043,7 +1043,10 @@ namespace xLiAd.DapperEx.Repository
         {
             if(param is Dictionary<string, string> dic)
                 param = ConvertDicToParam(dic, null, out string _);
-            return await con.ExecuteAsync(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
+            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            var result = await con.ExecuteAsync(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
+            DiagnosticExtension.WriteAfter(guid);
+            return result;
         }
         /// <summary>
         /// 执行SQL语句
@@ -1056,7 +1059,10 @@ namespace xLiAd.DapperEx.Repository
         {
             if (param is Dictionary<string, string> dic)
                 param = ConvertDicToParam(dic, null, out string _);
-            return con.Execute(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
+            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            var result = con.Execute(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
+            DiagnosticExtension.WriteAfter(guid);
+            return result;
         }
         #endregion
         #region ExecuteProcedure
@@ -1092,7 +1098,10 @@ namespace xLiAd.DapperEx.Repository
         public virtual async Task<TResult> GetScalarAsync<TResult>(string sql, Dictionary<string, string> dic = null)
         {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return await con.ExecuteScalarAsync<TResult>(sql, param, transaction: DbTransaction);
+            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            var result = await con.ExecuteScalarAsync<TResult>(sql, param, transaction: DbTransaction);
+            DiagnosticExtension.WriteAfter(guid);
+            return result;
         }
         /// <summary>
         /// 执行查询 返回第一条结果
@@ -1104,7 +1113,10 @@ namespace xLiAd.DapperEx.Repository
         public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
         {
             DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            return con.ExecuteScalar<TResult>(sql, param, transaction: DbTransaction);
+            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            var result = con.ExecuteScalar<TResult>(sql, param, transaction: DbTransaction);
+            DiagnosticExtension.WriteAfter(guid);
+            return result;
         }
         #endregion
         #region QueryBySql
@@ -1122,7 +1134,10 @@ namespace xLiAd.DapperEx.Repository
             {
                 param = ConvertDicToParam(paramDic, null, out string _);
             }
-            return await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
+            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            var result = await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
+            DiagnosticExtension.WriteAfter(guid);
+            return result;
         }
         /// <summary>
         /// 根据SQL语句，或存储过程 查询实体
@@ -1138,7 +1153,10 @@ namespace xLiAd.DapperEx.Repository
             {
                 param = ConvertDicToParam(paramDic, null, out string _);
             }
-            return con.Query<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
+            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            var result = con.Query<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
+            DiagnosticExtension.WriteAfter(guid);
+            return result;
         }
         #endregion
         /// <summary>

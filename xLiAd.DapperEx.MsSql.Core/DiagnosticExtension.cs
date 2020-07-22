@@ -3,19 +3,32 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using Dapper;
+using System.Data;
 
 namespace xLiAd.DapperEx.MsSql.Core
 {
-    internal static class DiagnosticExtension
+    public static class DiagnosticExtension
     {
         internal static DiagnosticSource SqlDiagnosticSource = new DiagnosticListener("DapperExDiagnosticListener");
         internal static readonly string SqlDiagnosticSourceName = "xLiAd.DapperEx.CommandBefore";
+        internal static readonly string SqlDiagnosticSourceAfterName = "xLiAd.DapperEx.CommandAfter";
         internal static bool SqlDiagnosticSourceEnabled;
         static DiagnosticExtension() { SqlDiagnosticSourceEnabled = SqlDiagnosticSource.IsEnabled(SqlDiagnosticSourceName); }
-        public static void Write(string sql, DynamicParameters para)
+        public static Guid Write(string sql, object para, IDbConnection dbConnection)
         {
             if (SqlDiagnosticSourceEnabled)
-                SqlDiagnosticSource.Write(SqlDiagnosticSourceName, new { SqlString = sql, Params =  para });
+            {
+                var guid = Guid.NewGuid();
+                SqlDiagnosticSource.Write(SqlDiagnosticSourceName, new { SqlString = sql, Params = para, OperationId = guid, DbConnection = dbConnection });
+                return guid;
+            }
+            return Guid.Empty;
+        }
+
+        public static void WriteAfter(Guid guid)
+        {
+            if (SqlDiagnosticSourceEnabled)
+                SqlDiagnosticSource.Write(SqlDiagnosticSourceAfterName, new { OperationId = guid });
         }
     }
 }
