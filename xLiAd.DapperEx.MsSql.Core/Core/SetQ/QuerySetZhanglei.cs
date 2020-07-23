@@ -25,12 +25,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public override async Task<List<TResult>> ToListAsync()
         {
             SqlProvider.FormatToListZhanglei(typeof(TSource), this.FieldAnyExpression);
-            var guid = SetSql();
+            SetSql();
             try
             {
                 var results = await QueryDatabaseAsync<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
                 var l = results.ToList();
-                OverSql(guid);
                 return l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             }
             catch (Exception e)
@@ -45,12 +44,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         public override List<TResult> ToList()
         {
             SqlProvider.FormatToListZhanglei(typeof(TSource), this.FieldAnyExpression);
-            var guid = SetSql();
+            SetSql();
             try
             {
                 var results = QueryDatabase<TSource>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
                 var l = results.ToList();
-                OverSql(guid);
                 return l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             }
             catch (Exception e)

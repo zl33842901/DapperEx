@@ -1,5 +1,4 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -105,7 +104,7 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public DynamicParameters Params { get; private set; }
+        public Dapper.DynamicParameters Params { get; private set; }
         /// <summary>
         /// 刚刚执行过的语句使用的参数的字符串形式（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
@@ -1015,13 +1014,13 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="sqlToReplace"></param>
         /// <param name="sqlReplaced"></param>
         /// <returns></returns>
-        private DynamicParameters ConvertDicToParam(Dictionary<string, string> dic, string sqlToReplace, out string sqlReplaced)
+        private Dapper.DynamicParameters ConvertDicToParam(Dictionary<string, string> dic, string sqlToReplace, out string sqlReplaced)
         {
             sqlReplaced = sqlToReplace;
-            DynamicParameters param = null;
+            Dapper.DynamicParameters param = null;
             if (dic != null && dic.Count > 0)
             {
-                param = new DynamicParameters();
+                param = new Dapper.DynamicParameters();
                 foreach (var d in dic)
                 {
                     param.Add($"@{d.Key}", d.Value);
@@ -1043,9 +1042,7 @@ namespace xLiAd.DapperEx.Repository
         {
             if(param is Dictionary<string, string> dic)
                 param = ConvertDicToParam(dic, null, out string _);
-            var guid = DiagnosticExtension.Write(sql, param, this.con);
             var result = await con.ExecuteAsync(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
-            DiagnosticExtension.WriteAfter(guid);
             return result;
         }
         /// <summary>
@@ -1059,9 +1056,7 @@ namespace xLiAd.DapperEx.Repository
         {
             if (param is Dictionary<string, string> dic)
                 param = ConvertDicToParam(dic, null, out string _);
-            var guid = DiagnosticExtension.Write(sql, param, this.con);
             var result = con.Execute(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
-            DiagnosticExtension.WriteAfter(guid);
             return result;
         }
         #endregion
@@ -1097,10 +1092,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual async Task<TResult> GetScalarAsync<TResult>(string sql, Dictionary<string, string> dic = null)
         {
-            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            Dapper.DynamicParameters param = ConvertDicToParam(dic, null, out string _);
             var result = await con.ExecuteScalarAsync<TResult>(sql, param, transaction: DbTransaction);
-            DiagnosticExtension.WriteAfter(guid);
             return result;
         }
         /// <summary>
@@ -1112,10 +1105,8 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
         {
-            DynamicParameters param = ConvertDicToParam(dic, null, out string _);
-            var guid = DiagnosticExtension.Write(sql, param, this.con);
+            Dapper.DynamicParameters param = ConvertDicToParam(dic, null, out string _);
             var result = con.ExecuteScalar<TResult>(sql, param, transaction: DbTransaction);
-            DiagnosticExtension.WriteAfter(guid);
             return result;
         }
         #endregion
@@ -1134,9 +1125,7 @@ namespace xLiAd.DapperEx.Repository
             {
                 param = ConvertDicToParam(paramDic, null, out string _);
             }
-            var guid = DiagnosticExtension.Write(sql, param, this.con);
             var result = await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
-            DiagnosticExtension.WriteAfter(guid);
             return result;
         }
         /// <summary>
@@ -1153,9 +1142,7 @@ namespace xLiAd.DapperEx.Repository
             {
                 param = ConvertDicToParam(paramDic, null, out string _);
             }
-            var guid = DiagnosticExtension.Write(sql, param, this.con);
             var result = con.Query<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
-            DiagnosticExtension.WriteAfter(guid);
             return result;
         }
         #endregion
@@ -1198,7 +1185,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return await ExecuteSqlAsync(sql, dic);
         }
         /// <summary>
@@ -1212,7 +1199,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return ExecuteSql(sql, dic);
         }
         #endregion
@@ -1229,7 +1216,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return await QueryBySqlAsync<TResult>(sql, dic);
         }
         /// <summary>
@@ -1244,7 +1231,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return QueryBySql<TResult>(sql, dic);
         }
         #endregion

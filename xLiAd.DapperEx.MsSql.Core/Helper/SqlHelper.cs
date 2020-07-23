@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
@@ -92,6 +93,200 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+
+
+        public static T QuerySingle<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = Dapper.SqlMapper.QuerySingle<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch(Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static async Task<T> QuerySingleAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = await Dapper.SqlMapper.QuerySingleAsync<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static async Task<T> ExecuteScalarAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = await Dapper.SqlMapper.ExecuteScalarAsync<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static T ExecuteScalar<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = Dapper.SqlMapper.ExecuteScalar<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static async Task<int> ExecuteAsync(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = await Dapper.SqlMapper.ExecuteAsync(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static int Execute(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = Dapper.SqlMapper.Execute(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static async Task<IDataReader> ExecuteReaderAsync(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = await Dapper.SqlMapper.ExecuteReaderAsync(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static IDataReader ExecuteReader(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = Dapper.SqlMapper.ExecuteReader(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static async Task<SqlMapper.GridReader> QueryMultipleAsync(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = await Dapper.SqlMapper.QueryMultipleAsync(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static SqlMapper.GridReader QueryMultiple(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = Dapper.SqlMapper.QueryMultiple(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = await Dapper.SqlMapper.QueryAsync<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
+            }
+        }
+
+        public static IEnumerable<T> Query<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            var guid = DiagnosticExtension.Write(sql, param, cnn);
+            try
+            {
+                var result = Dapper.SqlMapper.Query<T>(cnn, sql, param, transaction, buffered, commandTimeout, commandType);
+                DiagnosticExtension.WriteAfter(guid);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                DiagnosticExtension.WriteError(guid, ex);
+                throw;
             }
         }
     }

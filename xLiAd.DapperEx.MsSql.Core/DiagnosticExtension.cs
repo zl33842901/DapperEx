@@ -12,6 +12,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         internal static DiagnosticSource SqlDiagnosticSource = new DiagnosticListener("DapperExDiagnosticListener");
         internal static readonly string SqlDiagnosticSourceName = "xLiAd.DapperEx.CommandBefore";
         internal static readonly string SqlDiagnosticSourceAfterName = "xLiAd.DapperEx.CommandAfter";
+        internal static readonly string SqlDiagnosticSourceErrorName = "xLiAd.DapperEx.CommandError";
         internal static bool SqlDiagnosticSourceEnabled;
         static DiagnosticExtension() { SqlDiagnosticSourceEnabled = SqlDiagnosticSource.IsEnabled(SqlDiagnosticSourceName); }
         public static Guid Write(string sql, object para, IDbConnection dbConnection)
@@ -29,6 +30,11 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             if (SqlDiagnosticSourceEnabled)
                 SqlDiagnosticSource.Write(SqlDiagnosticSourceAfterName, new { OperationId = guid });
+        }
+        public static void WriteError(Guid guid, Exception ex)
+        {
+            if (SqlDiagnosticSourceEnabled)
+                SqlDiagnosticSource.Write(SqlDiagnosticSourceErrorName, new { OperationId = guid, Exception = ex });
         }
     }
 }
