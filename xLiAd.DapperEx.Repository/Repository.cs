@@ -1,5 +1,4 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -48,13 +47,24 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 初始化仓储
         /// </summary>
-        /// <param name="_con">数据库连接</param>
         /// <param name="repoXmlProvider"></param>
         /// <param name="exceptionHandler"></param>
         /// <param name="throws"></param>
         /// <param name="_tran">事务</param>
         public Repository(IDbTransaction _tran, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
             : base(_tran.Connection, repoXmlProvider, exceptionHandler, throws, _tran)
+        {
+
+        }
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="repoXmlProvider"></param>
+        /// <param name="exceptionHandler"></param>
+        /// <param name="throws"></param>
+        /// <param name="connectionHolder"></param>
+        public Repository(IConnectionHolder connectionHolder, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+            : base(connectionHolder, repoXmlProvider, exceptionHandler, throws)
         {
 
         }
@@ -93,5 +103,22 @@ namespace xLiAd.DapperEx.Repository
             });
             con.Dispose();
          */
+    }
+
+    /// <summary>
+    /// 提供修改 UseLocalParser 的类
+    /// </summary>
+    public static class Repository
+    {
+        /// <summary>
+        /// 是否使用本地模型转换器（而不使用 Dapper 模型转换器）
+        /// Dapper 模型转换器： 成熟，应用广泛
+        /// 本地模型转换器：性能好，源码不是Emit 可修改，解决了mysql的时间类型与 Datetime? 类型转换的BUG；未经过大量测试或许有BUG。
+        /// </summary>
+        public static bool UseLocalParser
+        {
+            get => SqlHelper.UseLocalParser;
+            set => SqlHelper.UseLocalParser = value;
+        }
     }
 }

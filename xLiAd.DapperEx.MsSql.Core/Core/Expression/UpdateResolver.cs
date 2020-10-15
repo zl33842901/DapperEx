@@ -1,5 +1,4 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,7 +21,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         public string SqlCmd => _sqlCmd.Length > 0 ? $" SET {_sqlCmd} " : "";
 
-        public DynamicParameters Param { get; }
+        public TheDynamicParameters Param { get; }
 
         #endregion
         readonly ISqlDialect Dialect;
@@ -32,7 +31,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public UpdateExpression(IEnumerable<LambdaExpression> expressionList, T model, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new TheDynamicParameters();
             Dialect = dialect;
             Model = model;
             foreach(var expression in expressionList)
@@ -89,7 +88,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         public string SqlCmd => _sqlCmd.Length > 0 ? $" SET {_sqlCmd} " : "";
 
-        public DynamicParameters Param { get; }
+        public TheDynamicParameters Param { get; }
 
         #endregion
         object Value;
@@ -98,7 +97,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public UpdateExpressionEx(LambdaExpression expression, object value, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new TheDynamicParameters();
             Dialect = dialect;
             Value = value;
             Visit(expression);

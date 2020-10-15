@@ -46,6 +46,18 @@ namespace xLiAd.DapperEx.RepositoryOracle
 
         }
         /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="repoXmlProvider"></param>
+        /// <param name="exceptionHandler"></param>
+        /// <param name="throws"></param>
+        /// <param name="connectionHolder"></param>
+        public RepositoryOracle(IConnectionHolder connectionHolder, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+            : base(connectionHolder, repoXmlProvider, exceptionHandler, throws)
+        {
+
+        }
+        /// <summary>
         /// 数据库语法器
         /// </summary>
         protected override ISqlDialect Dialect => new OracleDialect();

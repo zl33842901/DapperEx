@@ -35,6 +35,18 @@ namespace xLiAd.DapperEx.RepositoryMysql
         {
 
         }
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="repoXmlProvider"></param>
+        /// <param name="exceptionHandler"></param>
+        /// <param name="throws"></param>
+        /// <param name="connectionHolder"></param>
+        public RepositoryMysql(IConnectionHolder connectionHolder, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+            : base(connectionHolder, repoXmlProvider, exceptionHandler, throws)
+        {
+
+        }
         protected override ISqlDialect Dialect
         {
             get

@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-//using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 using xLiAd.DapperEx.MsSql.Core.Model;
@@ -34,7 +33,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
         /// <summary>
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public Dapper.DynamicParameters Params { get; private set; }
+        public TheDynamicParameters Params { get; private set; }
         private void SetSql()
         {
             if (SqlProvider.SqlString != null)
@@ -240,7 +239,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
             return result;
         }
         #endregion
-        private async Task<int> ExecAsync(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction)
+        private async Task<int> ExecAsync(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
@@ -255,7 +254,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
                     return 0;
             }
         }
-        private int Exec(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction)
+        private int Exec(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
@@ -270,7 +269,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetC
                     return 0;
             }
         }
-        private void CallEvent(string sqlString, Dapper.DynamicParameters param, string message)
+        private void CallEvent(string sqlString, TheDynamicParameters param, string message)
         {
             try
             {

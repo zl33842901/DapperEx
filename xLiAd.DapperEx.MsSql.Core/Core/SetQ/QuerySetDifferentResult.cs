@@ -1,5 +1,4 @@
-﻿using Dapper;
-using xLiAd.DapperEx.MsSql.Core.Model;
+﻿using xLiAd.DapperEx.MsSql.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using xLiAd.DapperEx.MsSql.Core.Helper;
 
 namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
 {
@@ -66,17 +66,10 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             return typeof(TSource);
         }
         #region PageListItems
-        protected override async Task<List<TResult>> PageListItemsAsync(SqlMapper.GridReader gridReader)
+        protected override List<TResult> PageListItems(IDataReader reader)
         {
-            var results = await gridReader.ReadAsync<TSource>();
-            var l = results.ToList();
-            var lresult = l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
-            return lresult;
-        }
-        protected override List<TResult> PageListItems(SqlMapper.GridReader gridReader)
-        {
-            var results = gridReader.Read<TSource>();
-            var l = results.ToList();
+            var result = reader.ReadGrid<TSource>();
+            var l = result.ToList();
             var lresult = l.Select(((Expression<Func<TSource, TResult>>)SelectExpression).Compile()).ToList();
             return lresult;
         }

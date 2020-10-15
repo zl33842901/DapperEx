@@ -7,11 +7,18 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using xLiAd.DapperEx.MsSql.Core.LocalParser;
+using xLiAd.DapperEx.MsSql.Core.Model;
 
 namespace xLiAd.DapperEx.MsSql.Core.Helper
 {
     public static class SqlHelper
     {
+        /// <summary>
+        /// 是否使用本地模型转化器（而不使用Dapper的）
+        /// </summary>
+        public static bool UseLocalParser { get; set; } = false;
+        private static TypeMapper TypeMapper = new TypeMapper();
         ///// <summary>
         ///// 批量插入
         ///// </summary>
@@ -80,8 +87,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             try
             {
                 var p = typeof(DynamicParameters).GetField("parameters", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var di = p.GetValue(parameters) as IDictionary;// Dictionary<string, Dapper.DynamicParameters.ParamInfo>;
-                Type paramInfoType = Type.GetType("Dapper.DynamicParameters+ParamInfo,Dapper");
+                var di = p.GetValue(parameters) as IDictionary;// Dictionary<string, TheDynamicParameters.ParamInfo>;
+                Type paramInfoType = Type.GetType("TheDynamicParameters+ParamInfo,Dapper");
                 var pp = paramInfoType.GetProperty("Value");
                 Dictionary<string, object> ls = new Dictionary<string, object>();
                 foreach (DictionaryEntry i in di)
@@ -225,45 +232,24 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 throw;
             }
         }
-
-        public static async Task<SqlMapper.GridReader> QueryMultipleAsync(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        #region ReadGrid
+        public static IEnumerable<T> ReadGrid<T>(this IDataReader reader)
         {
-            var guid = DiagnosticExtension.Write(sql, param, cnn);
-            try
-            {
-                var result = await Dapper.SqlMapper.QueryMultipleAsync(cnn, sql, param, transaction, commandTimeout, commandType);
-                DiagnosticExtension.WriteAfter(guid);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                DiagnosticExtension.WriteError(guid, ex);
-                throw;
-            }
+            var parser = GetRowParser<T>(reader);
+            while (reader.Read())
+                yield return parser(reader);
         }
-
-        public static SqlMapper.GridReader QueryMultiple(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
-        {
-            var guid = DiagnosticExtension.Write(sql, param, cnn);
-            try
-            {
-                var result = Dapper.SqlMapper.QueryMultiple(cnn, sql, param, transaction, commandTimeout, commandType);
-                DiagnosticExtension.WriteAfter(guid);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                DiagnosticExtension.WriteError(guid, ex);
-                throw;
-            }
-        }
-
+        #endregion
         public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             var guid = DiagnosticExtension.Write(sql, param, cnn);
             try
             {
-                var result = await Dapper.SqlMapper.QueryAsync<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+                IEnumerable<T> result;
+                if (UseLocalParser)
+                    result = (await cnn.ExecuteReaderAsync(sql, param, transaction, commandTimeout, commandType)).ReadGrid<T>();
+                else
+                    result = await Dapper.SqlMapper.QueryAsync<T>(cnn, sql, param, transaction, commandTimeout, commandType);
                 DiagnosticExtension.WriteAfter(guid);
                 return result;
             }
@@ -279,7 +265,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             var guid = DiagnosticExtension.Write(sql, param, cnn);
             try
             {
-                var result = Dapper.SqlMapper.Query<T>(cnn, sql, param, transaction, buffered, commandTimeout, commandType);
+                IEnumerable<T> result;
+                if (UseLocalParser)
+                    result = cnn.ExecuteReader(sql, param, transaction, commandTimeout, commandType).ReadGrid<T>();
+                else
+                    result = Dapper.SqlMapper.Query<T>(cnn, sql, param, transaction, buffered, commandTimeout, commandType);
                 DiagnosticExtension.WriteAfter(guid);
                 return result;
             }
@@ -288,6 +278,16 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 DiagnosticExtension.WriteError(guid, ex);
                 throw;
             }
+        }
+
+        public static Func<IDataReader, T> GetRowParser<T>(this IDataReader reader)
+        {
+            Func<IDataReader, T> result;
+            if (UseLocalParser)
+                result = TypeConvert.GetSerializer<T>(TypeMapper, reader);
+            else
+                result = Dapper.SqlMapper.GetRowParser<T>(reader);
+            return result;
         }
     }
 }

@@ -12,6 +12,7 @@ using xLiAd.DapperEx.MsSql.Core.Model;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using System.Threading.Tasks;
+using xLiAd.DapperEx.MsSql.Core.Core;
 
 namespace xLiAd.DapperEx.Repository
 {
@@ -19,7 +20,7 @@ namespace xLiAd.DapperEx.Repository
     /// 仓储基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class RepositoryBase<T>
+    public abstract class RepositoryBase<T> : IRepository<T>
     {
         /// <summary>
         /// 数据库连接
@@ -82,6 +83,19 @@ namespace xLiAd.DapperEx.Repository
         {
             DbTransaction = _tran;
         }
+        /// <summary>
+        /// 初始化仓储
+        /// </summary>
+        /// <param name="connectionHolder"></param>
+        /// <param name="repoXmlProvider"></param>
+        /// <param name="exceptionHandler"></param>
+        /// <param name="throws"></param>
+        public RepositoryBase(IConnectionHolder connectionHolder, RepoXmlProvider repoXmlProvider = null, MsSql.Core.Core.DapperExExceptionHandler exceptionHandler = null, bool throws = true)
+            : this(connectionHolder.Connection, repoXmlProvider, exceptionHandler, throws)
+        {
+            ConnectionHolder = connectionHolder;
+        }
+
         private ISql Sql { get; set; }
         private void DoSetSql()
         {
@@ -104,7 +118,7 @@ namespace xLiAd.DapperEx.Repository
         /// <summary>
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public Dapper.DynamicParameters Params { get; private set; }
+        public TheDynamicParameters Params { get; private set; }
         /// <summary>
         /// 刚刚执行过的语句使用的参数的字符串形式（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
@@ -136,10 +150,26 @@ namespace xLiAd.DapperEx.Repository
                 return cs;
             }
         }
+        private IDbTransaction dbTransaction;
         /// <summary>
         /// 事务对象
         /// </summary>
-        protected virtual IDbTransaction DbTransaction { get; }
+        protected virtual IDbTransaction DbTransaction
+        {
+            get
+            {
+                return ConnectionHolder == null ? dbTransaction : ConnectionHolder.Transaction;
+            }
+            private set
+            {
+                dbTransaction = value;
+            }
+        }
+        /// <summary>
+        /// 为切片事务功能而做的一个事务延迟决定器。
+        /// </summary>
+        protected virtual IConnectionHolder ConnectionHolder { get; } = null;
+
         /// <summary>
         /// 使用这个 CommandSet 方法的方法，不和 RepositoryTrans 使用同一事务对象
         /// </summary>
@@ -202,6 +232,28 @@ namespace xLiAd.DapperEx.Repository
             DoSetSql();
             return rst;
         }
+        /// <summary>
+        /// 根据条件获取数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        public async Task<List<T>> WhereDistinctAsync(Expression<Func<T, bool>> predicate)
+        {
+            var rst = await QuerySet.Where(predicate).Distinct().ToListAsync();
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 根据条件获取数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        public List<T> WhereDistinct(Expression<Func<T, bool>> predicate)
+        {
+            var rst = QuerySet.Where(predicate).Distinct().ToList();
+            DoSetSql();
+            return rst;
+        }
         #endregion
         #region Where
         /// <summary>
@@ -225,6 +277,30 @@ namespace xLiAd.DapperEx.Repository
         public List<T> Where(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd)
         {
             var rst = QuerySet.Where(predicate).ToList(efdbd);
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 只获取指定字段
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="efdbd"></param>
+        /// <returns></returns>
+        public async Task<List<T>> WhereDistinctAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd)
+        {
+            var rst = await QuerySet.Where(predicate).Distinct().ToListAsync(efdbd);
+            DoSetSql();
+            return rst;
+        }
+        /// <summary>
+        /// 只获取指定字段
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="efdbd"></param>
+        /// <returns></returns>
+        public List<T> WhereDistinct(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd)
+        {
+            var rst = QuerySet.Where(predicate).Distinct().ToList(efdbd);
             DoSetSql();
             return rst;
         }
@@ -254,6 +330,35 @@ namespace xLiAd.DapperEx.Repository
         public List<TResult> WhereSelect<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
         {
             var qs = QuerySet.Where(predicate).Select(selector);
+            var rst = qs.ToList();
+            DoSetSql(qs);
+            return rst;
+        }
+
+        /// <summary>
+        /// 根据条件获取数据并投影。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="selector">投影表达式</param>
+        /// <returns></returns>
+        public async Task<List<TResult>> WhereSelectDistinctAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
+        {
+            var qs = QuerySet.Where(predicate).Select(selector).Distinct();
+            var rst = await qs.ToListAsync();
+            DoSetSql(qs);
+            return rst;
+        }
+        /// <summary>
+        /// 根据条件获取数据并投影。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="selector">投影表达式</param>
+        /// <returns></returns>
+        public List<TResult> WhereSelectDistinct<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
+        {
+            var qs = QuerySet.Where(predicate).Select(selector).Distinct();
             var rst = qs.ToList();
             DoSetSql(qs);
             return rst;
@@ -320,6 +425,23 @@ namespace xLiAd.DapperEx.Repository
         }
         #endregion
         #region WhereOrderSelect
+        private Query<TResult> BuildWhereOrderSelectQuery<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top, bool desc, bool distinct = false)
+        {
+            var qs = QuerySet.Where(predicate);
+            Order<T> q;
+            if (desc)
+                q = qs.OrderByDescing(order);
+            else
+                q = qs.OrderBy(order);
+            Query<TResult> qst;
+            if (top > 0)
+                qst = q.Top(top).Select(selector);
+            else
+                qst = q.Select(selector);
+            if (distinct)
+                qst = qst.Distinct();
+            return qst;
+        }
         /// <summary>
         /// 根据条件排序查询 并投影
         /// </summary>
@@ -329,15 +451,11 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="order">排序字段</param>
         /// <param name="selector">投影表达式</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
         /// <returns></returns>
-        public async Task<List<TResult>> WhereOrderSelectAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0)
+        public async Task<List<TResult>> WhereOrderSelectAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false)
         {
-            var q = QuerySet.Where(predicate).OrderBy(order);
-            Query<TResult> qst;
-            if (top > 0)
-                qst = q.Top(top).Select(selector);
-            else
-                qst = q.Select(selector);
+            var qst = BuildWhereOrderSelectQuery(predicate, order, selector, top, desc);
             var rst = await qst.ToListAsync();
             DoSetSql(qst);
             return rst;
@@ -351,15 +469,47 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="order">排序字段</param>
         /// <param name="selector">投影表达式</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
         /// <returns></returns>
-        public List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0)
+        public List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false)
         {
-            var q = QuerySet.Where(predicate).OrderBy(order);
-            Query<TResult> qst;
-            if (top > 0)
-                qst = q.Top(top).Select(selector);
-            else
-                qst = q.Select(selector);
+            var qst = BuildWhereOrderSelectQuery(predicate, order, selector, top, desc);
+            var rst = qst.ToList();
+            DoSetSql(qst);
+            return rst;
+        }
+        /// <summary>
+        /// 根据条件排序去重查询 并投影
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="order">排序字段</param>
+        /// <param name="selector">投影表达式</param>
+        /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
+        /// <returns></returns>
+        public async Task<List<TResult>> WhereOrderSelectDistinctAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false)
+        {
+            var qst = BuildWhereOrderSelectQuery(predicate, order, selector, top, desc, true);
+            var rst = await qst.ToListAsync();
+            DoSetSql(qst);
+            return rst;
+        }
+        /// <summary>
+        /// 根据条件排序去重查询 并投影
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="order">排序字段</param>
+        /// <param name="selector">投影表达式</param>
+        /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
+        /// <returns></returns>
+        public List<TResult> WhereOrderSelectDistinct<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false)
+        {
+            var qst = BuildWhereOrderSelectQuery(predicate, order, selector, top, desc, true);
             var rst = qst.ToList();
             DoSetSql(qst);
             return rst;
@@ -1014,13 +1164,13 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="sqlToReplace"></param>
         /// <param name="sqlReplaced"></param>
         /// <returns></returns>
-        private Dapper.DynamicParameters ConvertDicToParam(Dictionary<string, string> dic, string sqlToReplace, out string sqlReplaced)
+        private TheDynamicParameters ConvertDicToParam(Dictionary<string, string> dic, string sqlToReplace, out string sqlReplaced)
         {
             sqlReplaced = sqlToReplace;
-            Dapper.DynamicParameters param = null;
+            TheDynamicParameters param = null;
             if (dic != null && dic.Count > 0)
             {
-                param = new Dapper.DynamicParameters();
+                param = new TheDynamicParameters();
                 foreach (var d in dic)
                 {
                     param.Add($"@{d.Key}", d.Value);
@@ -1084,7 +1234,7 @@ namespace xLiAd.DapperEx.Repository
         #endregion
         #region GetScalar
         /// <summary>
-        /// 执行查询 返回第一条结果
+        /// 执行查询 返回第一条结果的第一个列
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
@@ -1092,12 +1242,12 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual async Task<TResult> GetScalarAsync<TResult>(string sql, Dictionary<string, string> dic = null)
         {
-            Dapper.DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            TheDynamicParameters param = ConvertDicToParam(dic, null, out string _);
             var result = await con.ExecuteScalarAsync<TResult>(sql, param, transaction: DbTransaction);
             return result;
         }
         /// <summary>
-        /// 执行查询 返回第一条结果
+        /// 执行查询 返回第一条结果的第一个列
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="sql"></param>
@@ -1105,7 +1255,7 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         public virtual TResult GetScalar<TResult>(string sql, Dictionary<string, string> dic = null)
         {
-            Dapper.DynamicParameters param = ConvertDicToParam(dic, null, out string _);
+            TheDynamicParameters param = ConvertDicToParam(dic, null, out string _);
             var result = con.ExecuteScalar<TResult>(sql, param, transaction: DbTransaction);
             return result;
         }
@@ -1185,7 +1335,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            TheDynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return await ExecuteSqlAsync(sql, dic);
         }
         /// <summary>
@@ -1199,7 +1349,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            TheDynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return ExecuteSql(sql, dic);
         }
         #endregion
@@ -1216,7 +1366,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            TheDynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return await QueryBySqlAsync<TResult>(sql, dic);
         }
         /// <summary>
@@ -1231,7 +1381,7 @@ namespace xLiAd.DapperEx.Repository
             XmlSqlModel xsm = CheckXml(id, out string msg);
             if (xsm == null)
                 throw new Exception(msg);
-            Dapper.DynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
+            TheDynamicParameters param = ConvertDicToParam(dic, xsm.Sql, out string sql);
             return QueryBySql<TResult>(sql, dic);
         }
         #endregion

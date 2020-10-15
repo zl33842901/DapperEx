@@ -43,6 +43,18 @@ namespace xLiAd.DapperEx.Repository
         /// <returns></returns>
         Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate);
         /// <summary>
+        /// 根据条件获取数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        Task<List<T>> WhereDistinctAsync(Expression<Func<T, bool>> predicate);
+        /// <summary>
+        /// 根据条件获取数据
+        /// </summary>
+        /// <param name="predicate">条件表达式</param>
+        /// <returns></returns>
+        List<T> WhereDistinct(Expression<Func<T, bool>> predicate);
+        /// <summary>
         /// 只获取指定字段
         /// </summary>
         /// <param name="predicate"></param>
@@ -56,6 +68,20 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="efdbd"></param>
         /// <returns></returns>
         Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd);
+        /// <summary>
+        /// 只获取指定字段
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="efdbd"></param>
+        /// <returns></returns>
+        Task<List<T>> WhereDistinctAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd);
+        /// <summary>
+        /// 只获取指定字段
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="efdbd"></param>
+        /// <returns></returns>
+        List<T> WhereDistinct(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] efdbd);
         /// <summary>
         /// 根据条件获取数据并投影。
         /// </summary>
@@ -72,6 +98,22 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="selector">投影表达式</param>
         /// <returns></returns>
         Task<List<TResult>> WhereSelectAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
+        /// <summary>
+        /// 根据条件获取数据并投影。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="selector">投影表达式</param>
+        /// <returns></returns>
+        Task<List<TResult>> WhereSelectDistinctAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
+        /// <summary>
+        /// 根据条件获取数据并投影。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="selector">投影表达式</param>
+        /// <returns></returns>
+        List<TResult> WhereSelectDistinct<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
         /// <summary>
         /// 根据条件排序查询
         /// </summary>
@@ -101,8 +143,9 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="order">排序字段</param>
         /// <param name="selector">投影表达式</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
         /// <returns></returns>
-        List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0);
+        List<TResult> WhereOrderSelect<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false);
         /// <summary>
         /// 根据条件排序查询 并投影
         /// </summary>
@@ -112,8 +155,33 @@ namespace xLiAd.DapperEx.Repository
         /// <param name="order">排序字段</param>
         /// <param name="selector">投影表达式</param>
         /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
         /// <returns></returns>
-        Task<List<TResult>> WhereOrderSelectAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0);
+        Task<List<TResult>> WhereOrderSelectAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false);
+        /// <summary>
+        /// 根据条件排序去重查询 并投影
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="order">排序字段</param>
+        /// <param name="selector">投影表达式</param>
+        /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
+        /// <returns></returns>
+        Task<List<TResult>> WhereOrderSelectDistinctAsync<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false);
+        /// <summary>
+        /// 根据条件排序去重查询 并投影
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate">条件表达式</param>
+        /// <param name="order">排序字段</param>
+        /// <param name="selector">投影表达式</param>
+        /// <param name="top">取前 top 条，为0时取全部，默认为0.</param>
+        /// <param name="desc">是否倒序</param>
+        /// <returns></returns>
+        List<TResult> WhereOrderSelectDistinct<TKey, TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TKey>> order, Expression<Func<T, TResult>> selector, int top = 0, bool desc = false);
         /// <summary>
         /// 单条数据插入  请在标识属性上加 Identity 特性
         /// </summary>

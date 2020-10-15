@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
@@ -24,7 +23,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         public string SqlCmd => _sqlCmd.Length > 0 ? $" {(appendWhere ? "WHERE" : string.Empty)} {_sqlCmd} " : "";
 
-        public DynamicParameters Param { get; }
+        public TheDynamicParameters Param { get; }
 
         private string _tempFileName;
 
@@ -59,7 +58,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public WhereExpression(LambdaExpression expression, string prefix, ISqlDialect dialect, bool appendWhere, bool asFieldAny)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new TheDynamicParameters();
             _prefix = prefix;
             Dialect = dialect;
             this.appendWhere = appendWhere;

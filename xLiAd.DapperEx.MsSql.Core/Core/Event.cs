@@ -1,5 +1,4 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +10,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Core
     public class DapperExEventArgs : EventArgs
     {
         public string Sql { get; }
-        public DynamicParameters Params { get; }
+        public TheDynamicParameters Params { get; }
         public string ExtMessage { get; }
-        public DapperExEventArgs(string sql, DynamicParameters param, string extMessage) : base()
+        public DapperExEventArgs(string sql, TheDynamicParameters param, string extMessage) : base()
         {
             Sql = sql;
             Params = param;

@@ -21,6 +21,16 @@ namespace xLiad.DapperEx.Repository.TestFramework
             var rst = repository.Where(x => ida.Contains(x.DictID));
             Assert.AreEqual(2, rst.Count);
         }
+
+        [TestMethod]
+        public void TestWhereAsync()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var ida = new List<int>() { 106071, 106072 };
+            var rst = repository.WhereAsync(x => ida.Contains(x.DictID)).Result;
+            Assert.AreEqual(2, rst.Count);
+        }
+
         [TestMethod]
         public void TestWhere2()
         {

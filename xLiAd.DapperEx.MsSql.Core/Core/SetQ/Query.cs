@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-//using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
@@ -33,7 +32,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         /// <summary>
         /// 刚刚执行过的语句使用的参数（注：由于单例模式时会发生线程问题，本属性只作为调试用，不应该在程序里引用。）
         /// </summary>
-        public Dapper.DynamicParameters Params { get; private set; }
+        public TheDynamicParameters Params { get; private set; }
         protected void SetSql()
         {
             if (SqlProvider.SqlString != null)
@@ -43,6 +42,15 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
 
         protected DataBaseContext<T> SetContext { get; set; }
+        /// <summary>
+        /// 是否 Distinct
+        /// </summary>
+        public bool IsDistinct { get; protected set; }
+        public Query<T> Distinct()
+        {
+            this.IsDistinct = true;
+            return this;
+        }
         /// <summary>
         /// 新建一个查询器
         /// </summary>
@@ -132,14 +140,9 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         #endregion
         protected virtual Type GetSourceType() { return typeof(T); }
         #region PageListItems
-        protected virtual async Task<List<T>> PageListItemsAsync(Dapper.SqlMapper.GridReader gridReader)
+        protected virtual List<T> PageListItems(IDataReader reader)
         {
-            var result = await gridReader.ReadAsync<T>();
-            return result.ToList();
-        }
-        protected virtual List<T> PageListItems(Dapper.SqlMapper.GridReader gridReader)
-        {
-            var result = gridReader.Read<T>();
+            var result = reader.ReadGrid<T>();
             return result.ToList();
         }
         #endregion
@@ -159,11 +162,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                         pageTotal = Reader.GetInt32(0);
                     }
                     Reader.NextResult();
-                    var Parser = Dapper.SqlMapper.GetRowParser(Reader, typeof(T));
+                    var Parser = Reader.GetRowParser<T>();
                     List<T> lrst = new List<T>();
                     while (Reader.Read())
                     {
-                        object rst = Parser(Reader);
+                        T rst = Parser(Reader);
                         foreach (var p in ps)
                         {
                             var col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
@@ -171,7 +174,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                             var pv = Deserializer(s, p.PropertyType);
                             p.SetValue(rst, pv);
                         }
-                        lrst.Add((T)rst);
+                        lrst.Add(rst);
                     }
                     Reader.Close();
         
@@ -179,14 +182,16 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                 }
                 else
                 {
-                    using (var queryResult = await DbCon.QueryMultipleAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+                    var Reader = await DbCon.ExecuteReaderAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+                    var pageTotal = 0;
+                    if (Reader.Read())
                     {
-                        var pageTotal = queryResult.ReadFirst<int>();
-
-                        var itemList = await PageListItemsAsync(queryResult);
-
-                        return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
+                        pageTotal = Reader.GetInt32(0);
                     }
+                    Reader.NextResult();
+                    var result = PageListItems(Reader);
+                    Reader.Close();
+                    return new PageList<T>(pageIndex, pageSize, pageTotal, result);
                 }
             }
             catch (Exception e)
@@ -214,11 +219,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                         pageTotal = Reader.GetInt32(0);
                     }
                     Reader.NextResult();
-                    var Parser = Dapper.SqlMapper.GetRowParser(Reader, typeof(T));
+                    var Parser = Reader.GetRowParser<T>();
                     List<T> lrst = new List<T>();
                     while (Reader.Read())
                     {
-                        object rst = Parser(Reader);
+                        T rst = Parser(Reader);
                         foreach (var p in ps)
                         {
                             var col = Reader.GetOrdinal($"{p.Name}{ResolveExpression.JsonColumnNameSuffix}");
@@ -226,21 +231,23 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                             var pv = Deserializer(s, p.PropertyType);
                             p.SetValue(rst, pv);
                         }
-                        lrst.Add((T)rst);
+                        lrst.Add(rst);
                     }
                     Reader.Close();
                     return new PageList<T>(pageIndex, pageSize, pageTotal, lrst);
                 }
                 else
                 {
-                    using (var queryResult = DbCon.QueryMultiple(SqlProvider.SqlString, SqlProvider.Params, DbTransaction))
+                    var Reader = DbCon.ExecuteReader(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
+                    var pageTotal = 0;
+                    if (Reader.Read())
                     {
-                        var pageTotal = queryResult.ReadFirst<int>();
-
-                        var itemList = PageListItems(queryResult);
-
-                        return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
+                        pageTotal = Reader.GetInt32(0);
                     }
+                    Reader.NextResult();
+                    var result = PageListItems(Reader);
+                    Reader.Close();
+                    return new PageList<T>(pageIndex, pageSize, pageTotal, result);
                 }
             }
             catch (Exception e)
@@ -272,18 +279,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         #endregion
         #region QueryDatabase
-        protected async Task<IEnumerable<TRst>> QueryDatabaseAsync<TRst>(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction, int count = 0)
+        protected async Task<IEnumerable<TRst>> QueryDatabaseAsync<TRst>(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction, int count = 0)
         {
             var ps = typeof(TRst).GetJsonColumnProperty();
             if (ps.Length > 0 && HasSerializer)
             {
                 var Reader = await DbCon.ExecuteReaderAsync(sqlString, param, dbTransaction);
-                var Parser = Dapper.SqlMapper.GetRowParser(Reader, typeof(TRst));
+                var Parser = Reader.GetRowParser<TRst>();
                 List<TRst> lrst = new List<TRst>();
                 int i = 0;
                 while (Reader.Read())
                 {
-                    object rst = Parser(Reader);
+                    TRst rst = Parser(Reader);
                     foreach (var p in ps)
                     {
                         int col;
@@ -302,7 +309,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                         var pv = Deserializer(s, p.PropertyType);
                         p.SetValue(rst, pv);
                     }
-                    lrst.Add((TRst)rst);
+                    lrst.Add(rst);
                     if (++i >= count && count > 0)
                         break;
                 }
@@ -312,18 +319,18 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             else
                 return await DbCon.QueryAsync<TRst>(sqlString, param, dbTransaction);
         }
-        protected IEnumerable<TRst> QueryDatabase<TRst>(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction, int count = 0)
+        protected IEnumerable<TRst> QueryDatabase<TRst>(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction, int count = 0)
         {
             var ps = typeof(TRst).GetJsonColumnProperty();
             if (ps.Length > 0 && HasSerializer)
             {
                 var Reader = DbCon.ExecuteReader(sqlString, param, dbTransaction);
-                var Parser = Dapper.SqlMapper.GetRowParser(Reader, typeof(TRst));
+                var Parser = Reader.GetRowParser<TRst>();
                 List<TRst> lrst = new List<TRst>();
                 int i = 0;
                 while (Reader.Read())
                 {
-                    object rst = Parser(Reader);
+                    TRst rst = Parser(Reader);
                     foreach (var p in ps)
                     {
                         int col;
@@ -342,7 +349,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                         var pv = Deserializer(s, p.PropertyType);
                         p.SetValue(rst, pv);
                     }
-                    lrst.Add((TRst)rst);
+                    lrst.Add(rst);
                     if (++i >= count && count > 0)
                         break;
                 }
@@ -354,7 +361,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         #endregion
         #region QueryWithException
-        private async Task<IEnumerable<T>> QueryWithExceptionAsync(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction)
+        private async Task<IEnumerable<T>> QueryWithExceptionAsync(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
@@ -369,7 +376,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return new List<T>();
             }
         }
-        private IEnumerable<T> QueryWithException(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction)
+        private IEnumerable<T> QueryWithException(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
@@ -386,7 +393,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         }
         #endregion
         #region QueryFirst
-        private async Task<T> QueryFirstAsync(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction)
+        private async Task<T> QueryFirstAsync(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
@@ -401,7 +408,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
                     return default(T);
             }
         }
-        private T QueryFirst(string sqlString, Dapper.DynamicParameters param, IDbTransaction dbTransaction)
+        private T QueryFirst(string sqlString, TheDynamicParameters param, IDbTransaction dbTransaction)
         {
             try
             {
@@ -417,7 +424,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
             }
         }
         #endregion
-        protected void CallEvent(string sqlString, Dapper.DynamicParameters param, string message)
+        protected void CallEvent(string sqlString, TheDynamicParameters param, string message)
         {
             try
             {

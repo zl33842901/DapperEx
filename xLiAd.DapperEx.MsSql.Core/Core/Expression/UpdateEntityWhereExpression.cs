@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
 using xLiAd.DapperEx.MsSql.Core.Helper;
@@ -20,7 +19,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         public string SqlCmd => _sqlCmd.Length > 0 ? $" WHERE {_sqlCmd} " : "";
 
-        public DynamicParameters Param { get; }
+        public TheDynamicParameters Param { get; }
 
         private readonly object _obj;
 
@@ -38,7 +37,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public UpdateEntityWhereExpression(object obj, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new TheDynamicParameters();
             _obj = obj;
             Dialect = dialect;
         }

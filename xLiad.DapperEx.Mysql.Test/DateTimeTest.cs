@@ -3,6 +3,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using xLiAd.DapperEx.Repository;
 using xLiAd.DapperEx.RepositoryMysql;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace xLiad.DapperEx.Mysql.Test
 {
     public class DateTimeTest
     {
-        string conn = "server=172.16.101.40;User Id=root;password=cig@2017;Database=dapperExTest;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True";
+        string conn = "server=localhost;User Id=root;password=123.abc;Database=zhanglei;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True";
         RepositoryMysql<DictInfo> RepoDict => new RepositoryMysql<DictInfo>(conn);
         RepositoryMysql<TestStamp> repoStamp => new RepositoryMysql<TestStamp>(conn);
         RepositoryMysql<TestTimeStamp> repoTimeStamp => new RepositoryMysql<TestTimeStamp>(conn);
@@ -18,18 +19,19 @@ namespace xLiad.DapperEx.Mysql.Test
         [Fact]
         public void TestInsert()
         {
-            var repository = repoTimeStamp;
-            //Add 方法，当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
-            var rst = repository.Add(new TestTimeStamp()
-            {
-                Name = "哈哈哈",
-                CreateTime = DateTime.Now
-            });
-            rst += repository.Add(new TestTimeStamp()
-            {
-                Name = "嘿嘿",
-                CreateTime = DateTime.MinValue
-            });
+            //var repository = repoTimeStamp;
+            ////Add 方法，当类有标识字段(Identity特性)时，返回标识ID；否则返回影响行数
+            //var rst = repository.Add(new TestTimeStamp()
+            //{
+            //    Name = "哈哈哈",
+            //    CreateTime = DateTime.Now
+            //});
+            //rst += repository.Add(new TestTimeStamp()
+            //{
+            //    Name = "嘿嘿",
+            //    CreateTime = DateTime.MinValue
+            //});
+            var rst = 0;
             var repo2 = repoTimeStamp2;
             rst += repo2.Add(new TestTimeStamp2()
             {
@@ -56,8 +58,9 @@ namespace xLiad.DapperEx.Mysql.Test
         [Fact]
         public void TestQuery2()
         {
-            SqlMapper.AddTypeHandler(DateTimeHandler.Default);
+            //SqlMapper.AddTypeHandler(DateTimeHandler.Default);
             var repository = repoTimeStamp2;
+            Repository.UseLocalParser = true;
             var list = repository.All();
             Assert.NotEmpty(list);
         }

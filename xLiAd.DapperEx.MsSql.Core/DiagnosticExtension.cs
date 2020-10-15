@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using Dapper;
 using System.Data;
 
 namespace xLiAd.DapperEx.MsSql.Core

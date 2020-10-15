@@ -23,7 +23,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             Visit(field);
         }
         public string WhereClause { get; }
-        public Dapper.DynamicParameters WhereParam { get; }
+        public TheDynamicParameters WhereParam { get; }
         public string ListFieldName { get; private set; }
         protected override System.Linq.Expressions.Expression VisitMember(MemberExpression node)
         {
@@ -36,7 +36,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
     public interface IFieldAnyExpression
     {
         string WhereClause { get; }
-        Dapper.DynamicParameters WhereParam { get; }
+        TheDynamicParameters WhereParam { get; }
         string ListFieldName { get; }
     }
 }

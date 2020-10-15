@@ -8,7 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Dapper;
+using xLiAd.DapperEx.MsSql.Core.Core;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Core.Expression;
 using xLiAd.DapperEx.MsSql.Core.Core.Interfaces;
@@ -24,17 +24,17 @@ namespace xLiAd.DapperEx.MsSql.Core
         internal readonly ISqlDialect Dialect;
         public SqlProvider(ISqlDialect dialect = null)
         {
-            Params = new DynamicParameters();
+            Params = new TheDynamicParameters();
             Dialect = dialect ?? new SqlServerDialect();
         }
 
         public string SqlString { get; private set; }
 
-        public DynamicParameters Params { get; private set; }
+        public TheDynamicParameters Params { get; private set; }
 
         private SqlProvider<T> FormatGetDo(IWhereExpression whereParams, IFieldAnyExpression fieldAnyExpression)
         {
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, false);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T).GetPropertiesInDb(true), Context.QuerySet.SelectExpression, 1, Context.QuerySet.IsDistinct);
 
             var fromTableSql = FormatTableName();
 
@@ -75,9 +75,9 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             string selectSql;
             if (selector == null)
-                selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
+                selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, Context.QuerySet.IsDistinct, Context.QuerySet.SelectExpression);
             else
-                selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, false, selector);
+                selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(typeof(T), Context.QuerySet.TopNum, Context.QuerySet.IsDistinct, selector);
 
             var fromTableSql = FormatTableName();
 
@@ -131,7 +131,7 @@ namespace xLiAd.DapperEx.MsSql.Core
         //}
         public SqlProvider<T> FormatToListZhanglei(Type type, IFieldAnyExpression fieldAnyExpression = null)
         {
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, false, Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, Context.QuerySet.TopNum, Context.QuerySet.IsDistinct, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 
@@ -166,7 +166,7 @@ namespace xLiAd.DapperEx.MsSql.Core
             if (string.IsNullOrEmpty(orderbySql))
                 throw new Exception("分页查询需要排序条件");
 
-            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, pageSize, false, Context.QuerySet.SelectExpression);
+            var selectSql = ResolveExpression.Instance(Dialect).ResolveSelect(type, pageSize, Context.QuerySet.IsDistinct, Context.QuerySet.SelectExpression);
 
             var fromTableSql = FormatTableName();
 

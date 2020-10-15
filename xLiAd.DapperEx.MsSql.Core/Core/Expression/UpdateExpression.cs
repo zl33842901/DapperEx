@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Dapper;
 using xLiAd.DapperEx.MsSql.Core.Core.Dialect;
 using xLiAd.DapperEx.MsSql.Core.Helper;
 
@@ -22,7 +21,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         /// </summary>
         public string SqlCmd => _sqlCmd.Length > 0 ? $" SET {_sqlCmd} " : "";
 
-        public DynamicParameters Param { get; }
+        public TheDynamicParameters Param { get; }
 
         #endregion
         readonly ISqlDialect Dialect;
@@ -37,7 +36,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
         public UpdateExpression(LambdaExpression expression, ISqlDialect dialect)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new TheDynamicParameters();
             Dialect = dialect;
             Visit(expression);
         }
