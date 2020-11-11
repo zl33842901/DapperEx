@@ -91,3 +91,5 @@
 /packages
 /xLiad.DapperEx.Repository.TestFramework/bin/Debug
 /xLiad.DapperEx.Repository.TestFramework/obj/Debug
+/xLiad.DapperEx.TestofRecord/obj
+/xLiad.DapperEx.TestofRecord/bin/Debug/net5.0
