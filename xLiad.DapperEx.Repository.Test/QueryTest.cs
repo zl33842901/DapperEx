@@ -31,6 +31,14 @@ namespace xLiad.DapperEx.Repository.Test
             Assert.Equal(2, rst.Count);
         }
         [Fact]
+        public void TestFind()
+        {
+            xLiAd.DapperEx.Repository.Repository.UseLocalParser = true;
+            var repository = new Repository<DictInfo>(Conn);
+            var rst = repository.Find(106071);
+            var rst1 = repository.Find(106072);
+        }
+        [Fact]
         public void TestCount()
         {
             var repository = new Repository<DictInfo>(Conn);

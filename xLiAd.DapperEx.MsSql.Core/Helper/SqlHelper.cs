@@ -247,7 +247,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             {
                 IEnumerable<T> result;
                 if (UseLocalParser)
-                    result = (await cnn.ExecuteReaderAsync(sql, param, transaction, commandTimeout, commandType)).ReadGrid<T>();
+                {
+                    var reader = await cnn.ExecuteReaderAsync(sql, param, transaction, commandTimeout, commandType);
+                    result = reader.ReadGrid<T>().ToList();
+                    reader.Close();
+                }
                 else
                     result = await Dapper.SqlMapper.QueryAsync<T>(cnn, sql, param, transaction, commandTimeout, commandType);
                 DiagnosticExtension.WriteAfter(guid);
@@ -267,7 +271,11 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             {
                 IEnumerable<T> result;
                 if (UseLocalParser)
-                    result = cnn.ExecuteReader(sql, param, transaction, commandTimeout, commandType).ReadGrid<T>();
+                {
+                    var reader = cnn.ExecuteReader(sql, param, transaction, commandTimeout, commandType);
+                    result = reader.ReadGrid<T>().ToList();
+                    reader.Close();
+                }
                 else
                     result = Dapper.SqlMapper.Query<T>(cnn, sql, param, transaction, buffered, commandTimeout, commandType);
                 DiagnosticExtension.WriteAfter(guid);
