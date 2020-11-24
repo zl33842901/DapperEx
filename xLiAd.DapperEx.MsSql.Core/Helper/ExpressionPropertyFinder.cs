@@ -11,11 +11,16 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
     public class ExpressionPropertyFinder : ExpressionVisitor
     {
         private List<System.Reflection.MemberInfo> Lsrmi = new List<System.Reflection.MemberInfo>();
-        private Type @Type;
+        private List<Type> Types;
         public IEnumerable<System.Reflection.MemberInfo> MemberList => Lsrmi;
         public ExpressionPropertyFinder(LambdaExpression @Lambda, Type type)
         {
-            @Type = type;
+            Types = new List<Type>();
+            while(type != typeof(object) && type != null)
+            {
+                Types.Add(type);
+                type = type.BaseType;
+            }
             Visit(@Lambda);
         }
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -65,7 +70,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
         }
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (node.Member.DeclaringType == @Type)
+            if (Types.Contains(node.Member.DeclaringType))
                 Lsrmi.Add(node.Member);
             return node;
         }
