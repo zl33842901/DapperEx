@@ -360,7 +360,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
 
         private void In(MethodCallExpression node)
         {
-            if(node.Object != null) { 
+            if(node.Object != null) { //List是这种情况
                 var arrayValue = (IList)((ConstantExpression)node.Object).Value;
                 if (arrayValue.Count == 0)
                 {
@@ -373,17 +373,34 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
             }
             else
             {
-                if(node.Arguments.Count == 2 && typeof(IList).IsAssignableFrom(node.Arguments[0].Type))
+                if(node.Arguments.Count == 2)
                 {
                     var arg0 = node.Arguments[0];
                     var arg1 = node.Arguments[1];
                     //正常情况下，应该是 arg0 是常数，包含某列里的对象。但是JSONB列的情况特殊。
                     if(arg0.NodeType == ExpressionType.Constant)
                     {
+                        var enumerableValue = (IEnumerable)((ConstantExpression)arg0).Value;
+                        IList arrayValue;
+                        if (typeof(IList).IsAssignableFrom(arg0.Type))
+                        {
+                            arrayValue = (IList)((ConstantExpression)arg0).Value;
+                        }
+                        else
+                        {
+                            var mtd = typeof(System.Linq.Enumerable).GetMethod("ToArray", BindingFlags.Static | BindingFlags.Public);
+                            mtd = mtd.MakeGenericMethod(arg0.Type.GenericTypeArguments[0]);
+                            arrayValue = (IList)mtd.Invoke(null, new object[] { enumerableValue });
+                        }
+                        
+                        if (arrayValue.Count == 0)
+                        {
+                            _sqlCmd.Append(" 1 = 2");
+                            return;
+                        }
                         Visit(arg1);
                         _sqlCmd.AppendFormat(" IN ");
-                        var o = (IList)((ConstantExpression)arg0).Value;
-                        InDo(TempFileName, o);
+                        InDo(TempFileName, arrayValue);
                     }
                     else
                     {

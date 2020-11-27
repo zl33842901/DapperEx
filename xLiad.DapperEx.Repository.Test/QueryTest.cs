@@ -30,6 +30,26 @@ namespace xLiad.DapperEx.Repository.Test
             var rst = repository.Where(x => ida.Contains(x.DictID));
             Assert.Equal(2, rst.Count);
         }
+
+        [Fact]
+        public void TestWhereContains()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var ida = new int[] { };
+            var rst = repository.Where(x => ida.Contains(x.DictID));
+            Assert.Empty(rst);
+        }
+
+        [Fact]
+        public void TestWhereIEnumerable()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var ida = new int[] { 1, 2, 3, 106071, 106072 };
+            var ids = ida.Where(x => x > 2);
+            var rst = repository.Where(x => ids.Contains(x.DictID));
+            Assert.NotEmpty(rst);
+        }
+
         [Fact]
         public void TestFind()
         {
