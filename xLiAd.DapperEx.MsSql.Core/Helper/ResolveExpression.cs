@@ -161,7 +161,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             StringBuilder sb = new StringBuilder();
             if (distinctAndChgName)
             {
-                sb.Append(Dialect.ParseColumnName(x.Name + GetJsonColumnNameSuffixIf(x)));
+                sb.Append(Dialect.ParseColumnName(x.GetColumnAttributeName(Dialect) + GetJsonColumnNameSuffixIf(x)));
             }
             else
             {
