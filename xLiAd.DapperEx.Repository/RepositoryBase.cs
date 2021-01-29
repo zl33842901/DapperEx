@@ -104,7 +104,7 @@ namespace xLiAd.DapperEx.Repository
             if (this.Sql?.Params != null)
                 this.Params = this.Sql?.Params;
         }
-        private void DoSetSql(ISql sql)
+        protected void DoSetSql(ISql sql)
         {
             if (sql.SqlString != null)
                 this.SqlString = sql.SqlString;

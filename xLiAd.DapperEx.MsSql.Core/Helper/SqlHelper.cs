@@ -87,8 +87,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
             try
             {
                 var p = typeof(DynamicParameters).GetField("parameters", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var di = p.GetValue(parameters) as IDictionary;// Dictionary<string, TheDynamicParameters.ParamInfo>;
-                Type paramInfoType = Type.GetType("TheDynamicParameters+ParamInfo,Dapper");
+                var di = p.GetValue(parameters) as IDictionary;// Dictionary<string, Dapper.DynamicParameters.ParamInfo>;
+                Type paramInfoType = Type.GetType("Dapper.DynamicParameters+ParamInfo,Dapper");
                 var pp = paramInfoType.GetProperty("Value");
                 Dictionary<string, object> ls = new Dictionary<string, object>();
                 foreach (DictionaryEntry i in di)
