@@ -21,6 +21,15 @@ namespace xLiad.DapperEx.Mysql.Test
             var rst = rep.Where(x => ida.Contains(x.DictID));
             Assert.Equal(2, rst.Count);
         }
+        [Fact]
+        public void QueryBid()
+        {
+            string cn = "server=172.16.101.113;User Id=root;password=abc,123;Database=smartbid;CharSet=utf8;";
+            var bidSuptbankRepository = new RepositoryMysql<BidSuptbank>(cn);
+            var id = 4;
+            var res = bidSuptbankRepository.UpdateWhere(x => x.id == id, x => x.is_deleted, 1); //is_deleted 和 1 类型不一样时，之前是报错的。
+        }
+
 
 
         [Fact]

@@ -80,4 +80,103 @@ namespace xLiad.DapperEx.Mysql.Test
         public string Name { get; set; }
         public DateTime? CreateTime { get; set; }
     }
+
+
+
+
+    [Table("bid_suptbank")]
+    public class BidSuptbank
+    {
+        #region 字段
+        /// <summary>
+        /// 自增字段
+        /// </summary>
+        [Identity, Key]
+        public int id { get; set; }
+        /// <summary>
+        /// 银行名称
+        /// </summary>
+        public string bank_name { get; set; }
+        /// <summary>
+        /// 公司名称
+        /// </summary>
+        public string bank_corpname { get; set; }
+        /// <summary>
+        /// 银行账号
+        /// </summary>
+        public string bank_accno { get; set; }
+        /// <summary>
+        /// 开户行信息
+        /// </summary>
+        public string bank_deposit { get; set; }
+        /// <summary>
+        /// 机构简称
+        /// </summary>
+        public string bank_insshort { get; set; }
+        /// <summary>
+        /// 开户行代码
+        /// </summary>
+        public string bank_depositcode { get; set; }
+        /// <summary>
+        /// 开户行地址
+        /// </summary>
+        public string bank_depositaddr { get; set; }
+        /// <summary>
+        /// 同城交换号
+        /// </summary>
+        public string bank_localsno { get; set; }
+        /// <summary>
+        /// 全国联行号
+        /// </summary>
+        public string bank_nationlno { get; set; }
+        /// <summary>
+        /// 银行联行号
+        /// </summary>
+        public string bank_bankIno { get; set; }
+        /// <summary>
+        /// 银行代码
+        /// </summary>
+        public string bank_no { get; set; }
+        /// <summary>
+        /// 流水号
+        /// </summary>
+        public string bank_detailno { get; set; }
+        /// <summary>
+        /// 账户类型
+        /// </summary>
+        public string bank_accounttype { get; set; }
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string bank_remark { get; set; }
+        /// <summary>
+        /// 进度信息
+        /// </summary>
+        public string bank_audprogress { get; set; }
+        /// <summary>
+        /// 最新申请人
+        /// </summary>
+        public string bank_proposer { get; set; }
+        /// <summary>
+        /// 最新申请时间
+        /// </summary>
+        public DateTime bank_aptime { get; set; }
+        /// <summary>
+        /// 最新更新时间
+        /// </summary>
+        public DateTime bank_uptime { get; set; }
+        /// <summary>
+        /// 最新状态
+        /// </summary>
+        public string state { get; set; }
+        /// <summary>
+        /// 删除标志
+        /// </summary>
+        public byte is_deleted { get; set; }
+        /// <summary>
+        /// 是否设置当前银行信息为竞标申请默认选项。默认0否
+        /// </summary>
+        public byte bank_default { get; set; }
+        #endregion
+    }
 }

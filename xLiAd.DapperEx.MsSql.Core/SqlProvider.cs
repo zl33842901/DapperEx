@@ -437,7 +437,11 @@ namespace xLiAd.DapperEx.MsSql.Core
         {
             MemberExpression m = expression.Body as MemberExpression;
             if (m == null)
-                throw new FieldAccessException("Field Not Found");
+            {
+                var mbs = new ExpressionPropertyFinder(expression, typeof(T)).MemberList;
+                if (!mbs.Any())
+                    throw new FieldAccessException($"未在更新表达式中找到类型 {typeof(T).Name} 的任何字段");
+            }
 
             var update = ResolveExpression.Instance(Dialect).ResolveUpdateZhanglei<T>(expression , value);
 
