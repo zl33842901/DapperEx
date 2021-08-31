@@ -197,6 +197,13 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.Expression
                 }
                 SetParam(TempFileName, vv);
             }
+            else if(node.NodeType == ExpressionType.Equal && node.Right.NodeType == ExpressionType.Constant && node.Left.NodeType == ExpressionType.Call && ((ConstantExpression)node.Right).Value is bool && (bool)((ConstantExpression)node.Right).Value == false)
+            {
+                //此段专为解决 !xx.Contains(x.pro) 这种
+                _sqlCmd.Append("(NOT ");
+                Visit(node.Left);
+                _sqlCmd.Append(")");
+            }
             else
             {
                 _sqlCmd.Append("(");

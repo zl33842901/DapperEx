@@ -7,7 +7,7 @@
     <Description>一个轻量级的基于dapper的Oracle仓储类</Description>
     <Copyright>Copyright © zhanglei 2019</Copyright>
     <PackageProjectUrl>https://github.com/zl33842901/DapperEx</PackageProjectUrl>
-    <Version>2.1.8</Version>
+    <Version>2.1.9</Version>
   </PropertyGroup>
 
   <ItemGroup>

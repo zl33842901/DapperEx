@@ -32,6 +32,15 @@ namespace xLiad.DapperEx.Repository.Test
         }
 
         [Fact]
+        public void TestWhereNotContains()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var ida = new List<int>() { 106071, 106072 };
+            var rst = repository.Where(x => !ida.Contains(x.DictID));
+            Assert.NotEqual(0, rst.Count);
+        }
+
+        [Fact]
         public void TestWhereContains()
         {
             var repository = new Repository<DictInfo>(Conn);
