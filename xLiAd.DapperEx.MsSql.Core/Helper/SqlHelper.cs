@@ -248,7 +248,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 IEnumerable<T> result;
                 if (UseLocalParser)
                 {
-                    var reader = await cnn.ExecuteReaderAsync(sql, param, transaction, commandTimeout, commandType);
+                    var reader = //await cnn.ExecuteReaderAsync(sql, param, transaction, commandTimeout, commandType);
+                    await Dapper.SqlMapper.ExecuteReaderAsync(cnn, sql, param, transaction, commandTimeout, commandType);
                     result = reader.ReadGrid<T>().ToList();
                     reader.Close();
                 }
@@ -272,7 +273,8 @@ namespace xLiAd.DapperEx.MsSql.Core.Helper
                 IEnumerable<T> result;
                 if (UseLocalParser)
                 {
-                    var reader = cnn.ExecuteReader(sql, param, transaction, commandTimeout, commandType);
+                    var reader = //cnn.ExecuteReader(sql, param, transaction, commandTimeout, commandType);//用这句 日志有重复性问题
+                    Dapper.SqlMapper.ExecuteReader(cnn, sql, param, transaction, commandTimeout, commandType);
                     result = reader.ReadGrid<T>().ToList();
                     reader.Close();
                 }
