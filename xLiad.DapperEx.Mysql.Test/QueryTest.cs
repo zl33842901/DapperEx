@@ -30,6 +30,13 @@ namespace xLiad.DapperEx.Mysql.Test
             var res = bidSuptbankRepository.UpdateWhere(x => x.id == id, x => x.is_deleted, 1); //is_deleted 和 1 类型不一样时，之前是报错的。
         }
 
+        [Fact]
+        public void QueryBid2()
+        {
+            string cn = "server=172.16.101.113;User Id=root;password=abc,123;Database=smartbid;CharSet=utf8;";
+            var bidSuptbankRepository = new RepositoryMysql<BidSuptbank>(cn);
+            var res = bidSuptbankRepository.Where(x => x.bank_default == false);
+        }
 
 
         [Fact]

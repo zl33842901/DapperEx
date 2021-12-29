@@ -176,7 +176,7 @@ namespace xLiad.DapperEx.Mysql.Test
         /// <summary>
         /// 是否设置当前银行信息为竞标申请默认选项。默认0否
         /// </summary>
-        public byte bank_default { get; set; }
+        public bool bank_default { get; set; }
         #endregion
     }
 }

@@ -223,6 +223,13 @@ namespace xLiad.DapperEx.Repository.Test
             var ll2 = repository.WhereSelect(x => x.DictName.Contains("哈哈") && x.Deleted, x => new { x.DictName, x.DictID }).ToDictionary(x => x.DictID, x => x.DictName);
         }
         [Fact]
+        public void TestWhereBoolean()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var rst = repository.Where(x => x.Deleted == true);
+        }
+
+        [Fact]
         public void TestWhereOrderSelect()
         {
             var repository = new Repository<DictInfo>(Conn);

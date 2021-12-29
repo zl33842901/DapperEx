@@ -78,3 +78,17 @@ repository.PageList(x => x.Id > 2, x => x.Id, 1, 10, true);
 
 // And so on ...
 ```
+
+### 历史记录：
+
+2.2.0 解决日志重复的问题；
+2.1.9 解决 !xxx.Contains(x.pro) 的问题；
+2.1.8 解决 updatewhere 时 参数类型不一致时的问题；
+2.1.7 修改了参数调试时不显示的BUG，把SetSql方法开放给子类使用；
+2.1.5 解决 distinct 时的一个 bug；
+2.1.4 支持 IEnumerable 类型参数和此类型参数的空值；
+2.1.3 支持父类中定义的属性；
+2.1.2 某些情况下 reader 没有关闭的 bug 修复；
+2.1.1 DiagnosticLog 加开关，并测试了 record 的表现；
+2.1.0 加了几个 Distinct 方法，增加了事务延迟决定的机制，增加了本地模型转换器(Respository.UseLocalParser 不使用Dapper的)；
+2.0.0 DiagnosticLog 改造为标准的开始、成功、异常三种日志。
