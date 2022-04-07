@@ -22,7 +22,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatCount();
             SetSql();
-            var result = await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params);
+            var result = await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
 
             return result;
         }
@@ -30,7 +30,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatCount();
             SetSql();
-            var result = DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params);
+            var result = DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
 
             return result;
         }
@@ -40,7 +40,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatSum(sumExpression);
             SetSql();
-            var result = await DbCon.QuerySingleAsync<TResult>(SqlProvider.SqlString, SqlProvider.Params);
+            var result = await DbCon.QuerySingleAsync<TResult>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
 
             return result;
         }
@@ -48,7 +48,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatSum(sumExpression);
             SetSql();
-            var result = DbCon.QuerySingle<TResult>(SqlProvider.SqlString, SqlProvider.Params);
+            var result = DbCon.QuerySingle<TResult>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction);
 
             return result;
         }
@@ -58,7 +58,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatExists();
             SetSql();
-            var result = await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
+            var result = await DbCon.QuerySingleAsync<int>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction) == 1;
 
             return result;
         }
@@ -66,7 +66,7 @@ namespace xLiAd.DapperEx.MsSql.Core.Core.SetQ
         {
             SqlProvider.FormatExists();
             SetSql();
-            var result = DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params) == 1;
+            var result = DbCon.QuerySingle<int>(SqlProvider.SqlString, SqlProvider.Params, DbTransaction) == 1;
 
             return result;
         }
