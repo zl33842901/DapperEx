@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Repository.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.TestofRecord", "xLiad.DapperEx.TestofRecord\xLiad.DapperEx.TestofRecord.csproj", "{FA5697CF-07DE-4B4C-B90D-8990157AE748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLiad.DapperEx.Core.Test", "xLiad.DapperEx.Core.Test\xLiad.DapperEx.Core.Test.csproj", "{7645F5DD-8A04-4A80-9BAB-A5A331EE02F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xLiad.DapperEx.Core.Test", "xLiad.DapperEx.Core.Test\xLiad.DapperEx.Core.Test.csproj", "{7645F5DD-8A04-4A80-9BAB-A5A331EE02F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

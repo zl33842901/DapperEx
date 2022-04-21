@@ -1180,6 +1180,22 @@ namespace xLiAd.DapperEx.Repository
             }
             return param;
         }
+        private TheDynamicParameters ConvertDicToParam(IEnumerable<SqlParameter> pars, string sqlToReplace, out string sqlReplaced)
+        {
+            sqlReplaced = sqlToReplace;
+            TheDynamicParameters param = null;
+            if (pars != null && pars.Count() > 0)
+            {
+                param = new TheDynamicParameters();
+                foreach (var d in pars)
+                {
+                    param.Add($"@{d.ParameterName}", d.Value);
+                    if (!string.IsNullOrWhiteSpace(sqlToReplace))
+                        sqlReplaced = sqlReplaced.Replace($"#{{{d.ParameterName}}}", $"@{d.ParameterName}");
+                }
+            }
+            return param;
+        }
         #region ExecuteSql
         /// <summary>
         /// 执行SQL语句
@@ -1192,6 +1208,8 @@ namespace xLiAd.DapperEx.Repository
         {
             if(param is Dictionary<string, string> dic)
                 param = ConvertDicToParam(dic, null, out string _);
+            else if (param is IEnumerable<SqlParameter> paramPar)
+                param = ConvertDicToParam(paramPar, null, out string _);
             var result = await con.ExecuteAsync(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
             return result;
         }
@@ -1206,6 +1224,8 @@ namespace xLiAd.DapperEx.Repository
         {
             if (param is Dictionary<string, string> dic)
                 param = ConvertDicToParam(dic, null, out string _);
+            else if (param is IEnumerable<SqlParameter> paramPar)
+                param = ConvertDicToParam(paramPar, null, out string _);
             var result = con.Execute(sql, param, commandType: cmdType, transaction: DbTransaction) > 0;
             return result;
         }
@@ -1275,6 +1295,10 @@ namespace xLiAd.DapperEx.Repository
             {
                 param = ConvertDicToParam(paramDic, null, out string _);
             }
+            else if(param is IEnumerable<SqlParameter> paramPar)
+            {
+                param = ConvertDicToParam(paramPar, null, out string _);
+            }
             var result = await con.QueryAsync<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
             return result;
         }
@@ -1291,6 +1315,10 @@ namespace xLiAd.DapperEx.Repository
             if (param is Dictionary<string, string> paramDic)
             {
                 param = ConvertDicToParam(paramDic, null, out string _);
+            }
+            else if (param is IEnumerable<SqlParameter> paramPar)
+            {
+                param = ConvertDicToParam(paramPar, null, out string _);
             }
             var result = con.Query<TResult>(sql, param, commandType: cmdType, transaction: DbTransaction);
             return result;

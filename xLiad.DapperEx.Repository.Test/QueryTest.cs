@@ -21,7 +21,7 @@ namespace xLiad.DapperEx.Repository.Test
     /// </summary>
     public class QueryTest
     {
-        private SqlConnection Conn => new SqlConnection("Data Source=127.0.0.1;Initial Catalog=zhanglei;Persist Security Info=True;User ID=sa;Password=zhanglei");
+        private SqlConnection Conn => new SqlConnection("Data Source=172.16.101.112;Initial Catalog=Year2019SelectSeat;Persist Security Info=True;User ID=sa;Password=");
         [Fact]
         public void TestWhere()
         {
@@ -300,6 +300,16 @@ namespace xLiad.DapperEx.Repository.Test
                 else
                     Assert.True(false);
             }
+        }
+        [Fact]
+        public void TestQueryBySqlParam()
+        {
+            var repository = new Repository<DictInfo>(Conn);
+            var sql = "select * from ExceptPerson where PersonId=@pi";
+            SqlParameter[] parameters = {
+                    new SqlParameter("@pi", System.Data.SqlDbType.VarChar,50)           };
+            parameters[0].Value = "0004";
+            var restult = repository.QueryBySql<dynamic>(sql, parameters);
         }
     }
 }
